@@ -142,6 +142,7 @@
     <ClCompile Include="Shaders\ShaderClass.cpp" />
     <ClCompile Include="Shaders\VBO.cpp" />
     <ClCompile Include="Shaders\VAO.cpp" />
+    <ClCompile Include="Surface.cpp" />
     <ClCompile Include="Trophy.cpp" />
     <ClCompile Include="Wall.cpp" />
   </ItemGroup>
@@ -924,6 +925,7 @@
     <ClInclude Include="Shaders\ShaderClass.h" />
     <ClInclude Include="Shaders\VBO.h" />
     <ClInclude Include="Shaders\VAO.h" />
+    <ClInclude Include="Surface.h" />
     <ClInclude Include="Trophy.h" />
     <ClInclude Include="Wall.h" />
   </ItemGroup>

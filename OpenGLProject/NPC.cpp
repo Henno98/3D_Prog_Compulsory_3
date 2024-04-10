@@ -17,6 +17,7 @@ GLuint NPCIndices[]
 NPC::NPC()
 {
 	Color = glm::vec3(1, 0, 1);
+	glm::mat4 Matrix(1.f);
 }
 
 
@@ -108,7 +109,7 @@ std::vector<NPCVertex> NPC::Movement(glm::vec3 pos1, glm::vec3 pos2, glm::vec3 p
 	
 	for (float x = 0; x < 5; x++)
 	{
-		float z = (SolutionMatrix(0, 0) * pow(x, 3)) + (SolutionMatrix(1, 0) * pow(x, 2)) + (SolutionMatrix(2, 0) * SolutionMatrix(3, 0);
+		float z = (SolutionMatrix(0, 0) * pow(x, 3)) + (SolutionMatrix(1, 0) * pow(x, 2)) + (SolutionMatrix(2, 0) * SolutionMatrix(3, 0));
 		std::cout << "for X value: " << x << " Y value is: " << z << std::endl;
 
 

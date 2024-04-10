@@ -153,47 +153,19 @@ int main()
 		//Cube
 		cube.CreateCube(glm::vec3(-0.1f * MovementX, 0, -0.1f * MovementZ), glm::vec3(0.2f,0.2f,0.2f), 0.f);
 
-		cube2.CreateCube(glm::vec3(1, 0, 1), glm::vec3(1, 0.5f, 1),0);
-		walls.CreateHouse(glm::vec3(-2,0,-2),glm::vec3(2,1,2));
+	
 		npc.CreateNPC(glm::vec3(0, 0, 0), glm::vec3(0.5f, .5f, .5f));
 		
 		vector<NPCVertex> Movementinfo = npc.Movement(vec3(2, 0, -2), vec3(1, 0, 0), vec3(-3, 0, 1), vec3(0, 0, 3));
 		//Trophy
-		trophy.CreateTrophy(vec3(1, 0, -2), vec3(0.2f, .2f, .2f));
-		
-		trophy2.CreateTrophy(vec3(1, 0, -1), vec3(0.2f, .2f, .2f));
-		
-		trophy3.CreateTrophy(vec3(1, 0, 0), vec3(0.2f, .2f, .2f));
-		
-		trophy4.CreateTrophy(vec3(-1, 0, 1), vec3(0.2f, .2f, .2f));
+
 		
 		trophy5.CreateTrophy(vec3(-1, 0, 2), vec3(0.2f, .2f, .2f));
 		
 		trophy6.CreateTrophy(vec3(-1, 0, 3), vec3(0.2f, .2f, .2f));
 		
 
-		//DrawCoordinateSystem(verticesCoordinate);
-
-		//floor
-	//	walls.CreateYWall(glm::vec3(-10, 0, -10),glm::vec3( 20,20, 20), glm::vec3(0, 0.8f, 0.2f), glm::vec3(0, 0.2f, 0));
-
-		//Door
-		//DrawSquare(XOrientation(doorPosition, doorWidth, doorHeight, DoorColor, DoorColor1));
-	//	walls.CreateXWall(glm::vec3(doorPosition.x + doorMove.x, doorPosition.y + doorMove.y, doorPosition.z + doorMove.z),glm::vec3(doorWidth, doorHeight, 1), DoorColor, DoorColor1);
-
-		//House around door
-		//walls.CreateXWall(glm::vec3(doorPosition.x + doorWidth, doorPosition.y, doorPosition.z), glm::vec3(houseWidth / 2, houseHeight,0.1f), WallColor, WallColor1);
-	//	walls.CreateXWall(glm::vec3(doorPosition.x - (houseWidth / 2) , doorPosition.y, doorPosition.z), glm::vec3(houseWidth / 2, houseHeight, 1), WallColor, WallColor1);
-
-		//walls.CreateZWall(glm::vec3(doorPosition.x - (houseWidth / 2), doorPosition.y, doorPosition.z - houseWidth), glm::vec3(1, houseHeight, houseWidth), WallColor, WallColor1);
-		//walls.CreateZWall(glm::vec3(doorPosition.x + (houseWidth / 2) + doorWidth, doorPosition.y, doorPosition.z - houseWidth), glm::vec3(1, houseHeight, houseWidth), WallColor, WallColor);
-
-		//walls.CreateXWall(glm::vec3(doorPosition.x - (houseWidth / 2), doorPosition.y, doorPosition.z - houseWidth), glm::vec3(houseWidth + doorWidth, houseHeight, 1), WallColor, WallColor1);
-		//walls.CreateXWall(glm::vec3(doorPosition.x, doorPosition.y + doorHeight, doorPosition.z), glm::vec3(doorWidth, houseHeight - doorHeight, 1), WallColor, WallColor1);
-
-		//Roof
-		//walls.CreateYWall(glm::vec3(doorPosition.x - (houseWidth / 2), doorPosition.y + houseHeight, doorPosition.z - houseWidth), glm::vec3(houseWidth + doorWidth, 1,houseWidth), WallColor, WallColor1);
-
+	
 		float Degree;
 		if (cube.AABB.TestAABBAABB(cube2.AABB) || cube.AABB.TestAABBAABB(walls.AABB) || cube.AABB.TestAABBAABB(npc.NPCBox) || cube.AABB.TestAABBAABB(trophy.AABB))
 		{
@@ -214,30 +186,8 @@ int main()
 		}
 		
 		//Trophy collision (pickups)
-		if (cube.AABB.TestAABBAABB(trophy.AABB))
-		{
-			trophy.DestroyTrophy();
-			cube.collectedtrophies += 1;
-
-		}
-		else if (cube.AABB.TestAABBAABB(trophy2.AABB))
-		{
-			trophy2.DestroyTrophy();
-			cube.collectedtrophies += 1;
-		}
-		else if (cube.AABB.TestAABBAABB(trophy3.AABB))
-		{
-			
-			trophy3.DestroyTrophy();
-			cube.collectedtrophies += 1;
-		}
-		else if (cube.AABB.TestAABBAABB(trophy4.AABB))
-		{
-			trophy4.DestroyTrophy();
-			cube.collectedtrophies += 1;
-
-		}
-		else if (cube.AABB.TestAABBAABB(trophy5.AABB))
+	
+		if (cube.AABB.TestAABBAABB(trophy5.AABB))
 		{
 			trophy5.DestroyTrophy();
 			cube.collectedtrophies += 1;
