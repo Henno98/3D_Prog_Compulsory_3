@@ -22,7 +22,9 @@ class Wall
 {
 public:
 	Wall();
-
+	float doorheight;
+	float doorWidth;
+	glm::vec3 doorPosition;
 	glm::vec3 WallColor;
 	glm::vec3 WallColor1 ;
 	glm::vec3 DoorColor;

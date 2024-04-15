@@ -36,5 +36,7 @@ public:
 	void Matrix(float FOVdeg, float nearPlane, float farPlane, Shader& shader, const char* uniform);
 	// Handles camera inputs
 	void Inputs(GLFWwindow* window);
+
+	void UpdateCamera(glm::vec3 newposition, glm::vec3 neworientation);
 };
 #endif

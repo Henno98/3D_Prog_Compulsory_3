@@ -57,9 +57,6 @@
     <ClCompile Include="Trophy.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Surface.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Dependencies\libs\glfw3.dll" />
@@ -2320,9 +2317,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Trophy.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Surface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

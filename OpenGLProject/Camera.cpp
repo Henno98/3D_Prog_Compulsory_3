@@ -26,7 +26,7 @@ void Camera::Matrix(float FOVdeg, float nearPlane, float farPlane, Shader& shade
 
 void Camera::Inputs(GLFWwindow* window)
 {
-	 //Handles key inputs
+	//// Handles key inputs
 	//if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) //W, Move forward
 	//{
 	//	Position += speed * Orientation;
@@ -108,4 +108,11 @@ void Camera::Inputs(GLFWwindow* window)
 		// Makes sure the next time the camera looks around it doesn't jump
 		firstClick = true;
 	}
+}
+
+void Camera::UpdateCamera(glm::vec3 newposition, glm::vec3 neworientation)
+{
+
+	Position = newposition;
+	Orientation = neworientation;
 }

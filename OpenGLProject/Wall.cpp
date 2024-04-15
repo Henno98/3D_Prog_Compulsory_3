@@ -62,7 +62,6 @@ void Wall::CreateXWall(glm::vec3 position, glm::vec3 offset, glm::vec3 Color0, g
 void Wall::CreateYWall(glm::vec3 position, glm::vec3 offset, glm::vec3 Color0, glm::vec3 Color1)
 {
 	std::vector<WallVertex> points;
-
 	points.push_back(WallVertex{ position.x,position.y,position.z ,Color0.x,Color0.y,Color0.z });
 	points.push_back(WallVertex{ position.x ,position.y,position.z + offset.z ,Color1.x,Color1.y,Color1.z });
 	points.push_back(WallVertex{ position.x + offset.x,position.y,position.z,Color1.x,Color1.y,Color1.z });
@@ -86,11 +85,11 @@ void Wall::CreateZWall(glm::vec3 position, glm::vec3 offset, glm::vec3 Color0, g
 void Wall::CreateHouse(glm::vec3 position, glm::vec3 offset)
 {
 	// Define the dimensions of the door
-	float doorWidth = 0.4f; // Width of the door
+	doorWidth = 0.4f; // Width of the door
 	float doorHeight = 0.6f; // Height of the door
 
 	// Define the position of the door
-	glm::vec3 doorPosition =glm::vec3( position.x + doorWidth,position.y,position.z);
+	doorPosition =glm::vec3( position.x + doorWidth,position.y,position.z);
 
 	// Define the dimensions of the house
 	float houseWidth = doorWidth * 5; // Width of the house
@@ -107,7 +106,7 @@ void Wall::CreateHouse(glm::vec3 position, glm::vec3 offset)
 
 		//Door
 	
-	CreateXWall(glm::vec3(doorPosition.x , doorPosition.y , doorPosition.z ),glm::vec3(doorWidth, doorHeight, 1), DoorColor, DoorColor1);
+	//CreateXWall(glm::vec3(doorPosition.x , doorPosition.y , doorPosition.z ),glm::vec3(doorWidth, doorHeight, 1), DoorColor, DoorColor1);
 
 		//House around door
 	CreateXWall(glm::vec3(doorPosition.x + doorWidth, doorPosition.y, doorPosition.z), glm::vec3(houseWidth / 2, houseHeight, 0.1f), WallColor, WallColor1);
@@ -121,7 +120,7 @@ void Wall::CreateHouse(glm::vec3 position, glm::vec3 offset)
 	//Roof
 	CreateYWall(glm::vec3(doorPosition.x - (houseWidth / 2), doorPosition.y + houseHeight, doorPosition.z - houseWidth), glm::vec3(houseWidth + doorWidth, 1,houseWidth), WallColor, WallColor1);
 
-	AABB.Position = glm::vec3(position.x,position.y,position.z );
+	AABB.Position = position + glm::vec3(0.6,0,position.z /2);
 	AABB.Extent = glm::vec3(offset.x/2,offset.y/2,offset.z/2);
 }
 
