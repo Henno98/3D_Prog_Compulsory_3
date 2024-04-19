@@ -24,7 +24,7 @@ public:
 	BoundingBox AABB;
 	int collectedtrophies;
 	Cube();
-	void DrawCube(std::vector<CubeVertex> points, Shader& shader, const char* uniform);
+	void DrawCube(glm::vec3 scale, glm::vec3 color, Shader& shader, const char* uniform);
 	void CreateCube(glm::vec3 position, glm::vec3 scale, Shader& shader, const char* uniform);
 };
 

@@ -15,28 +15,44 @@ Cube::Cube()
 	collectedtrophies = 0;
 };
 
-void Cube::DrawCube(std::vector<CubeVertex> points, Shader& shader, const char* uniform)
+void Cube::DrawCube(glm::vec3 scale, glm::vec3 color, Shader& shader, const char* uniform)
 {
+
+	GLfloat Matrice[] =
+	{
+		scale.x,scale.y,scale.z, color.x,color.y,color.z,
+		scale.x,-scale.y,scale.z, color.x,color.y,color.z,
+		scale.x,-scale.y,-scale.z, color.x,color.y,color.z,
+		scale.x,scale.y,-scale.z, color.x,color.y,color.z,
+
+		-scale.x,scale.y,scale.z, color.x,color.y,color.z,
+		-scale.x,-scale.y,scale.z, color.x,color.y,color.z,
+		-scale.x,-scale.y,-scale.z, color.x,color.y,color.z,
+		-scale.x,scale.y,-scale.z, color.x,color.y,color.z,
+
+		
+
+	};
 
 	unsigned int CubeIndices[] =
 	{
 		0,1,2,  // Front face
-		3,1,2,
+		0,3,2,
 
-		7,5,4,  // Back face
-		6,4,5,
+		7,4,5,  // Back face
+		7,5,6,
 
-		4,2,6,  // Top face
-		3,6,2,
+		0,3,4,  // Top face
+		4,3,7,
 
-		7,0,5, // Bottom face
-		1,5,0,
+		1,2,5, // Bottom face
+		6,2,5,
 
-		2,7,0, // Left face
-		2,4,7,
+		7,3,2, // Left face
+		7,2,6,
 
-		5,3,1,  // Right face
-		5,3,6
+		0,4,5,  // Right face
+		0,5,1
 	};
 
 
@@ -45,7 +61,7 @@ void Cube::DrawCube(std::vector<CubeVertex> points, Shader& shader, const char* 
 	VAO CubeVAO;
 	CubeVAO.Bind();
 
-	VBO CubeVBO(reinterpret_cast<GLfloat*>(points.data()), static_cast<GLsizeiptr>(points.size() * sizeof(CubeVertex)));
+	VBO CubeVBO(Matrice,sizeof(Matrice));
 	CubeVBO.Bind();
 
 	EBO CubeEBO(CubeIndices, sizeof(CubeIndices));
@@ -74,36 +90,7 @@ void Cube::DrawCube(std::vector<CubeVertex> points, Shader& shader, const char* 
 void Cube::CreateCube(glm::vec3 position, glm::vec3 scale, Shader& shader, const char* uniform)
 {
 
-	glm::vec3 Position = position;
-	glm::mat4 Matrix;
-	GLfloat Matrice[]=
-	{
-		 position.x, position.y, position.z, 0,0,0,
-		 position.x + scale.x, position.y, position.z ,0,0,0,
-		position.x, position.y + scale.y, position.z ,0,0,0,
-		 position.x + scale.x, position.y + scale.y ,0,0,0,
-		 position.x, position.y + scale.y, position.z ,0,0,0,
-		 position.x + scale.x, position.y, position.z ,0,0,0,
-		 position.x + scale.x, position.y + scale.y ,0,0,0,
-		 position.x, position.y, position.z + scale.z ,0,0,0
-	};
-
-	std::vector<CubeVertex> Cubepoints;
-	Cubepoints.push_back(CubeVertex{ position.x, position.y, position.z,1,1,0 });
-	Cubepoints.push_back(CubeVertex{ position.x + scale.x, position.y, position.z,1,0,1 });
-	Cubepoints.push_back(CubeVertex{ position.x, position.y + scale.y, position.z,1,0,0 });
-	Cubepoints.push_back(CubeVertex{ position.x + scale.x, position.y + scale.y, position.z,1,0,1 });
-
-	Cubepoints.push_back(CubeVertex{ position.x, position.y + scale.y, position.z + scale.z,1,0,0.5f });
-	Cubepoints.push_back(CubeVertex{ position.x + scale.x, position.y, position.z + scale.z,0.5f,0.2f,0 });
-	Cubepoints.push_back(CubeVertex{ position.x + scale.x, position.y + scale.y, position.z + scale.z,1,0,1 });
-	Cubepoints.push_back(CubeVertex{ position.x, position.y, position.z + scale.z,1,0.3f,0.4f });
-
 	
-
-	AABB.Position = CubeMatrix[3] ;
-	AABB.Extent = glm::vec3(scale.x/2,scale.y/2,scale.z/2) ;
-	DrawCube(Cubepoints,shader,uniform);
 
 };
 

@@ -31,28 +31,13 @@ using namespace glm;
 const unsigned int width = 1800;
 const unsigned int height = 1800;
 
-GLfloat Doorvertices[] =
-{	//extent
-	//0.4, 0.6, 0
-	//original position
-	0.f, 0.f, 0.f,0,0,0,
-	-0.4f,0.f,0.f,1,1,1,
-	-0.4f,0.6f,0.f,0,0,0,
-	0.f,0.6f,0.f,1,1,1,
 
-};
-GLuint doorindices[] =
-{
-	0,1,2,
-	0,2,3
-
-};
 struct Planevertex
 {
 
 	GLfloat x,y,z;
 	float r, g, b;
-	//vec3 position = vec3(x, y, z);
+	
 	
 
 };
@@ -68,30 +53,54 @@ float curveplane(float x, float y)
 
 	return cos(x)+ sin(y);
 }
-//vec3 barycentricCoordinates(const vec3& p1, const vec3& p2, const vec3& p3,const vec3& p4)
-//{
-//	vec3 p12 = p2 - p1;
-//	vec3 p13 = p3 - p1;
-//	vec3 n =p12 * p13;
-//	float areal_123 = n.length(); // dobbelt areal
-//	vec3 baryc; // til retur. Husk
-//	// u
-//	vec3 p = p2 - p4;
-//	vec3 q = p3 - p4;
-//	n = p * q;
-//	baryc.x = n.z / areal_123;
-//	// v
-//	p = p3 - p4;
-//	q = p1 - p4;
-//	n = p ^ q;
-//	baryc.y = n.z / areal_123;
-//	// w
-//	p = p1 - p4;
-//	q = p2 - p4;
-//	n = p ^ q;
-//	baryc.z = n.z / areal_123;
-//	return baryc;
-//}
+vec3 barycentricCoordinatesForQuad(const vec2& p1, const vec2& p2, const vec2& p3, const vec2& p4, const vec2& point)
+{
+	// Calculate area of the two triangles formed by the quad
+	float areaTotal = abs((p1.x - p3.x) * (p2.y - p4.y) - (p2.x - p4.x) * (p1.y - p3.y));
+
+	// Calculate barycentric coordinates for each triangle
+	float alpha1 = abs((point.x - p3.x) * (p2.y - p4.y) - (p2.x - p4.x) * (point.y - p3.y)) / areaTotal;
+	float beta1 = abs((point.x - p2.x) * (p3.y - p1.y) - (p3.x - p1.x) * (point.y - p2.y)) / areaTotal;
+
+	// Calculate barycentric coordinates for the other triangle
+	float alpha2 = abs((point.x - p1.x) * (p4.y - p2.y) - (p4.x - p2.x) * (point.y - p1.y)) / areaTotal;
+	float beta2 = abs((point.x - p4.x) * (p1.y - p3.y) - (p1.x - p3.x) * (point.y - p4.y)) / areaTotal;
+
+	// Use the barycentric coordinates of the triangle with the point inside it
+	if (alpha1 + beta1 <= 1.0)
+		return vec3(alpha1, beta1, 1.0f - alpha1 - beta1);
+	else
+		return vec3(alpha2, beta2, 1.0f - alpha2 - beta2);
+}
+vec3 barycentricCoordinates(const vec2& p1, const vec2& p2, const vec2& p3, const vec2& p4)
+{
+	vec2 p12 = p2 - p1;
+	vec2 p13 = p3 - p1;
+	float areal_123 = abs(p12.x * p13.y - p12.y * p13.x); // double the area
+
+	vec3 baryc; // for return
+
+	// u
+	vec2 p = p2 - p4;
+	vec2 q = p3 - p4;
+	float nu = abs(p.x * q.y - p.y * q.x); // double the area of p4pq
+	baryc.x = nu / areal_123;
+
+	// v
+	p = p3 - p4;
+	q = p1 - p4;
+	float nv = abs(p.x * q.y - p.y * q.x); // double the area of p4pq
+	baryc.y = nv / areal_123;
+
+	// w
+	p = p1 - p4;
+	q = p2 - p4;
+	float nw = abs(p.x * q.y - p.y * q.x); // double the area of p4pq
+	baryc.z = nw / areal_123;
+	
+		return baryc;
+	
+}
 
 int main()
 {
@@ -120,112 +129,54 @@ int main()
 	// Specify the viewport of OpenGL in the Window
 	glViewport(0, 0, width, height);
 
-	
-	
 
 	// Generates Shader object using shaders defualt.vert and default.frag
 	Shader shaderProgram("default.vert", "default.frag");
 
-	//// Define the dimensions of the door
-	//float doorWidth = 0.4f; // Width of the door
-	//float doorHeight = 0.6f; // Height of the door
-
-	//// Define the position of the door
-	glm::vec3 doorPosition = glm::vec3(-2.0f, 0.0f, -1.0f);
-
-	//// Define the dimensions of the house
-	//float houseWidth = doorWidth * 5; // Width of the house
-	//float houseHeight = doorHeight + doorHeight / 1; // Height of the house
-
-	//	//Colors
-	//glm::vec3 WallColor = glm::vec3(0.2f, 0.3f, 0.2f);
-	//glm::vec3 WallColor1 = glm::vec3(0.2f, 0.31f, 0.2f);
-	//glm::vec3 DoorColor = glm::vec3(0.6f, 0.3f, 0.1f);
-	//glm::vec3 DoorColor1 = glm::vec3(0.61f, 0.31f, 0.11f);
-
 	Cube cube;
-	Cube cube2;
-	Wall walls;
-	Wall Door;
-	NPC npc;
-	Trophy trophy;
-	//trophy.TrophyMatrix = translate(trophy.TrophyMatrix, vec3(-1, 0.2, 1));
-	Trophy trophy2;
-	Trophy trophy3;
-	Trophy trophy4;
-	Trophy trophy5;
-	Trophy trophy6;
-
-
-
-	float speed = 0.1f;
-	float MovementX{0};
-	float MovementZ{ 0 };
 	
+	NPC npc;
 
 	Camera camera(width, height, vec3(glm::vec3((-0.1f ), 1.f, (-0.1f ) + 5)));
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
-	glm::mat4 Doormatrix = mat4(1.0f);
+	mat4 Doormatrix = mat4(1.0f);
 	Doormatrix = translate(Doormatrix, vec3(0, 0, 0));
-	bool Doorisclosed = true;
-
-	float x = 0;
-	//Calculates npc movement
-
-	MatrixXd AMatrix(4, 4);
-	MatrixXd YMatrix(4, 1);
-	bool changefunction = false;
-
-	vec3 pos1 = vec3(0.f);
-	vec3 pos2 = vec3(12.f);
-	vec3 pos3 = vec3(14.f);
-	vec3 pos4 = vec3(11.f);
 	
-	bool turn = false;
-	vec3 npcstartpos = vec3(-4,0,-2);
-	npc.NPCMatrix = translate(npc.NPCMatrix, npcstartpos);
-	// Main while loop
-	cube.CubeMatrix = translate(cube.CubeMatrix, vec3(0.5, 0, 0.5));
+
 	vector<Planevertex> PlaneVertices;
 	vector<Triangle> Indices;
 	
-	float xval=0.f;
-	float yval=0.f;
-	int size = 12;
+	
+	float size = 25;
 	for (float i = 0; i < size; i++)
 	{
-		//xval++;
 		for (float j = 0; j < size; j++) {
-			//yval ++;
-			
-			cout << i << " " << j << " " <<
-				curveplane(i, j)  << endl;
 
-			
 			PlaneVertices.emplace_back(Planevertex{ i, curveplane(i,j),j,0,0,1});
 		}
 		
 
 	}
+	for (int i = 0; i < size - 1; i++) {
+		for (int j = 0; j < size - 1; j++) {
+			unsigned int v0 = i * size + j;
+			unsigned int v1 = v0 + 1;
+			unsigned int v2 = v0 + size;
+			unsigned int v3 = v2 + 1;
 
-	for(int k=0;k<(size*size);k++)
-	{
-		
-		unsigned int v0 = k ;
-		unsigned int v1 = k + size;
-		unsigned int v2 = k + 1;
-		unsigned int v3 = k + size + 1;
-		if (v2 < PlaneVertices.size()) {
-			Indices.emplace_back(Triangle{ v0,v1,v2 });
-			if (v3 < PlaneVertices.size())
-			{
-				Indices.emplace_back(Triangle{ v1,v2,v3 });
-			}
+			Indices.emplace_back(Triangle{ v0, v2, v1 });
+			Indices.emplace_back(Triangle{ v1, v2, v3 });
 		}
 	}
+	cube.CubeMatrix = translate(cube.CubeMatrix, vec3(5, 0, 5));
+	float relativeX = 0.0f, relativeZ = 0.0f;
+
+
 	
+
+
 	while (!glfwWindowShouldClose(window))
 	{
 		// Specify the color of the background
@@ -235,37 +186,83 @@ int main()
 		// Tell OpenGL which Shader Program we want to use
 		shaderProgram.Activate();
 
-		for (int i = 0; i + size< size*size;i++)
+
+		   // Check if the cube position lies within the current grid cell
+		for (int i = 0; i < PlaneVertices.size() - size; i++)
 		{
-			if (i < PlaneVertices.size()) {
-				if (cube.CubeMatrix[3].z >= PlaneVertices[i].z && cube.CubeMatrix[3].z <= PlaneVertices[i + 1].z)
-				{
-					if (cube.CubeMatrix[3].x >= PlaneVertices[i].x && cube.CubeMatrix[3].x <= PlaneVertices[i + size].x)
-					{
-						cout << "box is inside triangle: " << i << endl;
-						PlaneVertices[i + size].r = 1;
-						PlaneVertices[i].r = 1;
-						PlaneVertices[i + 1].r = 1;
+			if (cube.CubeMatrix[3].z >= PlaneVertices[i].z && cube.CubeMatrix[3].z <= PlaneVertices[i + 1].z &&
+				cube.CubeMatrix[3].x >= PlaneVertices[i].x && cube.CubeMatrix[3].x <= PlaneVertices[i + size].x)
+			{
+				// Calculate barycentric coordinates
+				vec3 barycentric = barycentricCoordinates(vec2(PlaneVertices[i].x, PlaneVertices[i].z),
+					vec2(PlaneVertices[i+1 ].x, PlaneVertices[i+1 ].z),
+					vec2(PlaneVertices[i+size ].x, PlaneVertices[i+size].z),
+					vec2(cube.CubeMatrix[3].x, cube.CubeMatrix[3].z));
 
-						
-					}
-					
+				// Calculate interpolated y position
+				float interpolatedY = PlaneVertices[i].y * barycentric.x +
+					PlaneVertices[i + 1].y * barycentric.y +
+					PlaneVertices[i + size].y * barycentric.z;
 
-				}
-				
-					
+				cout << "interolation y: " << interpolatedY << endl;
+				cout << "cube y: "<<cube.CubeMatrix[3].y << endl;
+
+				// Update the translation matrix of the cube with the interpolated y position
+				cube.CubeMatrix[3][1] = interpolatedY +0.2f ;
+
+				// Break out of the loop once the cube position is found
+				break;
 				
 			}
-		
+			if (cube.CubeMatrix[3].z <= PlaneVertices[i+1].z && cube.CubeMatrix[3].z >= PlaneVertices[i + size].z &&
+				cube.CubeMatrix[3].x >= PlaneVertices[i+1].x && cube.CubeMatrix[3].x <= PlaneVertices[i + size+1].x)
+			{
+				// Calculate barycentric coordinates
+				vec3 barycentric = barycentricCoordinates(vec2(PlaneVertices[i+1].x, PlaneVertices[i+1].z),
+					vec2(PlaneVertices[i + size].x, PlaneVertices[i + size].z),
+					vec2(PlaneVertices[i + size+1].x, PlaneVertices[i + size+1].z),
+					vec2(cube.CubeMatrix[3].x, cube.CubeMatrix[3].z));
+
+				// Calculate interpolated y position
+				float interpolatedY = PlaneVertices[i+1].y * barycentric.x +
+					PlaneVertices[i + size].y * barycentric.y +
+					PlaneVertices[i + size+1].y * barycentric.z;
+
+				cout << "interolation y2: " << interpolatedY << endl;
+				cout << "cube y: " << cube.CubeMatrix[3].y << endl;
+
+				// Update the translation matrix of the cube with the interpolated y position
+				cube.CubeMatrix[3][1] = interpolatedY + 0.2f;
+
+				break;
+				
+			}
 		}
 		
+		cube.DrawCube(vec3(0.2, 0.2, 0.2), vec3(0, 1, 0), shaderProgram, "model");
 		
 		camera.Matrix(45.f, 0.1f, 100.f, shaderProgram, "camMatrix");
 		camera.Inputs(window);
-		
+		//cube.CubeMatrix[3].y = barycentric.y;
 
-		cube.CreateCube(vec3(0, 1, 0), vec3(1, 1, 1), shaderProgram, "model");
-		
+	
+		//Cube movement
+		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) //left
+		{
+			cube.CubeMatrix = translate(cube.CubeMatrix, vec3(-0.01f, 0, 0));
+		}
+		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) //right
+		{
+			cube.CubeMatrix = translate(cube.CubeMatrix, vec3(0.01f, 0, 0));
+		}
+		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) //back
+		{
+			cube.CubeMatrix = translate(cube.CubeMatrix, vec3(0, 0, 0.01f));
+		}
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) //forward
+		{
+			cube.CubeMatrix = translate(cube.CubeMatrix, vec3(0, 0, -0.01f));
+		}
 		
 
 
@@ -275,26 +272,28 @@ int main()
 		doorvbo.Bind();
 		EBO doorebo(reinterpret_cast<GLuint*>(Indices.data()), static_cast<GLsizeiptr>(Indices.size() * sizeof(Triangle)));
 		doorebo.Bind();
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void*)0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(0 * sizeof(float)));
 		glEnableVertexAttribArray(0);
 
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void*)(3 * sizeof(float)));
-		glEnableVertexAttribArray(1); 
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+		glEnableVertexAttribArray(1);
 
 		int modelloc = glGetUniformLocation(shaderProgram.ID, "model");
 		glUniformMatrix4fv(modelloc, 1, GL_FALSE, glm::value_ptr(Doormatrix));
-
 		glDrawElements(GL_TRIANGLES, Indices.size(), GL_UNSIGNED_INT, nullptr);
 
 		doorvao.Unbind();
 		doorvbo.Unbind();
 		doorebo.Unbind();
 
+	
+		
+
 		doorvao.Delete();
 		doorvbo.Delete();
 		doorebo.Delete();
 		
-	
+		glGetError();
 		
 		//Camera
 		
@@ -303,6 +302,7 @@ int main()
 		// Take care of all GLFW events
 		glfwPollEvents();
 	}
+	
 	shaderProgram.Delete();
 
 	// Delete window before ending the program
