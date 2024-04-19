@@ -101,7 +101,7 @@ void Cube::CreateCube(glm::vec3 position, glm::vec3 scale, Shader& shader, const
 
 	
 
-	AABB.Position = position - glm::vec3(scale.x/2,0,scale.z/2)  ;
+	AABB.Position = CubeMatrix[3] ;
 	AABB.Extent = glm::vec3(scale.x/2,scale.y/2,scale.z/2) ;
 	DrawCube(Cubepoints,shader,uniform);
 

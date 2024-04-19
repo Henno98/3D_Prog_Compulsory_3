@@ -28,8 +28,8 @@ using namespace Eigen;
 using namespace glm;
 
 // Window dimensions
-const unsigned int width = 1600;
-const unsigned int height = 1200;
+const unsigned int width = 1800;
+const unsigned int height = 1800;
 
 GLfloat Doorvertices[] =
 {	//extent
@@ -47,6 +47,51 @@ GLuint doorindices[] =
 	0,2,3
 
 };
+struct Planevertex
+{
+
+	GLfloat x,y,z;
+	float r, g, b;
+	//vec3 position = vec3(x, y, z);
+	
+
+};
+
+struct Triangle
+{
+	GLuint v0,v1,v2;
+
+};
+
+float curveplane(float x, float y)
+{
+
+	return cos(x)+ sin(y);
+}
+//vec3 barycentricCoordinates(const vec3& p1, const vec3& p2, const vec3& p3,const vec3& p4)
+//{
+//	vec3 p12 = p2 - p1;
+//	vec3 p13 = p3 - p1;
+//	vec3 n =p12 * p13;
+//	float areal_123 = n.length(); // dobbelt areal
+//	vec3 baryc; // til retur. Husk
+//	// u
+//	vec3 p = p2 - p4;
+//	vec3 q = p3 - p4;
+//	n = p * q;
+//	baryc.x = n.z / areal_123;
+//	// v
+//	p = p3 - p4;
+//	q = p1 - p4;
+//	n = p ^ q;
+//	baryc.y = n.z / areal_123;
+//	// w
+//	p = p1 - p4;
+//	q = p2 - p4;
+//	n = p ^ q;
+//	baryc.z = n.z / areal_123;
+//	return baryc;
+//}
 
 int main()
 {
@@ -75,6 +120,7 @@ int main()
 	// Specify the viewport of OpenGL in the Window
 	glViewport(0, 0, width, height);
 
+	
 	
 
 	// Generates Shader object using shaders defualt.vert and default.frag
@@ -117,13 +163,12 @@ int main()
 	float MovementZ{ 0 };
 	
 
-	Camera camera(width, height, vec3(glm::vec3((-0.1f * MovementX), 1.f, (-0.1f * MovementZ) + 5)));
-
+	Camera camera(width, height, vec3(glm::vec3((-0.1f ), 1.f, (-0.1f ) + 5)));
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
 	glm::mat4 Doormatrix = mat4(1.0f);
-	Doormatrix = translate(Doormatrix, vec3(-1.2, 0, -2.f));
+	Doormatrix = translate(Doormatrix, vec3(0, 0, 0));
 	bool Doorisclosed = true;
 
 	float x = 0;
@@ -142,7 +187,45 @@ int main()
 	vec3 npcstartpos = vec3(-4,0,-2);
 	npc.NPCMatrix = translate(npc.NPCMatrix, npcstartpos);
 	// Main while loop
-	 
+	cube.CubeMatrix = translate(cube.CubeMatrix, vec3(0.5, 0, 0.5));
+	vector<Planevertex> PlaneVertices;
+	vector<Triangle> Indices;
+	
+	float xval=0.f;
+	float yval=0.f;
+	int size = 12;
+	for (float i = 0; i < size; i++)
+	{
+		//xval++;
+		for (float j = 0; j < size; j++) {
+			//yval ++;
+			
+			cout << i << " " << j << " " <<
+				curveplane(i, j)  << endl;
+
+			
+			PlaneVertices.emplace_back(Planevertex{ i, curveplane(i,j),j,0,0,1});
+		}
+		
+
+	}
+
+	for(int k=0;k<(size*size);k++)
+	{
+		
+		unsigned int v0 = k ;
+		unsigned int v1 = k + size;
+		unsigned int v2 = k + 1;
+		unsigned int v3 = k + size + 1;
+		if (v2 < PlaneVertices.size()) {
+			Indices.emplace_back(Triangle{ v0,v1,v2 });
+			if (v3 < PlaneVertices.size())
+			{
+				Indices.emplace_back(Triangle{ v1,v2,v3 });
+			}
+		}
+	}
+	
 	while (!glfwWindowShouldClose(window))
 	{
 		// Specify the color of the background
@@ -151,231 +234,46 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		// Tell OpenGL which Shader Program we want to use
 		shaderProgram.Activate();
-		
-		if (changefunction) {
-			
-			pos1 = vec3(npc.NPCMatrix[3]);
-			pos2 = vec3(-10.f, 0.f, -10.f);
-			pos3 = vec3(20.f, 0.f, 40.f);
-			pos4 = vec3(-3.f, 0.f, 11.f);
-		}
-		if (!changefunction)
+
+		for (int i = 0; i + size< size*size;i++)
 		{
-			pos1 = vec3(-2.f,0,12.f);
-			pos2 = vec3(16.f, 0.f, 10.f);
-			pos3 = vec3(-14.f, 0.f, -30.f);
-			pos4 = vec3(npc.NPCMatrix[3]);
+			if (i < PlaneVertices.size()) {
+				if (cube.CubeMatrix[3].z >= PlaneVertices[i].z && cube.CubeMatrix[3].z <= PlaneVertices[i + 1].z)
+				{
+					if (cube.CubeMatrix[3].x >= PlaneVertices[i].x && cube.CubeMatrix[3].x <= PlaneVertices[i + size].x)
+					{
+						cout << "box is inside triangle: " << i << endl;
+						PlaneVertices[i + size].r = 1;
+						PlaneVertices[i].r = 1;
+						PlaneVertices[i + 1].r = 1;
 
-		}
+						
+					}
+					
 
-		double x0 = pos1.x;
-		double x1 = pow(pos1.x, 3);
-		double x2 = pow(pos1.x, 2);
-
-		double x02 = pos2.x;
-		double x12 = pow(pos2.x, 3);
-		double x22 = pow(pos2.x, 2);
-
-		double x03 = pos3.x;
-		double x13 = pow(pos3.x, 3);
-		double x23 = pow(pos3.x, 2);
-
-		double x04 = pos4.x;
-		double x14 = pow(pos4.x, 3);
-		double x24 = pow(pos4.x, 2);
-
-		AMatrix <<
-			x1, x2, x0, 1.0,
-			x12, x22, x02, 1.0,
-			x13, x23, x03, 1.0,
-			x14, x24, x04, 1.0;
-
-		YMatrix <<
-			pos1.z,
-			pos2.z,
-			pos3.z,
-			pos4.z;
-
-		MatrixXd AInverse = AMatrix.inverse();
-		MatrixXd SolutionMatrix = AInverse * YMatrix;
-
-		//std::cout << "Matrix A Answer: " << AMatrix << std::endl;
-		//std::cout << "Matrix Y Answer: " << YMatrix << std::endl;
-		std::cout << "Matrix A-1 Answer: " << AInverse << std::endl;
-		std::cout << "Matrix Answer: " << SolutionMatrix << std::endl;
-		
-
-		//Cube movement
-		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) //left
-		{
-			MovementX += speed;
-		}
-		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) //right
-		{
-			MovementX -= speed;
-		}
-		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) //back
-		{
-			MovementZ -= speed;
-		}
-		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) //forward
-		{
-			MovementZ += speed;
-		}
-		if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE) //forward
-		{
-			
-			if(changefunction == true)
-			{
-				changefunction = false;
+				}
+				
+					
 				
 			}
-			else if (changefunction == false)
-			{
-				changefunction = true;
-				
-				
-			}
-		}
-
-		//Cube
-		cube.CreateCube(glm::vec3(-0.1f * MovementX, 0, -0.1f * MovementZ), glm::vec3(0.2f,0.2f,0.2f), shaderProgram, "model");
-
-		cube2.CreateCube(glm::vec3(1, 0, 1), glm::vec3(1, 0.5f, 1), shaderProgram, "model");
-
-		walls.CreateHouse(glm::vec3(-2,0,-2),glm::vec3(2,1,2));
-	//	Door.CreateXWall(vec3(-1.6f, 0.f, -2.f), vec3(0.4, 0.6, 0), vec3(1.f, 1.f, 1.f), vec3(1.f, 1.f, 1.f));
-
-		npc.DrawNPC(shaderProgram, "model");
-		
-		
-
-		float z = (SolutionMatrix(0, 0) * pow(x, 3)) + (SolutionMatrix(1, 0) * pow(x, 2)) + (SolutionMatrix(2, 0) * SolutionMatrix(3, 0));
-		//std::cout << "for X value: " << x << " Z value is: " << z << std::endl;
-
-		if (!turn == true) {
-			npc.NPCMatrix = translate(npc.NPCMatrix, vec3(x / 1000, 0, z / 1000));
-			x += 0.1f;
-			if (x >= 10)
-			{
-				turn = true;
-			}
-			
-		}
-		if(!turn==false)
-		{
-			npc.NPCMatrix = translate(npc.NPCMatrix, vec3(-x / 1000, 0, -z / 1000));
-			x -= 0.1f;
-			if(x <=0)
-			{
-					turn = false;
-			}
 		
 		}
-
-			/*npc.NPCMatrix = translate(npc.NPCMatrix, vec3(-x / 1000, 0, -z / 1000));
-			x -= 1;*/
 		
 		
-			
-			//npc.NPCMatrix = glm::translate(npc.NPCMatrix, vec3(i, 0, z / 1000));
-
-		
-			//Trophy
-		trophy.DrawTrophy(vec3(1, .2f, -2), vec3(0.2f, .2f, .2f), shaderProgram, "model");
-		
-		trophy2.DrawTrophy(vec3(-2, .2f, -3), vec3(0.2f, .2f, .2f), shaderProgram, "model");
-		
-		trophy3.DrawTrophy(vec3(1, .2f, 0), vec3(0.2f, .2f, .2f), shaderProgram, "model");
-		
-		trophy4.DrawTrophy(vec3(-1, .2f, 1), vec3(0.2f, .2f, .2f), shaderProgram, "model");
-		
-		trophy5.DrawTrophy(vec3(-1, .2f, 2), vec3(0.2f, .2f, .2f), shaderProgram, "model");
-		
-		trophy6.DrawTrophy(vec3(-1, .2f, 3), vec3(0.2f, .2f, .2f), shaderProgram, "model");
+		camera.Matrix(45.f, 0.1f, 100.f, shaderProgram, "camMatrix");
+		camera.Inputs(window);
 		
 
-		float Degree;
-		if ( cube.AABB.TestAABBAABB(walls.AABB) )
-		{
-			walls.WallColor = glm::vec3(0.f, 1.f, 1.f);
-			camera.UpdateCamera(glm::vec3(-2.f, 1.0f, -4.f), vec3(1.f, -1.f, 2.f));
-		
-
-			if (cube.AABB.TestAABBAABB(walls.AABB) && Doorisclosed == true)
-			{
-				
-				
-				//Doormatrix = translate(Doormatrix, vec3(-1.6, 0, -2));
-				Doormatrix = rotate(Doormatrix, radians(-110.0f), vec3(0.f, 1.0f, 0.f));
-			
-				Doorisclosed = false;
-
-			}
-			
-		}
-		else if (!cube.AABB.TestAABBAABB(walls.AABB))
-		{
-			walls.WallColor = glm::vec3(1.f, 0, 1.f);
-			walls.doorPosition = glm::vec3(-2+walls.doorWidth, 0, -2);
-			camera.UpdateCamera(glm::vec3((-0.1f * MovementX), 1.f, (-0.1f * MovementZ) + 5), vec3(0.f, 0.f, -2.f));
-			npc.Color = glm::vec3(1, 0, 1);
-			if (!cube.AABB.TestAABBAABB(walls.AABB) && Doorisclosed == false)
-			{
-
-
-				Doormatrix = rotate(Doormatrix, radians(110.0f), vec3(0.f, 0.1f, 0.f));
-				
-				Doorisclosed = true;
-
-			}
-		}
-		
-		//Trophy collision (pickups)
-		if (cube.AABB.TestAABBAABB(trophy.AABB))
-		{
-			trophy.DestroyTrophy();
-			cube.collectedtrophies += 1;
-
-		}
-		if (cube.AABB.TestAABBAABB(trophy2.AABB))
-		{
-			trophy2.DestroyTrophy();
-			cube.collectedtrophies += 1;
-		}
-		if (cube.AABB.TestAABBAABB(trophy3.AABB))
-		{
-			
-			trophy3.DestroyTrophy();
-			cube.collectedtrophies += 1;
-		}
-		else if (cube.AABB.TestAABBAABB(trophy4.AABB))
-		{
-			trophy4.DestroyTrophy();
-			cube.collectedtrophies += 1;
-
-		}
-		else if (cube.AABB.TestAABBAABB(trophy5.AABB))
-		{
-			trophy5.DestroyTrophy();
-			cube.collectedtrophies += 1;
-		}
-		else if (cube.AABB.TestAABBAABB(trophy6.AABB))
-		{
-			
-			trophy6.DestroyTrophy();
-			cube.collectedtrophies += 1;
-		}
-
-
+		cube.CreateCube(vec3(0, 1, 0), vec3(1, 1, 1), shaderProgram, "model");
 		
 		
+
 
 		VAO doorvao;
 		doorvao.Bind();
-		VBO doorvbo(Doorvertices,sizeof(Doorvertices));
+		VBO doorvbo(reinterpret_cast<GLfloat*>(PlaneVertices.data()), static_cast<GLsizeiptr>(PlaneVertices.size() * sizeof(Planevertex)));
 		doorvbo.Bind();
-		EBO doorebo(doorindices, sizeof(doorindices));
+		EBO doorebo(reinterpret_cast<GLuint*>(Indices.data()), static_cast<GLsizeiptr>(Indices.size() * sizeof(Triangle)));
 		doorebo.Bind();
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void*)0);
 		glEnableVertexAttribArray(0);
@@ -386,7 +284,7 @@ int main()
 		int modelloc = glGetUniformLocation(shaderProgram.ID, "model");
 		glUniformMatrix4fv(modelloc, 1, GL_FALSE, glm::value_ptr(Doormatrix));
 
-		glDrawElements(GL_TRIANGLES, sizeof(doorindices), GL_UNSIGNED_INT, nullptr);
+		glDrawElements(GL_TRIANGLES, Indices.size(), GL_UNSIGNED_INT, nullptr);
 
 		doorvao.Unbind();
 		doorvbo.Unbind();
@@ -399,9 +297,6 @@ int main()
 	
 		
 		//Camera
-		Degree = 45.f;
-		camera.Inputs(window);
-		camera.Matrix(Degree, .1f, 100.0f, shaderProgram, "camMatrix");
 		
 		//Swap the back buffer with the front buffer
 		glfwSwapBuffers(window);
