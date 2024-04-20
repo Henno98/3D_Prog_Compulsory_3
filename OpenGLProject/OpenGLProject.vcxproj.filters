@@ -57,6 +57,12 @@
     <ClCompile Include="Trophy.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Shaders\Light.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Dependencies\libs\glfw3.dll" />
@@ -500,6 +506,8 @@
     <None Include="Dependencies\Eigen\Eigen" />
     <None Include="Dependencies\Eigen\Cholesky" />
     <None Include="Dependencies\Eigen\CholmodSupport" />
+    <None Include="Light.vert" />
+    <None Include="Light.frag" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Dependencies\libs\glfw3.lib" />
@@ -2317,6 +2325,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Trophy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Shaders\Light.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
