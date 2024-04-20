@@ -1,14 +1,5 @@
 #version 330 core
 
-//Positions/Coordinates
-layout (location = 0) in vec3 aPos;
-// Colors
-layout (location = 1) in vec3 aColor;
-
-
-// Outputs the color for the Fragment Shader
-#version 330 core
-
 // Positions/Coordinates
 layout (location = 0) in vec3 aPos;
 // Colors

@@ -37,7 +37,7 @@ struct Planevertex
 
 	GLfloat x,y,z;
 	float r, g, b;
-	vec3 Normal;
+	float n1,n2,n3;
 	
 	
 
@@ -198,7 +198,7 @@ int main()
 
 	// Generates Shader object using shaders defualt.vert and default.frag
 	Shader shaderProgram("default.vert", "default.frag");
-	//Cube cube;
+	Cube cube;
 //	NPC npc;
 
 	Camera camera(width, height, vec3(glm::vec3((-0.1f ), 1.f, (-0.1f ) + 5)));
@@ -220,7 +220,7 @@ int main()
 	{
 		for (float j = 0; j < size; j++) {
 
-			PlaneVertices.emplace_back(Planevertex{ i, curveplane(i,j),j,0,0,1,vec3(i/size,j/size,0)});
+			PlaneVertices.emplace_back(Planevertex{ i, curveplane(i,j),j,0,0,1,i/size,j/size,0});
 		}
 		
 
@@ -236,7 +236,7 @@ int main()
 			Indices.emplace_back(Triangle{ v1, v2, v3 });
 		}
 	}
-//	cube.CubeMatrix = translate(cube.CubeMatrix, vec3(5, 0, 5));
+	cube.CubeMatrix = translate(cube.CubeMatrix, vec3(5, 0, 5));
 	float relativeX = 0.0f, relativeZ = 0.0f;
 
 
@@ -300,7 +300,7 @@ int main()
 	Shader lightShader("light.vert", "light.frag");
 
 	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-	glm::vec3 lightPos = glm::vec3(0.5f, 0.5f, 0.5f);
+	glm::vec3 lightPos = glm::vec3(0.5f, 3.5f, 2.5f);
 	glm::mat4 lightModel = glm::mat4(1.0f);
 	lightModel = glm::translate(lightModel, lightPos);
 
@@ -328,37 +328,37 @@ int main()
 		shaderProgram.Activate();
 
 
-		//   // Check if the cube position lies within the current grid cell
-		//for (int i = 0; i < PlaneVertices.size() - size; i++)
-		//{
-		//	if (cube.CubeMatrix[3].z >= PlaneVertices[i].z && cube.CubeMatrix[3].z <= PlaneVertices[i + 1].z &&
-		//		cube.CubeMatrix[3].x >= PlaneVertices[i].x && cube.CubeMatrix[3].x <= PlaneVertices[i + size].x)
-		//	{
-		//		// Calculate barycentric coordinates
-		//		vec3 barycentric = barycentricCoordinates(vec2(PlaneVertices[i].x, PlaneVertices[i].z),
-		//			vec2(PlaneVertices[i+1 ].x, PlaneVertices[i+1 ].z),
-		//			vec2(PlaneVertices[i+size ].x, PlaneVertices[i+size].z),
-		//			vec2(cube.CubeMatrix[3].x, cube.CubeMatrix[3].z));
+		   // Check if the cube position lies within the current grid cell
+		for (int i = 0; i < PlaneVertices.size() - size; i++)
+		{
+			if (cube.CubeMatrix[3].z >= PlaneVertices[i].z && cube.CubeMatrix[3].z <= PlaneVertices[i + 1].z &&
+				cube.CubeMatrix[3].x >= PlaneVertices[i].x && cube.CubeMatrix[3].x <= PlaneVertices[i + size].x)
+			{
+				// Calculate barycentric coordinates
+				vec3 barycentric = barycentricCoordinates(vec2(PlaneVertices[i].x, PlaneVertices[i].z),
+					vec2(PlaneVertices[i+1 ].x, PlaneVertices[i+1 ].z),
+					vec2(PlaneVertices[i+size ].x, PlaneVertices[i+size].z),
+					vec2(cube.CubeMatrix[3].x, cube.CubeMatrix[3].z));
 
-		//		// Calculate interpolated y position
-		//		float interpolatedY = PlaneVertices[i].y * barycentric.x +
-		//			PlaneVertices[i + 1].y * barycentric.y +
-		//			PlaneVertices[i + size].y * barycentric.z;
+				// Calculate interpolated y position
+				float interpolatedY = PlaneVertices[i].y * barycentric.x +
+					PlaneVertices[i + 1].y * barycentric.y +
+					PlaneVertices[i + size].y * barycentric.z;
 
-		//		cout << "interolation y: " << interpolatedY << endl;
-		//		cout << "cube y: "<<cube.CubeMatrix[3].y << endl;
+				cout << "interolation y: " << interpolatedY << endl;
+				cout << "cube y: "<<cube.CubeMatrix[3].y << endl;
 
-		//		// Update the translation matrix of the cube with the interpolated y position
-		//		cube.CubeMatrix[3][1] = interpolatedY +0.2f ;
+				// Update the translation matrix of the cube with the interpolated y position
+				cube.CubeMatrix[3][1] = interpolatedY +0.2f ;
 
-		//		// Break out of the loop once the cube position is found
-		//		break;
-		//		
-		//	}
-		//
-		//}
+				// Break out of the loop once the cube position is found
+				break;
+				
+			}
 		
-		//cube.DrawCube(vec3(0.2, 0.2, 0.2), vec3(0, 1, 0), shaderProgram, "model");
+		}
+		
+		cube.DrawCube(vec3(0.2, 0.2, 0.2), vec3(0, 1, 0), shaderProgram, "nan");
 
 
 		// Exports the camera Position to the Fragment Shader for specular lighting
@@ -369,23 +369,23 @@ int main()
 		//cube.CubeMatrix[3].y = barycentric.y;
 
 	
-		////Cube movement
-		//if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) //left
-		//{
-		//	cube.CubeMatrix = translate(cube.CubeMatrix, vec3(-0.01f, 0, 0));
-		//}
-		//if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) //right
-		//{
-		//	cube.CubeMatrix = translate(cube.CubeMatrix, vec3(0.01f, 0, 0));
-		//}
-		//if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) //back
-		//{
-		//	cube.CubeMatrix = translate(cube.CubeMatrix, vec3(0, 0, 0.01f));
-		//}
-		//if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) //forward
-		//{
-		//	cube.CubeMatrix = translate(cube.CubeMatrix, vec3(0, 0, -0.01f));
-		//}
+		//Cube movement
+		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) //left
+		{
+			cube.CubeMatrix = translate(cube.CubeMatrix, vec3(-0.01f, 0, 0));
+		}
+		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) //right
+		{
+			cube.CubeMatrix = translate(cube.CubeMatrix, vec3(0.01f, 0, 0));
+		}
+		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) //back
+		{
+			cube.CubeMatrix = translate(cube.CubeMatrix, vec3(0, 0, 0.01f));
+		}
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) //forward
+		{
+			cube.CubeMatrix = translate(cube.CubeMatrix, vec3(0, 0, -0.01f));
+		}
 	
 
 		planevao.Bind();
