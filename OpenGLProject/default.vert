@@ -30,7 +30,7 @@ void main()
 	// calculates current position
 	crntPos = vec3(model * vec4(aPos, 1.0f));
 	// Outputs the positions/coordinates of all vertices
-	gl_Position = camMatrix * vec4(crntPos, 1.0);
+	gl_Position = camMatrix *model* vec4(crntPos, 1.0);
 
 	// Assigns the colors from the Vertex Data to "color"
 	color = aColor;

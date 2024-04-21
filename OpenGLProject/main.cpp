@@ -28,8 +28,8 @@ using namespace Eigen;
 using namespace glm;
 
 // Window dimensions
-const unsigned int width = 1800;
-const unsigned int height = 1800;
+const unsigned int width = 1200;
+const unsigned int height = 1200;
 
 
 struct Planevertex
@@ -103,41 +103,6 @@ vec3 barycentricCoordinates(const vec2& p1, const vec2& p2, const vec2& p3, cons
 	
 }
 
-// Vertices coordinates
-GLfloat vertices[] =
-{ //     COORDINATES     /        COLORS          /    TexCoord   /        NORMALS       //
-	-0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f, 	 0.0f, 0.0f,      0.0f, -1.0f, 0.0f, // Bottom side
-	-0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 0.0f, 5.0f,      0.0f, -1.0f, 0.0f, // Bottom side
-	 0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 5.0f,      0.0f, -1.0f, 0.0f, // Bottom side
-	 0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 0.0f,      0.0f, -1.0f, 0.0f, // Bottom side
-
-	-0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f, 	 0.0f, 0.0f,     -0.8f, 0.5f,  0.0f, // Left Side
-	-0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 0.0f,     -0.8f, 0.5f,  0.0f, // Left Side
-	 0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,	 2.5f, 5.0f,     -0.8f, 0.5f,  0.0f, // Left Side
-
-	-0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 0.0f,      0.0f, 0.5f, -0.8f, // Non-facing side
-	 0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 0.0f, 0.0f,      0.0f, 0.5f, -0.8f, // Non-facing side
-	 0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,	 2.5f, 5.0f,      0.0f, 0.5f, -0.8f, // Non-facing side
-
-	 0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 0.0f, 0.0f,      0.8f, 0.5f,  0.0f, // Right side
-	 0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 0.0f,      0.8f, 0.5f,  0.0f, // Right side
-	 0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,	 2.5f, 5.0f,      0.8f, 0.5f,  0.0f, // Right side
-
-	 0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 0.0f,      0.0f, 0.5f,  0.8f, // Facing side
-	-0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f, 	 0.0f, 0.0f,      0.0f, 0.5f,  0.8f, // Facing side
-	 0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,	 2.5f, 5.0f,      0.0f, 0.5f,  0.8f  // Facing side
-};
-
-// Indices for vertices order
-GLuint indices[] =
-{
-	0, 1, 2, // Bottom side
-	0, 2, 3, // Bottom side
-	4, 6, 5, // Left side
-	7, 9, 8, // Non-facing side
-	10, 12, 11, // Right side
-	13, 15, 14 // Facing side
-};
 
 GLfloat lightVertices[] =
 { //     COORDINATES     //
@@ -208,7 +173,7 @@ int main()
 
 
 	mat4 Doormatrix = mat4(1.0f);
-	Doormatrix = translate(Doormatrix, vec3(0, 0, 0));
+	//Doormatrix = translate(Doormatrix, vec3(0, 0, 0));
 	
 
 	vector<Planevertex> PlaneVertices;
@@ -236,16 +201,16 @@ int main()
 			Indices.emplace_back(Triangle{ v1, v2, v3 });
 		}
 	}
-	cube.CubeMatrix = translate(cube.CubeMatrix, vec3(5, 0, 5));
-	float relativeX = 0.0f, relativeZ = 0.0f;
+	//cube.CubeMatrix = translate(cube.CubeMatrix, vec3(5, 0, 5));
+	
 
 
 
 	VAO planevao;
 	planevao.Bind();
-	VBO planevbo(reinterpret_cast<GLfloat*>(PlaneVertices.data()), static_cast<GLsizeiptr>(PlaneVertices.size() * sizeof(Planevertex)));
+	VBO planevbo(reinterpret_cast<GLfloat*>(PlaneVertices.data()), (PlaneVertices.size() * sizeof(Planevertex)));
 	planevbo.Bind();
-	EBO planeebo(reinterpret_cast<GLuint*>(Indices.data()), static_cast<GLsizeiptr>(Indices.size() * sizeof(Triangle)));
+	EBO planeebo(reinterpret_cast<GLuint*>(Indices.data()), (Indices.size() * sizeof(Triangle)));
 	planeebo.Bind();
 	
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(0 * sizeof(float)));
@@ -258,29 +223,12 @@ int main()
 	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(6 * sizeof(float)));
 	glEnableVertexAttribArray(3);
 
-	int modelloc = glGetUniformLocation(shaderProgram.ID, "model");
-	glUniformMatrix4fv(modelloc, 1, GL_FALSE, glm::value_ptr(Doormatrix));
-	
 
 	planevao.Unbind();
 	planevbo.Unbind();
 	planeebo.Unbind();
 
-	VAO VAO1;
-	VAO1.Bind();
-	// Generates Vertex Buffer Object and links it to vertices
-	VBO VBO1(vertices, sizeof(vertices));
-	// Generates Element Buffer Object and links it to indices
-	EBO EBO1(indices, sizeof(indices));
-	// Links VBO attributes such as coordinates and colors to VAO
-	VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 11 * sizeof(float), (void*)0);
-	VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 11 * sizeof(float), (void*)(3 * sizeof(float)));
-	VAO1.LinkAttrib(VBO1, 2, 2, GL_FLOAT, 11 * sizeof(float), (void*)(6 * sizeof(float)));
-	VAO1.LinkAttrib(VBO1, 3, 3, GL_FLOAT, 11 * sizeof(float), (void*)(8 * sizeof(float)));
-	// Unbind all to prevent accidentally modifying them
-	VAO1.Unbind();
-	VBO1.Unbind();
-	EBO1.Unbind();
+	
 
 
 	VAO lightVAO;
@@ -300,23 +248,22 @@ int main()
 	Shader lightShader("light.vert", "light.frag");
 
 	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-	glm::vec3 lightPos = glm::vec3(0.5f, 3.5f, 2.5f);
+	glm::vec3 lightPos = glm::vec3(5.f, 10.f, 5.f);
 	glm::mat4 lightModel = glm::mat4(1.0f);
 	lightModel = glm::translate(lightModel, lightPos);
 
-	glm::vec3 pyramidPos = glm::vec3(0.0f, 0.0f, 0.0f);
-	glm::mat4 pyramidModel = glm::mat4(1.0f);
-	pyramidModel = glm::translate(pyramidModel, pyramidPos);
+
 
 
 	lightShader.Activate();
 	glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(lightModel));
 	glUniform4f(glGetUniformLocation(lightShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 	shaderProgram.Activate();
-	glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(pyramidModel));
+	
 	glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 	glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
-
+	int modelloc = glGetUniformLocation(shaderProgram.ID, "model");
+	glUniformMatrix4fv(modelloc, 1, GL_FALSE, glm::value_ptr(Doormatrix));
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -327,6 +274,10 @@ int main()
 		// Tell OpenGL which Shader Program we want to use
 		shaderProgram.Activate();
 
+		planevao.Bind();
+		glDrawElements(GL_TRIANGLES, Indices.size(), GL_UNSIGNED_INT, nullptr);
+
+		cube.DrawCube(vec3(0.2, 0.2, 0.2), vec3(0, 1, 0), shaderProgram, "model");
 
 		   // Check if the cube position lies within the current grid cell
 		for (int i = 0; i < PlaneVertices.size() - size; i++)
@@ -340,16 +291,21 @@ int main()
 					vec2(PlaneVertices[i+size ].x, PlaneVertices[i+size].z),
 					vec2(cube.CubeMatrix[3].x, cube.CubeMatrix[3].z));
 
+				
+
 				// Calculate interpolated y position
 				float interpolatedY = PlaneVertices[i].y * barycentric.x +
 					PlaneVertices[i + 1].y * barycentric.y +
 					PlaneVertices[i + size].y * barycentric.z;
 
-				cout << "interolation y: " << interpolatedY << endl;
+
+				cout << "interpolation y: " << interpolatedY << endl;
 				cout << "cube y: "<<cube.CubeMatrix[3].y << endl;
+				cout << "light y: " << lightModel[3].y << endl;
 
 				// Update the translation matrix of the cube with the interpolated y position
 				cube.CubeMatrix[3][1] = interpolatedY +0.2f ;
+				
 
 				// Break out of the loop once the cube position is found
 				break;
@@ -358,7 +314,7 @@ int main()
 		
 		}
 		
-		cube.DrawCube(vec3(0.2, 0.2, 0.2), vec3(0, 1, 0), shaderProgram, "nan");
+	
 
 
 		// Exports the camera Position to the Fragment Shader for specular lighting
@@ -388,15 +344,12 @@ int main()
 		}
 	
 
-		planevao.Bind();
-		glDrawElements(GL_TRIANGLES, Indices.size(), GL_UNSIGNED_INT, nullptr);
 
-		VAO1.Bind();
-		// Draw primitives, number of indices, datatype of indices, index of indices
-		glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(int), GL_UNSIGNED_INT, 0);
+		
 
 		lightShader.Activate();
 		camera.Matrix(45.f,0.1f,100.f,lightShader, "camMatrix");
+
 		lightVAO.Bind();
 		glDrawElements(GL_TRIANGLES, sizeof(lightIndices) / sizeof(int), GL_UNSIGNED_INT, 0);
 	
@@ -415,9 +368,7 @@ int main()
 		// Take care of all GLFW events
 		glfwPollEvents();
 	}
-	VAO1.Delete();
-	VBO1.Delete();
-	EBO1.Delete();
+	
 	planevao.Delete();
 	planevbo.Delete();
 	planeebo.Delete();
