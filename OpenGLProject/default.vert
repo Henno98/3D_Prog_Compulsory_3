@@ -23,6 +23,9 @@ out vec3 crntPos;
 uniform mat4 camMatrix;
 // Imports the model matrix from the main function
 uniform mat4 model;
+//player matrix
+uniform mat4 player;
+
 
 
 void main()
@@ -30,7 +33,7 @@ void main()
 	// calculates current position
 	crntPos = vec3(model * vec4(aPos, 1.0f));
 	// Outputs the positions/coordinates of all vertices
-	gl_Position = camMatrix *model* vec4(crntPos, 1.0);
+	gl_Position = camMatrix *  vec4(crntPos, 1.0);
 
 	// Assigns the colors from the Vertex Data to "color"
 	color = aColor;

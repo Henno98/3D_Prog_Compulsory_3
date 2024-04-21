@@ -1,20 +1,29 @@
 #include "Light.h"
 
 #include "glm/gtc/type_ptr.inl"
+#include "glm/gtx/transform.hpp"
 
+
+Light::Light()
+{
+	lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	lightPos = glm::vec3(5.f, 10.f, 5.f);
+	lightModel = glm::mat4(1.0f);
+	lightModel = glm::translate(lightModel, lightPos);
+}
 
 void Light::DrawLight()
 {
 
 	
-
+	
 	
 
 	
 	
 
 }
-void Light::CreateLight(glm::vec3 position, glm::vec3 scale, glm::vec3 color, Shader& shader, const char* uniform)
+void Light::CreateLight( glm::vec3 scale, glm::vec3 color)
 {
 
 	GLfloat Matrice[] =
@@ -74,7 +83,7 @@ void Light::CreateLight(glm::vec3 position, glm::vec3 scale, glm::vec3 color, Sh
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(LightVertex), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 
-	glUniformMatrix4fv(glGetUniformLocation(shader.ID, uniform), 1, GL_FALSE, glm::value_ptr(LightMatrix));
+	//glUniformMatrix4fv(glGetUniformLocation(shader.ID, uniform), 1, GL_FALSE, glm::value_ptr(lightModel));
 	glDrawElements(GL_TRIANGLES, sizeof(LightIndices), GL_UNSIGNED_INT, nullptr);
 
 	LightVAO.Unbind();

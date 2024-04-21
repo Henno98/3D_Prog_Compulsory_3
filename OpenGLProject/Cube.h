@@ -26,6 +26,8 @@ public:
 	Cube();
 	void DrawCube(glm::vec3 scale, glm::vec3 color, Shader& shader, const char* uniform);
 	void CreateCube(glm::vec3 position, glm::vec3 scale, Shader& shader, const char* uniform);
+
+	glm::vec3 barycentricCoordinates(const glm::vec2& p1, const glm::vec2& p2, const glm::vec2& p3, const glm::vec2& p4);
 };
 
 

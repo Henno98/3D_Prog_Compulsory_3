@@ -1,12 +1,11 @@
 #pragma once
 #include "glm/fwd.hpp"
 #include "vector"
-#include "Shaders/VAO.h"
-#include "Shaders/VBO.h"
-#include "Shaders/EBO.h"
-#include "Shaders/ShaderClass.h"
+#include "VAO.h"
+#include "VBO.h"
+#include "EBO.h"
+#include "ShaderClass.h"
 #include <glm/glm.hpp>
-#include "BoundingBox.h"
 
 
 struct LightVertex
@@ -19,12 +18,13 @@ struct LightVertex
 class Light
 {
 public:
-
-	glm::mat4 LightMatrix = glm::mat4(1.0f);
-	BoundingBox AABB;
+	glm::vec4 lightColor;
+	glm::vec3 lightPos;
+	glm::mat4 lightModel = glm::mat4(1.0f);
+	
 	Light();
 	void DrawLight();
-	void CreateLight(glm::vec3 position, glm::vec3 scale, glm::vec3 color ,Shader& shader, const char* uniform);
+	void CreateLight(glm::vec3 scale, glm::vec3 color);
 };
 
 

@@ -22,6 +22,7 @@
 #include "Shaders/EBO.h"
 #include "Camera.h"
 #include "Cube.h"
+#include "Shaders/Light.h"
 #include "Wall.h"
 using namespace std;
 using namespace Eigen;
@@ -73,35 +74,7 @@ float curveplane(float x, float y)
 //	else
 //		return vec3(alpha2, beta2, 1.0f - alpha2 - beta2);
 //}
-vec3 barycentricCoordinates(const vec2& p1, const vec2& p2, const vec2& p3, const vec2& p4)
-{
-	vec2 p12 = p2 - p1;
-	vec2 p13 = p3 - p1;
-	float areal_123 = abs(p12.x * p13.y - p12.y * p13.x); // double the area
 
-	vec3 baryc; // for return
-
-	// u
-	vec2 p = p2 - p4;
-	vec2 q = p3 - p4;
-	float nu = abs(p.x * q.y - p.y * q.x); // double the area of p4pq
-	baryc.x = nu / areal_123;
-
-	// v
-	p = p3 - p4;
-	q = p1 - p4;
-	float nv = abs(p.x * q.y - p.y * q.x); // double the area of p4pq
-	baryc.y = nv / areal_123;
-
-	// w
-	p = p1 - p4;
-	q = p2 - p4;
-	float nw = abs(p.x * q.y - p.y * q.x); // double the area of p4pq
-	baryc.z = nw / areal_123;
-	
-		return baryc;
-	
-}
 
 
 GLfloat lightVertices[] =
@@ -163,24 +136,24 @@ int main()
 
 	// Generates Shader object using shaders defualt.vert and default.frag
 	Shader shaderProgram("default.vert", "default.frag");
-	Cube cube;
+	
 //	NPC npc;
 
-	Camera camera(width, height, vec3(glm::vec3((-0.1f ), 1.f, (-0.1f ) + 5)));
+	Camera camera(width, height, glm::vec3((-0.1f ), 5.f, (-0.1f )));
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
 
 
 	mat4 Doormatrix = mat4(1.0f);
-	//Doormatrix = translate(Doormatrix, vec3(0, 0, 0));
+	Doormatrix = translate(Doormatrix, vec3(0, 0, 0));
 	
 
 	vector<Planevertex> PlaneVertices;
 	vector<Triangle> Indices;
 	
 	
-	float size = 25;
+	float size = 24;
 	for (float i = 0; i < size; i++)
 	{
 		for (float j = 0; j < size; j++) {
@@ -203,7 +176,7 @@ int main()
 	}
 	//cube.CubeMatrix = translate(cube.CubeMatrix, vec3(5, 0, 5));
 	
-
+	Light light;
 
 
 	VAO planevao;
@@ -231,39 +204,25 @@ int main()
 	
 
 
-	VAO lightVAO;
-	lightVAO.Bind();
-	// Generates Vertex Buffer Object and links it to vertices
-	VBO lightVBO(lightVertices, sizeof(lightVertices));
-	// Generates Element Buffer Object and links it to indices
-	EBO lightEBO(lightIndices, sizeof(lightIndices));
-	// Links VBO attributes such as coordinates and colors to VAO
-	lightVAO.LinkAttrib(lightVBO, 0, 3, GL_FLOAT, 3 * sizeof(float), (void*)0);
-	// Unbind all to prevent accidentally modifying them
-	lightVAO.Unbind();
-	lightVBO.Unbind();
-	lightEBO.Unbind();
+	
 
 	// Shader for light cube
 	Shader lightShader("light.vert", "light.frag");
 
-	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-	glm::vec3 lightPos = glm::vec3(5.f, 10.f, 5.f);
-	glm::mat4 lightModel = glm::mat4(1.0f);
-	lightModel = glm::translate(lightModel, lightPos);
 
-
-
+	glm::vec3 CubePos = glm::vec3(0.f, 0.f, 0.f);
+	glm::mat4 Cubemodel = glm::mat4(1.0f);
+	Cubemodel = glm::translate(Cubemodel, CubePos);
 
 	lightShader.Activate();
-	glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(lightModel));
-	glUniform4f(glGetUniformLocation(lightShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+	glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(light.lightModel));
+	glUniform4f(glGetUniformLocation(lightShader.ID, "lightColor"), light.lightColor.x, light.lightColor.y, light.lightColor.z, light.lightColor.w);
 	shaderProgram.Activate();
+	Cube cube;
+	glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), light.lightColor.x, light.lightColor.y, light.lightColor.z, light.lightColor.w);
+	glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), light.lightPos.x, light. lightPos.y, light.lightPos.z);
+	glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model") , 1, GL_FALSE, glm::value_ptr(Doormatrix));
 	
-	glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
-	glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
-	int modelloc = glGetUniformLocation(shaderProgram.ID, "model");
-	glUniformMatrix4fv(modelloc, 1, GL_FALSE, glm::value_ptr(Doormatrix));
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -275,9 +234,9 @@ int main()
 		shaderProgram.Activate();
 
 		planevao.Bind();
-		glDrawElements(GL_TRIANGLES, Indices.size(), GL_UNSIGNED_INT, nullptr);
+		glDrawElements(GL_TRIANGLES, Indices.size()*3, GL_UNSIGNED_INT, nullptr);
 
-		cube.DrawCube(vec3(0.2, 0.2, 0.2), vec3(0, 1, 0), shaderProgram, "model");
+		cube.DrawCube(vec3(0.2, 0.2, 0.2), vec3(0, 1, 0), shaderProgram, "player");
 
 		   // Check if the cube position lies within the current grid cell
 		for (int i = 0; i < PlaneVertices.size() - size; i++)
@@ -286,7 +245,7 @@ int main()
 				cube.CubeMatrix[3].x >= PlaneVertices[i].x && cube.CubeMatrix[3].x <= PlaneVertices[i + size].x)
 			{
 				// Calculate barycentric coordinates
-				vec3 barycentric = barycentricCoordinates(vec2(PlaneVertices[i].x, PlaneVertices[i].z),
+				vec3 barycentric = cube.barycentricCoordinates(vec2(PlaneVertices[i].x, PlaneVertices[i].z),
 					vec2(PlaneVertices[i+1 ].x, PlaneVertices[i+1 ].z),
 					vec2(PlaneVertices[i+size ].x, PlaneVertices[i+size].z),
 					vec2(cube.CubeMatrix[3].x, cube.CubeMatrix[3].z));
@@ -301,11 +260,10 @@ int main()
 
 				cout << "interpolation y: " << interpolatedY << endl;
 				cout << "cube y: "<<cube.CubeMatrix[3].y << endl;
-				cout << "light y: " << lightModel[3].y << endl;
+				cout << "light y: " << light.lightModel[3].y << endl;
 
 				// Update the translation matrix of the cube with the interpolated y position
-				cube.CubeMatrix[3][1] = interpolatedY +0.2f ;
-				
+				cube.CubeMatrix = translate(cube.CubeMatrix, vec3(0, interpolatedY-cube.CubeMatrix[3].y, 0));
 
 				// Break out of the loop once the cube position is found
 				break;
@@ -328,19 +286,23 @@ int main()
 		//Cube movement
 		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) //left
 		{
-			cube.CubeMatrix = translate(cube.CubeMatrix, vec3(-0.01f, 0, 0));
+			//cube.CubeMatrix = translate(cube.CubeMatrix, vec3(-0.1f, 0, 0));
+			Doormatrix = translate(Doormatrix, vec3(-1.f, 0, 0));
 		}
 		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) //right
 		{
-			cube.CubeMatrix = translate(cube.CubeMatrix, vec3(0.01f, 0, 0));
+			//cube.CubeMatrix = translate(cube.CubeMatrix, vec3(0.1f, 0, 0));
+			Doormatrix = translate(Doormatrix, vec3(1.f, 0, 0));
 		}
 		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) //back
 		{
-			cube.CubeMatrix = translate(cube.CubeMatrix, vec3(0, 0, 0.01f));
+			//cube.CubeMatrix = translate(cube.CubeMatrix, vec3(0, 0, 0.1f));
+			Doormatrix = translate(Doormatrix, vec3(0.f, 0, 0.1f));
 		}
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) //forward
 		{
-			cube.CubeMatrix = translate(cube.CubeMatrix, vec3(0, 0, -0.01f));
+			//cube.CubeMatrix = translate(cube.CubeMatrix, vec3(0, 0, -0.1f));
+			Doormatrix = translate(Doormatrix, vec3(-1.f, 0, -0.1f));
 		}
 	
 
@@ -350,8 +312,8 @@ int main()
 		lightShader.Activate();
 		camera.Matrix(45.f,0.1f,100.f,lightShader, "camMatrix");
 
-		lightVAO.Bind();
-		glDrawElements(GL_TRIANGLES, sizeof(lightIndices) / sizeof(int), GL_UNSIGNED_INT, 0);
+		
+		light.CreateLight(vec3(1,1,1),vec3(1,1,1));
 	
 
 	
@@ -373,9 +335,6 @@ int main()
 	planevbo.Delete();
 	planeebo.Delete();
 	shaderProgram.Delete();
-	lightVAO.Delete();
-	lightVBO.Delete();
-	lightEBO.Delete();
 	lightShader.Delete();
 
 	// Delete window before ending the program
