@@ -158,7 +158,8 @@ int main()
 	{
 		for (float j = 0; j < size; j++) {
 
-			PlaneVertices.emplace_back(Planevertex{ i, curveplane(i,j),j,0,0,1,i/size,j/size,0});
+			PlaneVertices.emplace_back(Planevertex{ i, curveplane(i,j),j,0,0,1,i/size,0,j/size});
+		
 		}
 		
 
@@ -218,11 +219,11 @@ int main()
 	glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(light.lightModel));
 	glUniform4f(glGetUniformLocation(lightShader.ID, "lightColor"), light.lightColor.x, light.lightColor.y, light.lightColor.z, light.lightColor.w);
 	shaderProgram.Activate();
-	Cube cube;
+	
 	glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), light.lightColor.x, light.lightColor.y, light.lightColor.z, light.lightColor.w);
 	glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), light.lightPos.x, light. lightPos.y, light.lightPos.z);
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model") , 1, GL_FALSE, glm::value_ptr(Doormatrix));
-	
+	Cube cube;
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -236,7 +237,7 @@ int main()
 		planevao.Bind();
 		glDrawElements(GL_TRIANGLES, Indices.size()*3, GL_UNSIGNED_INT, nullptr);
 
-		cube.DrawCube(vec3(0.2, 0.2, 0.2), vec3(0, 1, 0), shaderProgram, "player");
+		
 
 		   // Check if the cube position lies within the current grid cell
 		for (int i = 0; i < PlaneVertices.size() - size; i++)
@@ -258,9 +259,9 @@ int main()
 					PlaneVertices[i + size].y * barycentric.z;
 
 
-				cout << "interpolation y: " << interpolatedY << endl;
-				cout << "cube y: "<<cube.CubeMatrix[3].y << endl;
-				cout << "light y: " << light.lightModel[3].y << endl;
+				//cout << "interpolation y: " << interpolatedY << endl;
+				//cout << "cube y: "<<cube.CubeMatrix[3].y << endl;
+				//cout << "light y: " << light.lightModel[3].y << endl;
 
 				// Update the translation matrix of the cube with the interpolated y position
 				cube.CubeMatrix = translate(cube.CubeMatrix, vec3(0, interpolatedY-cube.CubeMatrix[3].y, 0));
@@ -286,23 +287,23 @@ int main()
 		//Cube movement
 		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) //left
 		{
-			//cube.CubeMatrix = translate(cube.CubeMatrix, vec3(-0.1f, 0, 0));
-			Doormatrix = translate(Doormatrix, vec3(-1.f, 0, 0));
+			cube.CubeMatrix = translate(cube.CubeMatrix, vec3(-0.1f, 0, 0));
+			//Doormatrix = translate(Doormatrix, vec3(-1.f, 0, 0));
 		}
 		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) //right
 		{
-			//cube.CubeMatrix = translate(cube.CubeMatrix, vec3(0.1f, 0, 0));
-			Doormatrix = translate(Doormatrix, vec3(1.f, 0, 0));
+			cube.CubeMatrix = translate(cube.CubeMatrix, vec3(0.1f, 0, 0));
+			//Doormatrix = translate(Doormatrix, vec3(1.f, 0, 0));
 		}
 		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) //back
 		{
-			//cube.CubeMatrix = translate(cube.CubeMatrix, vec3(0, 0, 0.1f));
-			Doormatrix = translate(Doormatrix, vec3(0.f, 0, 0.1f));
+			cube.CubeMatrix = translate(cube.CubeMatrix, vec3(0, 0, 0.1f));
+			//Doormatrix = translate(Doormatrix, vec3(0.f, 0, 0.1f));
 		}
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) //forward
 		{
-			//cube.CubeMatrix = translate(cube.CubeMatrix, vec3(0, 0, -0.1f));
-			Doormatrix = translate(Doormatrix, vec3(-1.f, 0, -0.1f));
+			cube.CubeMatrix = translate(cube.CubeMatrix, vec3(0, 0, -0.1f));
+			//Doormatrix = translate(Doormatrix, vec3(-1.f, 0, -0.1f));
 		}
 	
 
@@ -312,7 +313,7 @@ int main()
 		lightShader.Activate();
 		camera.Matrix(45.f,0.1f,100.f,lightShader, "camMatrix");
 
-		
+		cube.DrawCube(vec3(0.2, 0.2, 0.2), vec3(0, 1, 0), lightShader, "model");
 		light.CreateLight(vec3(1,1,1),vec3(1,1,1));
 	
 
