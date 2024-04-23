@@ -55,55 +55,7 @@ float curveplane(float x, float y)
 
 	return cos(x)+ sin(y);
 }
-//vec3 barycentricCoordinatesForQuad(const vec2& p1, const vec2& p2, const vec2& p3, const vec2& p4, const vec2& point)
-//{
-//	// Calculate area of the two triangles formed by the quad
-//	float areaTotal = abs((p1.x - p3.x) * (p2.y - p4.y) - (p2.x - p4.x) * (p1.y - p3.y));
-//
-//	// Calculate barycentric coordinates for each triangle
-//	float alpha1 = abs((point.x - p3.x) * (p2.y - p4.y) - (p2.x - p4.x) * (point.y - p3.y)) / areaTotal;
-//	float beta1 = abs((point.x - p2.x) * (p3.y - p1.y) - (p3.x - p1.x) * (point.y - p2.y)) / areaTotal;
-//
-//	// Calculate barycentric coordinates for the other triangle
-//	float alpha2 = abs((point.x - p1.x) * (p4.y - p2.y) - (p4.x - p2.x) * (point.y - p1.y)) / areaTotal;
-//	float beta2 = abs((point.x - p4.x) * (p1.y - p3.y) - (p1.x - p3.x) * (point.y - p4.y)) / areaTotal;
-//
-//	// Use the barycentric coordinates of the triangle with the point inside it
-//	if (alpha1 + beta1 <= 1.0)
-//		return vec3(alpha1, beta1, 1.0f - alpha1 - beta1);
-//	else
-//		return vec3(alpha2, beta2, 1.0f - alpha2 - beta2);
-//}
 
-
-
-GLfloat lightVertices[] =
-{ //     COORDINATES     //
-	-0.1f, -0.1f,  0.1f,
-	-0.1f, -0.1f, -0.1f,
-	 0.1f, -0.1f, -0.1f,
-	 0.1f, -0.1f,  0.1f,
-	-0.1f,  0.1f,  0.1f,
-	-0.1f,  0.1f, -0.1f,
-	 0.1f,  0.1f, -0.1f,
-	 0.1f,  0.1f,  0.1f
-};
-
-GLuint lightIndices[] =
-{
-	0, 1, 2,
-	0, 2, 3,
-	0, 4, 7,
-	0, 7, 3,
-	3, 7, 6,
-	3, 6, 2,
-	2, 6, 5,
-	2, 5, 1,
-	1, 5, 4,
-	1, 4, 0,
-	4, 5, 6,
-	4, 6, 7
-};
 
 
 int main()
@@ -140,8 +92,7 @@ int main()
 //	NPC npc;
 
 	Camera camera(width, height, glm::vec3((-0.1f ), 5.f, (-0.1f )));
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
+	
 
 
 
@@ -205,25 +156,29 @@ int main()
 	
 
 
-	
+	//
 
-	// Shader for light cube
-	Shader lightShader("light.vert", "light.frag");
+	//// Shader for light cube
+	//Shader lightShader("light.vert", "light.frag");
 
 
-	glm::vec3 CubePos = glm::vec3(0.f, 0.f, 0.f);
-	glm::mat4 Cubemodel = glm::mat4(1.0f);
-	Cubemodel = glm::translate(Cubemodel, CubePos);
+	//glm::vec3 CubePos = glm::vec3(0.f, 0.f, 0.f);
+	//glm::mat4 Cubemodel = glm::mat4(1.0f);
+	//Cubemodel = glm::translate(Cubemodel, CubePos);
 
-	lightShader.Activate();
+	/*lightShader.Activate();
 	glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(light.lightModel));
-	glUniform4f(glGetUniformLocation(lightShader.ID, "lightColor"), light.lightColor.x, light.lightColor.y, light.lightColor.z, light.lightColor.w);
+	glUniform4f(glGetUniformLocation(lightShader.ID, "lightColor"), light.lightColor.x, light.lightColor.y, light.lightColor.z, light.lightColor.w);*/
 	shaderProgram.Activate();
 	
 	glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), light.lightColor.x, light.lightColor.y, light.lightColor.z, light.lightColor.w);
 	glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), light.lightPos.x, light. lightPos.y, light.lightPos.z);
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model") , 1, GL_FALSE, glm::value_ptr(Doormatrix));
 	Cube cube;
+
+
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -274,7 +229,7 @@ int main()
 		}
 		
 	
-
+		cube.DrawCube(vec3(0.2, 0.2, 0.2), vec3(0, 1, 0), shaderProgram, "model");
 
 		// Exports the camera Position to the Fragment Shader for specular lighting
 		glUniform3f(glGetUniformLocation(shaderProgram.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
@@ -310,11 +265,9 @@ int main()
 
 		
 
-		lightShader.Activate();
-		camera.Matrix(45.f,0.1f,100.f,lightShader, "camMatrix");
-
-		cube.DrawCube(vec3(0.2, 0.2, 0.2), vec3(0, 1, 0), shaderProgram, "model");
-		light.CreateLight(vec3(1,1,1),vec3(1,1,1));
+		//lightShader.Activate();
+		//camera.Matrix(45.f,0.1f,100.f,lightShader, "camMatrix");
+		//light.CreateLight(vec3(1,1,1),vec3(1,1,1));
 	
 
 	
@@ -336,7 +289,7 @@ int main()
 	planevbo.Delete();
 	planeebo.Delete();
 	shaderProgram.Delete();
-	lightShader.Delete();
+	//lightShader.Delete();
 
 	// Delete window before ending the program
 	glfwDestroyWindow(window);

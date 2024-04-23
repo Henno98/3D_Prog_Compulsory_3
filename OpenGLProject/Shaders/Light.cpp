@@ -28,16 +28,15 @@ void Light::CreateLight( glm::vec3 scale, glm::vec3 color)
 
 	GLfloat Matrice[] =
 	{
-		scale.x,scale.y,scale.z, color.x,color.y,color.z,
-		scale.x,-scale.y,scale.z, color.x,color.y,color.z,
-		scale.x,-scale.y,-scale.z, color.x,color.y,color.z,
-		scale.x,scale.y,-scale.z, color.x,color.y,color.z,
+		scale.x,scale.y,scale.z, 
+		scale.x,-scale.y,scale.z, 
+		scale.x,-scale.y,-scale.z, 
+		scale.x,scale.y,-scale.z,
 
-		-scale.x,scale.y,scale.z, color.x,color.y,color.z,
-		-scale.x,-scale.y,scale.z, color.x,color.y,color.z,
-		-scale.x,-scale.y,-scale.z, color.x,color.y,color.z,
-		-scale.x,scale.y,-scale.z, color.x,color.y,color.z,
-
+		-scale.x,scale.y,scale.z, 
+		-scale.x,-scale.y,scale.z,
+		-scale.x,-scale.y,-scale.z, 
+		-scale.x,scale.y,-scale.z
 
 
 	};
@@ -80,9 +79,7 @@ void Light::CreateLight( glm::vec3 scale, glm::vec3 color)
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(LightVertex), (void*)0);
 	glEnableVertexAttribArray(0);
 
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(LightVertex), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-
+	
 	//glUniformMatrix4fv(glGetUniformLocation(shader.ID, uniform), 1, GL_FALSE, glm::value_ptr(lightModel));
 	glDrawElements(GL_TRIANGLES, sizeof(LightIndices), GL_UNSIGNED_INT, nullptr);
 

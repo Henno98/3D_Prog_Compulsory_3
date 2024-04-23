@@ -11,7 +11,7 @@
 struct LightVertex
 {
 	float x, y, z;
-	float r, g, b;
+	
 };
 
 

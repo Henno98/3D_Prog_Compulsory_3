@@ -12,7 +12,7 @@ using namespace glm;
 
 Cube::Cube()
 {
-	collectedtrophies = 0;
+
 };
 
 void Cube::DrawCube(glm::vec3 scale, glm::vec3 color, Shader& shader, const char* uniform)
