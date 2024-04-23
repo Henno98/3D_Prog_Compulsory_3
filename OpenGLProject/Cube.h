@@ -14,6 +14,7 @@ struct CubeVertex
 {
 	float x, y, z;
 	float r, g, b;
+	float n1, n2, n3;
 };
 
 

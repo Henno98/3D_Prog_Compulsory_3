@@ -20,15 +20,15 @@ void Cube::DrawCube(glm::vec3 scale, glm::vec3 color, Shader& shader, const char
 
 	GLfloat Matrice[] =
 	{
-		scale.x,scale.y,scale.z, color.x,color.y,color.z,
-		scale.x,-scale.y,scale.z, color.x,color.y,color.z,
-		scale.x,-scale.y,-scale.z, color.x,color.y,color.z,
-		scale.x,scale.y,-scale.z, color.x,color.y,color.z,
+		scale.x,scale.y,scale.z, color.x,color.y,color.z, 0,0,0,
+		scale.x,-scale.y,scale.z, color.x,color.y,color.z,0,0,0,
+		scale.x,-scale.y,-scale.z, color.x,color.y,color.z,0,0,0,
+		scale.x,scale.y,-scale.z, color.x,color.y,color.z,0,0,0,
 
-		-scale.x,scale.y,scale.z, color.x,color.y,color.z,
-		-scale.x,-scale.y,scale.z, color.x,color.y,color.z,
-		-scale.x,-scale.y,-scale.z, color.x,color.y,color.z,
-		-scale.x,scale.y,-scale.z, color.x,color.y,color.z,
+		-scale.x,scale.y,scale.z, color.x,color.y,color.z,0,0,0,
+		-scale.x,-scale.y,scale.z, color.x,color.y,color.z,0,0,0,
+		-scale.x,-scale.y,-scale.z, color.x,color.y,color.z,0,0,0,
+		-scale.x,scale.y,-scale.z, color.x,color.y,color.z,0,0,0
 
 		
 
@@ -73,6 +73,9 @@ void Cube::DrawCube(glm::vec3 scale, glm::vec3 color, Shader& shader, const char
 
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(CubeVertex), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(CubeVertex), (void*)(6 * sizeof(float)));
+	glEnableVertexAttribArray(2);
+
 
 	glUniformMatrix4fv(glGetUniformLocation(shader.ID, uniform), 1, GL_FALSE, glm::value_ptr(CubeMatrix));
 	glDrawElements(GL_TRIANGLES, sizeof(CubeIndices), GL_UNSIGNED_INT, nullptr);
@@ -123,33 +126,4 @@ glm::vec3 Cube::barycentricCoordinates(const glm::vec2& p1, const glm::vec2& p2,
 }
 ;
 
-vec3 barycentricCoordinates(const vec2& p1, const vec2& p2, const vec2& p3, const vec2& p4)
-{
-	vec2 p12 = p2 - p1;
-	vec2 p13 = p3 - p1;
-	float areal_123 = abs(p12.x * p13.y - p12.y * p13.x); // double the area
-
-	vec3 baryc; // for return
-
-	// u
-	vec2 p = p2 - p4;
-	vec2 q = p3 - p4;
-	float nu = abs(p.x * q.y - p.y * q.x); // double the area of p4pq
-	baryc.x = nu / areal_123;
-
-	// v
-	p = p3 - p4;
-	q = p1 - p4;
-	float nv = abs(p.x * q.y - p.y * q.x); // double the area of p4pq
-	baryc.y = nv / areal_123;
-
-	// w
-	p = p1 - p4;
-	q = p2 - p4;
-	float nw = abs(p.x * q.y - p.y * q.x); // double the area of p4pq
-	baryc.z = nw / areal_123;
-
-	return baryc;
-
-}
 

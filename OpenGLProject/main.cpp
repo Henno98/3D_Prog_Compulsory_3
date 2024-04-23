@@ -152,11 +152,11 @@ int main()
 	vector<Planevertex> PlaneVertices;
 	vector<Triangle> Indices;
 	
-	
+	float step = 0.5f;
 	float size = 24;
-	for (float i = 0; i < size; i++)
+	for (float i = 0; i < size; i+=step)
 	{
-		for (float j = 0; j < size; j++) {
+		for (float j = 0; j < size; j+=step) {
 
 			PlaneVertices.emplace_back(Planevertex{ i, curveplane(i,j),j,0,0,1,i/size,0,j/size});
 		
@@ -166,9 +166,9 @@ int main()
 	}
 	for (int i = 0; i < size - 1; i++) {
 		for (int j = 0; j < size - 1; j++) {
-			unsigned int v0 = i * size + j;
+			unsigned int v0 = i * (size/step) + j;
 			unsigned int v1 = v0 + 1;
-			unsigned int v2 = v0 + size;
+			unsigned int v2 = v0 + (size/step);
 			unsigned int v3 = v2 + 1;
 
 			Indices.emplace_back(Triangle{ v0, v2, v1 });
@@ -194,8 +194,8 @@ int main()
 	glEnableVertexAttribArray(1);
 
 
-	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(6 * sizeof(float)));
-	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(6 * sizeof(float)));
+	glEnableVertexAttribArray(2);
 
 
 	planevao.Unbind();
@@ -313,7 +313,7 @@ int main()
 		lightShader.Activate();
 		camera.Matrix(45.f,0.1f,100.f,lightShader, "camMatrix");
 
-		cube.DrawCube(vec3(0.2, 0.2, 0.2), vec3(0, 1, 0), lightShader, "model");
+		cube.DrawCube(vec3(0.2, 0.2, 0.2), vec3(0, 1, 0), shaderProgram, "model");
 		light.CreateLight(vec3(1,1,1),vec3(1,1,1));
 	
 
