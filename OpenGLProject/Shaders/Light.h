@@ -18,7 +18,7 @@ struct LightVertex
 class Light
 {
 public:
-	glm::vec4 lightColor;
+	glm::vec3 lightColor;
 	glm::vec3 lightPos;
 	glm::mat4 lightModel = glm::mat4(1.0f);
 	

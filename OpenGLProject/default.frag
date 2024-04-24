@@ -12,7 +12,7 @@ in vec3 Normal;
 
 
 // Gets the color of the light from the main function
-uniform vec4 lightColor;
+uniform vec3 lightColor;
 // Gets the position of the light from the main function
 uniform vec3 lightPos;
 // Gets the position of the camera from the main function
@@ -21,7 +21,7 @@ uniform vec3 camPos;
 void main()
 {
 	// ambient lighting
-	float ambient = 0.20f;
+	float ambient = 0.2f;
 	vec3 Ambient = ambient*lightColor;
 
 	// diffuse lighting
@@ -38,6 +38,6 @@ void main()
 	vec3 specular = specAmount * specularLight * lightColor;
 
 	// outputs final color
-	vec3 Result = (Diffuse + Ambient + specular)*color; 
-	FragColor = vec4(Result,1.0f);
+	vec3 result =  (Ambient+Diffuse+specular)*color;
+	FragColor = vec4(result,1.0f);
 }

@@ -104,12 +104,12 @@ int main()
 	vector<Triangle> Indices;
 	
 	float step = 0.5f;
-	float size = 24;
+	float size = 40;
 	for (float i = 0; i < size; i+=step)
 	{
 		for (float j = 0; j < size; j+=step) {
 
-			PlaneVertices.emplace_back(Planevertex{ i, curveplane(i,j),j,0,0,1,i/size,0,j/size});
+			PlaneVertices.emplace_back(Planevertex{ i, curveplane(i,j),j,0,1,0,1,0,0});
 		
 		}
 		
@@ -122,7 +122,7 @@ int main()
 			unsigned int v2 = v0 + (size/step);
 			unsigned int v3 = v2 + 1;
 
-			Indices.emplace_back(Triangle{ v0, v2, v1 });
+			Indices.emplace_back(Triangle{ v0, v1, v2 });
 			Indices.emplace_back(Triangle{ v1, v2, v3 });
 		}
 	}
@@ -138,7 +138,7 @@ int main()
 	EBO planeebo(reinterpret_cast<GLuint*>(Indices.data()), (Indices.size() * sizeof(Triangle)));
 	planeebo.Bind();
 	
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(0 * sizeof(float)));
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(3 * sizeof(float)));
@@ -158,23 +158,13 @@ int main()
 
 	//
 
-	//// Shader for light cube
-	//Shader lightShader("light.vert", "light.frag");
+	// Shader for light cube
+	Shader lightShader("Light.vert", "Light.frag");
 
 
-	//glm::vec3 CubePos = glm::vec3(0.f, 0.f, 0.f);
-	//glm::mat4 Cubemodel = glm::mat4(1.0f);
-	//Cubemodel = glm::translate(Cubemodel, CubePos);
-
-	/*lightShader.Activate();
-	glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(light.lightModel));
-	glUniform4f(glGetUniformLocation(lightShader.ID, "lightColor"), light.lightColor.x, light.lightColor.y, light.lightColor.z, light.lightColor.w);*/
-	shaderProgram.Activate();
 	
-	glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), light.lightColor.x, light.lightColor.y, light.lightColor.z, light.lightColor.w);
-	glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), light.lightPos.x, light. lightPos.y, light.lightPos.z);
-	glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model") , 1, GL_FALSE, glm::value_ptr(Doormatrix));
 	Cube cube;
+	cube.CubeMatrix = translate(cube.CubeMatrix, vec3(5, 0, 5));
 
 
 	glEnable(GL_DEPTH_TEST);
@@ -187,49 +177,71 @@ int main()
 		// Clean the back buffer and depth buffer
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		// Tell OpenGL which Shader Program we want to use
+		
+
+		
 		shaderProgram.Activate();
+
+		glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightColor"), light.lightColor.x, light.lightColor.y, light.lightColor.z);
+		glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), light.lightPos.x, light.lightPos.y, light.lightPos.z);
+		glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(Doormatrix));
 
 		planevao.Bind();
 		glDrawElements(GL_TRIANGLES, Indices.size()*3, GL_UNSIGNED_INT, nullptr);
 
-		
-
+	
 		   // Check if the cube position lies within the current grid cell
-		for (int i = 0; i < PlaneVertices.size() - size; i++)
+		for (int i = 0; i < Indices.size() ; i++)
 		{
-			if (cube.CubeMatrix[3].z >= PlaneVertices[i].z && cube.CubeMatrix[3].z <= PlaneVertices[i + 1].z &&
-				cube.CubeMatrix[3].x >= PlaneVertices[i].x && cube.CubeMatrix[3].x <= PlaneVertices[i + size].x)
-			{
-				// Calculate barycentric coordinates
-				vec3 barycentric = cube.barycentricCoordinates(vec2(PlaneVertices[i].x, PlaneVertices[i].z),
-					vec2(PlaneVertices[i+1 ].x, PlaneVertices[i+1 ].z),
-					vec2(PlaneVertices[i+size ].x, PlaneVertices[i+size].z),
-					vec2(cube.CubeMatrix[3].x, cube.CubeMatrix[3].z));
 
+			unsigned int Index0 = Indices[i].v0;
+			unsigned int Index1 = Indices[i].v1;
+			unsigned int Index2 = Indices[i].v2;
+
+
+			// Calculate barycentric coordinates
+			vec3 barycentric = cube.barycentricCoordinates(vec3(PlaneVertices[Index0].x, PlaneVertices[Index0].y, PlaneVertices[Index0].z),
+				vec3(PlaneVertices[Index1].x, PlaneVertices[Index1].y, PlaneVertices[Index1].z),
+				vec3(PlaneVertices[Index2].x, PlaneVertices[Index2].y, PlaneVertices[Index2].z),
+				vec3(cube.CubeMatrix[3].x, cube.CubeMatrix[3].y, cube.CubeMatrix[3].z));
+
+
+			if (barycentric.x < 1 && barycentric.x > 0 && barycentric.y < 1 && barycentric.y > 0 && barycentric.z < 1 && barycentric.z > 0 ) {
+				/*if (cube.CubeMatrix[3].z >= PlaneVertices[Index0].z && cube.CubeMatrix[Index0].z <= PlaneVertices[Index1].z &&
+					cube.CubeMatrix[3].x >= PlaneVertices[Index0].x && cube.CubeMatrix[3].x <= PlaneVertices[Index2].x)*/
 				
 
-				// Calculate interpolated y position
-				float interpolatedY = PlaneVertices[i].y * barycentric.x +
-					PlaneVertices[i + 1].y * barycentric.y +
-					PlaneVertices[i + size].y * barycentric.z;
 
 
-				//cout << "interpolation y: " << interpolatedY << endl;
-				//cout << "cube y: "<<cube.CubeMatrix[3].y << endl;
-				//cout << "light y: " << light.lightModel[3].y << endl;
+				cout << Index0 << " " << Index1 << " " << Index2 << endl;
+				
 
-				// Update the translation matrix of the cube with the interpolated y position
-				cube.CubeMatrix = translate(cube.CubeMatrix, vec3(0, interpolatedY-cube.CubeMatrix[3].y, 0));
 
-				// Break out of the loop once the cube position is found
-				break;
+					// Calculate interpolated y position
+					float interpolatedY = PlaneVertices[Index0].y * barycentric.x +
+						PlaneVertices[Index1].y * barycentric.y +
+						PlaneVertices[Index2].y * barycentric.z;
+
+
+					cout << "interpolation y: " << interpolatedY << endl;
+					cout << "cube y: " << cube.CubeMatrix[3].y << endl;
+					//cout << "light y: " << light.lightModel[3].y << endl;
+
+					// Update the translation matrix of the cube with the interpolated y position
+					//cube.CubeMatrix[3].y = interpolatedY;
+					cube.CubeMatrix = translate(cube.CubeMatrix, vec3(0.f, interpolatedY-cube.CubeMatrix[3].y, 0));
+
+					// Break out of the loop once the cube position is found
+					break;
+
 				
 			}
 		
 		}
 		
 	
-		cube.DrawCube(vec3(0.2, 0.2, 0.2), vec3(0, 1, 0), shaderProgram, "model");
+		cube.DrawCube(vec3(0.2, 0.2, 0.2), vec3(0, 1, 1), shaderProgram, "model");
+
 
 		// Exports the camera Position to the Fragment Shader for specular lighting
 		glUniform3f(glGetUniformLocation(shaderProgram.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
@@ -242,32 +254,33 @@ int main()
 		//Cube movement
 		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) //left
 		{
-			cube.CubeMatrix = translate(cube.CubeMatrix, vec3(-0.1f, 0, 0));
+			cube.CubeMatrix = translate(cube.CubeMatrix, vec3(-0.01f, 0, 0));
 			//Doormatrix = translate(Doormatrix, vec3(-1.f, 0, 0));
 		}
 		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) //right
 		{
-			cube.CubeMatrix = translate(cube.CubeMatrix, vec3(0.1f, 0, 0));
+			cube.CubeMatrix = translate(cube.CubeMatrix, vec3(0.01f, 0, 0));
 			//Doormatrix = translate(Doormatrix, vec3(1.f, 0, 0));
 		}
 		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) //back
 		{
-			cube.CubeMatrix = translate(cube.CubeMatrix, vec3(0, 0, 0.1f));
+			cube.CubeMatrix = translate(cube.CubeMatrix, vec3(0, 0, 0.01f));
 			//Doormatrix = translate(Doormatrix, vec3(0.f, 0, 0.1f));
 		}
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) //forward
 		{
-			cube.CubeMatrix = translate(cube.CubeMatrix, vec3(0, 0, -0.1f));
+			cube.CubeMatrix = translate(cube.CubeMatrix, vec3(0, 0, -0.01f));
 			//Doormatrix = translate(Doormatrix, vec3(-1.f, 0, -0.1f));
 		}
 	
 
 
 		
-
-		//lightShader.Activate();
-		//camera.Matrix(45.f,0.1f,100.f,lightShader, "camMatrix");
-		//light.CreateLight(vec3(1,1,1),vec3(1,1,1));
+		lightShader.Activate();
+		glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(light.lightModel));
+		glUniform3f(glGetUniformLocation(lightShader.ID, "lightColor"), light.lightColor.x, light.lightColor.y, light.lightColor.z);
+		camera.Matrix(45.f,0.1f,100.f,lightShader, "camMatrix");
+		light.CreateLight(vec3(1,1,1),vec3(1,1,1));
 	
 
 	
@@ -289,7 +302,7 @@ int main()
 	planevbo.Delete();
 	planeebo.Delete();
 	shaderProgram.Delete();
-	//lightShader.Delete();
+	lightShader.Delete();
 
 	// Delete window before ending the program
 	glfwDestroyWindow(window);

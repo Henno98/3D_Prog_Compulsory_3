@@ -76,13 +76,15 @@ void Cube::DrawCube(glm::vec3 scale, glm::vec3 color, Shader& shader, const char
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(CubeVertex), (void*)(6 * sizeof(float)));
 	glEnableVertexAttribArray(2);
 
-
-	glUniformMatrix4fv(glGetUniformLocation(shader.ID, uniform), 1, GL_FALSE, glm::value_ptr(CubeMatrix));
-	glDrawElements(GL_TRIANGLES, sizeof(CubeIndices), GL_UNSIGNED_INT, nullptr);
-
 	CubeVAO.Unbind();
 	CubeVBO.Unbind();
 	CubeEBO.Unbind();
+
+	CubeVAO.Bind();
+	glUniformMatrix4fv(glGetUniformLocation(shader.ID, uniform), 1, GL_FALSE, glm::value_ptr(CubeMatrix));
+	glDrawElements(GL_TRIANGLES, sizeof(CubeIndices), GL_UNSIGNED_INT, nullptr);
+
+	
 
 	CubeVAO.Delete();
 	CubeVBO.Delete();
@@ -96,31 +98,70 @@ void Cube::CreateCube(glm::vec3 position, glm::vec3 scale, Shader& shader, const
 	
 
 }
-glm::vec3 Cube::barycentricCoordinates(const glm::vec2& p1, const glm::vec2& p2, const glm::vec2& p3, const glm::vec2& p4)
+glm::vec3 Cube::barycentricCoordinates( glm::vec3 p1,  glm::vec3 p2,  glm::vec3 p3,  glm::vec3 p4)
 {
-	vec2 p12 = p2 - p1;
-	vec2 p13 = p3 - p1;
-	float areal_123 = abs(p12.x * p13.y - p12.y * p13.x); // double the area
+	//p1.y = 0;
+	//p2.y = 0;
+	//p3.y = 0;
+	//p4.y = 0;
 
-	vec3 baryc; // for return
+
+	//vec3 p12 = p2 - p1;
+	//vec3 p13 = p3 - p1;
+	//vec3 cross = glm::cross(p12, p13);
+	//float areal_123 = cross.y; // double the area
+
+	//vec3 baryc; // for return
+
+	//// u
+	//vec3 p = p2 - p4;
+	//vec3 q = p3 - p4;
+	//vec3 nu = glm::cross(q,p); // double the area of p4pq
+	//baryc.x = nu.x / areal_123;
+
+	//// v
+	//p = p3 - p4;
+	//q = p1 - p4;
+	//float nv = abs(p.x * q.y - p.y * q.x); // double the area of p4pq
+	//baryc.y = nv / areal_123;
+
+	//// w
+	//p = p1 - p4;
+	//q = p2 - p4;
+	//float nw = abs(p.x * q.y - p.y * q.x); // double the area of p4pq
+	//baryc.z = nw / areal_123;
+
+	//return baryc;
+
+	p1.y = 0;
+	p2.y = 0;
+	p3.y = 0;
+	p4.y = 0;
+
+	glm::vec3 p12 = p2 - p1;
+	glm::vec3 p13 = p3 - p1;
+	glm::vec3 cross = glm::cross(p12, p13);
+	float area_123 = glm::length(cross); // double the area
+
+	glm::vec3 baryc; // for return
 
 	// u
-	vec2 p = p2 - p4;
-	vec2 q = p3 - p4;
-	float nu = abs(p.x * q.y - p.y * q.x); // double the area of p4pq
-	baryc.x = nu / areal_123;
+	glm::vec3 p = p2 - p4;
+	glm::vec3 q = p3 - p4;
+	glm::vec3 nu = glm::cross(q, p); // double the area of p4pq
+	baryc.x = glm::length(nu) / area_123;
 
 	// v
 	p = p3 - p4;
 	q = p1 - p4;
-	float nv = abs(p.x * q.y - p.y * q.x); // double the area of p4pq
-	baryc.y = nv / areal_123;
+	float nv = glm::length(glm::cross(p, q)); // double the area of p4pq
+	baryc.y = nv / area_123;
 
 	// w
 	p = p1 - p4;
 	q = p2 - p4;
-	float nw = abs(p.x * q.y - p.y * q.x); // double the area of p4pq
-	baryc.z = nw / areal_123;
+	float nw = glm::length(glm::cross(p, q)); // double the area of p4pq
+	baryc.z = nw / area_123;
 
 	return baryc;
 }
