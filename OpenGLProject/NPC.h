@@ -24,6 +24,16 @@ public:
 	glm::vec3 Oldposition;
 	glm::vec3 Newposition;
 	NPC();
+
+	Eigen::MatrixXd AMatrix=Eigen::MatrixXd(4, 4);
+	Eigen::MatrixXd YMatrix=Eigen::MatrixXd(4, 1);
+	bool changefunction = false;
+	bool turn = false;
+	float x=0.f;
+	glm::vec3 pos1;
+	glm::vec3 pos2;
+	glm::vec3 pos3;
+	glm::vec3 pos4;
 	void Movement(glm::vec3 pos1, glm::vec3 pos2, glm::vec3 pos3, glm::vec3 pos4, int range);
 	glm::vec3 barycentricCoordinates(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3, glm::vec3 p4);
 	void DrawNPC( Shader& shader, const char* uniform);

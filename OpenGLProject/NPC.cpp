@@ -105,7 +105,60 @@ std::vector<NPCVertex> NPC::CalculateMovement(Eigen::MatrixXd solution, int rang
 void NPC::Movement(glm::vec3 pos1, glm::vec3 pos2, glm::vec3 pos3, glm::vec3 pos4, int range)
 {
 	
-		//DrawNPC(CalculateMovement(SolutionMatrix,range));
+
+	double x0 = pos1.x;
+	double x1 = pow(pos1.x, 3);
+	double x2 = pow(pos1.x, 2);
+
+	double x02 = pos2.x;
+	double x12 = pow(pos2.x, 3);
+	double x22 = pow(pos2.x, 2);
+
+	double x03 = pos3.x;
+	double x13 = pow(pos3.x, 3);
+	double x23 = pow(pos3.x, 2);
+
+	double x04 = pos4.x;
+	double x14 = pow(pos4.x, 3);
+	double x24 = pow(pos4.x, 2);
+
+	AMatrix <<
+		x1, x2, x0, 1.0,
+		x12, x22, x02, 1.0,
+		x13, x23, x03, 1.0,
+		x14, x24, x04, 1.0;
+
+	YMatrix <<
+		pos1.z,
+		pos2.z,
+		pos3.z,
+		pos4.z;
+
+	MatrixXd AInverse = AMatrix.inverse();
+	MatrixXd SolutionMatrix = AInverse * YMatrix;
+
+
+	float z = (SolutionMatrix(0, 0) * pow(x, 3)) + (SolutionMatrix(1, 0) * pow(x, 2)) + (SolutionMatrix(2, 0) * SolutionMatrix(3, 0));
+	//std::cout << "for X value: " << x << " Z value is: " << z << std::endl;
+
+	if (!turn == true) {
+		NPCMatrix = glm::translate(NPCMatrix, glm::vec3(x / 1000, 0, z / 1000));
+		x += 0.1f;
+		if (x >= 10)
+		{
+			turn = true;
+		}
+
+	}
+	if (!turn == false)
+	{
+		NPCMatrix = glm::translate(NPCMatrix, glm::vec3(-x / 1000, 0, -z / 1000));
+		x -= 0.1f;
+		if (x <= 0)
+		{
+			turn = false;
+		}
+	}
 
 }
 
