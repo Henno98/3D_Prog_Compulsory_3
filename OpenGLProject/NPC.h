@@ -25,7 +25,7 @@ public:
 	glm::vec3 Newposition;
 	NPC();
 	void Movement(glm::vec3 pos1, glm::vec3 pos2, glm::vec3 pos3, glm::vec3 pos4, int range);
-	void CreateNPC(glm::vec3 position, glm::vec3 size, Shader& shader, const char* uniform);
+	glm::vec3 barycentricCoordinates(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3, glm::vec3 p4);
 	void DrawNPC( Shader& shader, const char* uniform);
 	std::vector<NPCVertex> CalculateMovement(Eigen::MatrixXd solution, int range);
 	void UpdateMovement(glm::vec3 position, glm::vec3 Targetlocation);

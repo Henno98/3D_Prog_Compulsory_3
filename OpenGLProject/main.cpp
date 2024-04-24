@@ -50,6 +50,13 @@ struct Triangle
 
 };
 
+struct Quad
+{
+
+	GLuint v0, v1, v2, v3;
+
+};
+
 float curveplane(float x, float y)
 {
 
@@ -102,6 +109,7 @@ int main()
 
 	vector<Planevertex> PlaneVertices;
 	vector<Triangle> Indices;
+	vector<Triangle> QuadIndices;
 	
 	float step = 0.5f;
 	float size = 40;
@@ -123,7 +131,20 @@ int main()
 			unsigned int v3 = v2 + 1;
 
 			Indices.emplace_back(Triangle{ v0, v1, v2 });
+
 			Indices.emplace_back(Triangle{ v1, v2, v3 });
+		}
+	}
+
+	for (int i = 0; i < size - 1; i++) {
+		for (int j = 0; j < size - 1; j++) {
+			unsigned int v0 = i * (size / step) + j;
+			unsigned int v1 = v0 + 1;
+			unsigned int v2 = v0 + (size / step);
+			unsigned int v3 = v2 + 1;
+
+			QuadIndices.emplace_back(Triangle{ v3, v2, v1 });
+			
 		}
 	}
 	//cube.CubeMatrix = translate(cube.CubeMatrix, vec3(5, 0, 5));
@@ -164,14 +185,22 @@ int main()
 
 	
 	Cube cube;
-	cube.CubeMatrix = translate(cube.CubeMatrix, vec3(5, 0, 5));
+	cube.CubeMatrix = translate(cube.CubeMatrix, vec3(0, 0, 7));
 
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
+	float lastFrame = 0.f;
+
 
 	while (!glfwWindowShouldClose(window))
 	{
+
+		//Gets the current frame
+		float currentFrame = static_cast<float>(glfwGetTime());
+		float Deltatime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
+
 		// Specify the color of the background
 		glClearColor(0.01f, 0.01f, 0.1f, 1.0f);
 		// Clean the back buffer and depth buffer
@@ -188,56 +217,9 @@ int main()
 
 		planevao.Bind();
 		glDrawElements(GL_TRIANGLES, Indices.size()*3, GL_UNSIGNED_INT, nullptr);
+		//glDrawElements(GL_TRIANGLES, QuadIndices.size() * 3, GL_UNSIGNED_INT, nullptr);
 
 	
-		   // Check if the cube position lies within the current grid cell
-		for (int i = 0; i < Indices.size() ; i++)
-		{
-
-			unsigned int Index0 = Indices[i].v0;
-			unsigned int Index1 = Indices[i].v1;
-			unsigned int Index2 = Indices[i].v2;
-
-
-			// Calculate barycentric coordinates
-			vec3 barycentric = cube.barycentricCoordinates(vec3(PlaneVertices[Index0].x, PlaneVertices[Index0].y, PlaneVertices[Index0].z),
-				vec3(PlaneVertices[Index1].x, PlaneVertices[Index1].y, PlaneVertices[Index1].z),
-				vec3(PlaneVertices[Index2].x, PlaneVertices[Index2].y, PlaneVertices[Index2].z),
-				vec3(cube.CubeMatrix[3].x, cube.CubeMatrix[3].y, cube.CubeMatrix[3].z));
-
-
-			if (barycentric.x < 1 && barycentric.x > 0 && barycentric.y < 1 && barycentric.y > 0 && barycentric.z < 1 && barycentric.z > 0 ) {
-				/*if (cube.CubeMatrix[3].z >= PlaneVertices[Index0].z && cube.CubeMatrix[Index0].z <= PlaneVertices[Index1].z &&
-					cube.CubeMatrix[3].x >= PlaneVertices[Index0].x && cube.CubeMatrix[3].x <= PlaneVertices[Index2].x)*/
-				
-
-
-
-				cout << Index0 << " " << Index1 << " " << Index2 << endl;
-				
-
-
-					// Calculate interpolated y position
-					float interpolatedY = PlaneVertices[Index0].y * barycentric.x +
-						PlaneVertices[Index1].y * barycentric.y +
-						PlaneVertices[Index2].y * barycentric.z;
-
-
-					cout << "interpolation y: " << interpolatedY << endl;
-					cout << "cube y: " << cube.CubeMatrix[3].y << endl;
-					//cout << "light y: " << light.lightModel[3].y << endl;
-
-					// Update the translation matrix of the cube with the interpolated y position
-					//cube.CubeMatrix[3].y = interpolatedY;
-					cube.CubeMatrix = translate(cube.CubeMatrix, vec3(0.f, interpolatedY-cube.CubeMatrix[3].y, 0));
-
-					// Break out of the loop once the cube position is found
-					break;
-
-				
-			}
-		
-		}
 		
 	
 		cube.DrawCube(vec3(0.2, 0.2, 0.2), vec3(0, 1, 1), shaderProgram, "model");
@@ -254,27 +236,69 @@ int main()
 		//Cube movement
 		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) //left
 		{
-			cube.CubeMatrix = translate(cube.CubeMatrix, vec3(-0.01f, 0, 0));
-			//Doormatrix = translate(Doormatrix, vec3(-1.f, 0, 0));
+			cube.CubeMatrix[3].x += 5 * Deltatime;
+			camera.Position.x += 5 * Deltatime;
+			
 		}
 		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) //right
 		{
-			cube.CubeMatrix = translate(cube.CubeMatrix, vec3(0.01f, 0, 0));
-			//Doormatrix = translate(Doormatrix, vec3(1.f, 0, 0));
+			cube.CubeMatrix[3].x += -5 * Deltatime;
+			camera.Position.x += -5 * Deltatime;
+			
 		}
 		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) //back
 		{
-			cube.CubeMatrix = translate(cube.CubeMatrix, vec3(0, 0, 0.01f));
-			//Doormatrix = translate(Doormatrix, vec3(0.f, 0, 0.1f));
+			cube.CubeMatrix[3].z += 5 * Deltatime;
+			camera.Position.z += 5 * Deltatime;
+			
 		}
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) //forward
 		{
-			cube.CubeMatrix = translate(cube.CubeMatrix, vec3(0, 0, -0.01f));
-			//Doormatrix = translate(Doormatrix, vec3(-1.f, 0, -0.1f));
+			cube.CubeMatrix[3].z += -5 * Deltatime;
+			camera.Position.z += -5 * Deltatime;
+			
 		}
 	
 
+		   // Check if the cube position lies within the current grid cell
+		for (int i = 0; i < Indices.size() ; i++)
+		{
 
+			unsigned int Index0 = Indices[i].v0;
+			unsigned int Index1 = Indices[i].v1;
+			unsigned int Index2 = Indices[i].v2;
+
+			
+
+
+
+			// Calculate barycentric coordinates
+			vec3 barycentric = cube.barycentricCoordinates(vec3(PlaneVertices[Index0].x, PlaneVertices[Index0].y, PlaneVertices[Index0].z),
+				vec3(PlaneVertices[Index1].x, PlaneVertices[Index1].y, PlaneVertices[Index1].z),
+				vec3(PlaneVertices[Index2].x, PlaneVertices[Index2].y, PlaneVertices[Index2].z),
+				vec3(cube.CubeMatrix[3].x, cube.CubeMatrix[3].y, cube.CubeMatrix[3].z));
+
+			
+
+
+			if (barycentric.x < 1 && barycentric.x > 0 && barycentric.y < 1 && barycentric.y > 0 && barycentric.z < 1 && barycentric.z > 0 ) {
+
+					// Calculate interpolated y position
+				float interpolatedX = (PlaneVertices[Index0].y * barycentric.x);
+				float InterpolatedY = (PlaneVertices[Index1].y * barycentric.y);
+				float InterpolatedZ = (PlaneVertices[Index2].y * barycentric.z);
+				float InterpolatedPos = interpolatedX + InterpolatedY + InterpolatedZ;
+					// Update the translation matrix of the cube with the interpolated y position
+					cube.CubeMatrix[3].y = InterpolatedPos;
+					cout << InterpolatedPos << endl;
+					break;
+
+				
+			}
+			
+		
+		}
+		
 		
 		lightShader.Activate();
 		glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(light.lightModel));
@@ -286,7 +310,7 @@ int main()
 	
 		
 
-		
+		//cout << "cube y: " << cube.CubeMatrix[3].y << endl;
 		
 		glGetError();
 		
