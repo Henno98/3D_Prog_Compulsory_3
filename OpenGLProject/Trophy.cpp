@@ -97,6 +97,8 @@ void Trophy::DrawTrophy( glm::vec3 size, Shader& shader, const char* uniform)
 	trophyVAO.Delete();
 	trophyVBO.Delete();
 	trophyEBO.Delete();
+	AABB.Position = TrophyMatrix[3];
+	AABB.Extent = size;
 }
 
 void Trophy::DestroyTrophy()

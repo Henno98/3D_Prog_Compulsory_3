@@ -24,7 +24,7 @@ public:
 	glm::vec3 Oldposition;
 	glm::vec3 Newposition;
 	NPC();
-
+	BoundingBox AABB;
 	Eigen::MatrixXd AMatrix=Eigen::MatrixXd(4, 4);
 	Eigen::MatrixXd YMatrix=Eigen::MatrixXd(4, 1);
 	bool changefunction = false;

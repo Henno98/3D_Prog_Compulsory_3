@@ -201,7 +201,7 @@ int main()
 	vec3 pos1 = vec3(1, 0, 1);
 	vec3 pos2 = vec3(5, 0, 6);
 	vec3 pos3 = vec3(15, 0, 17);
-	vec3 pos4 = vec3(20, 0, -17);
+	vec3 pos4 = vec3(20, 0, 5);
 	auto Bez = Bezier<vec3>(pos1,pos2,pos3,pos4);
 	float t = 0.f;
 

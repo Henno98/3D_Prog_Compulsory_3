@@ -80,6 +80,9 @@ void NPC::DrawNPC(Shader& shader, const char* uniform)
 	NPCVAO.Delete();
 	NPCVBO.Delete();
 	NPCEBO.Delete();
+
+	AABB.Position = NPCMatrix[3];
+	AABB.Extent = glm::vec3(0.5, 0.5, 0.5);
 }
 
 
