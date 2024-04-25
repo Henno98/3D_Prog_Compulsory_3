@@ -21,5 +21,7 @@ public:
 	void PlaceTrophy(glm::vec3 position, glm::vec3 size);
 	void DrawTrophy( glm::vec3 size, Shader& shader, const char* uniform);
 	void DestroyTrophy();
+	glm::vec3 barycentricCoordinates(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3, glm::vec3 p4);
+	
 };
 

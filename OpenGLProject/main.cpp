@@ -24,6 +24,8 @@
 #include "Cube.h"
 #include "Shaders/Light.h"
 #include "Trophy.h"
+
+
 using namespace std;
 using namespace Eigen;
 using namespace glm;
@@ -112,7 +114,7 @@ int main()
 	{
 		for (float j = 0; j < size; j += step) {
 
-			PlaneVertices.emplace_back(Planevertex{ i, curveplane(i,j),j,0,1,0,1,0,0 });
+			PlaneVertices.emplace_back(Planevertex{ i, curveplane(i,j),j,0,1,0,i/size,0,j/size });
 
 		}
 
@@ -196,11 +198,9 @@ int main()
 
 
 		shaderProgram.Activate();
-
 		npc.DrawNPC(shaderProgram, "model");
 		trophy.DrawTrophy(vec3(1,1,1),shaderProgram,"model");
 		npc.Movement(vec3(1, 0, 1), vec3(10, 0, 2), vec3(20, 0, 25), vec3(80, 0, 30),10);
-
 		glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightColor"), light.lightColor.x, light.lightColor.y, light.lightColor.z);
 		glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), light.lightPos.x, light.lightPos.y, light.lightPos.z);
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(Doormatrix));
@@ -209,7 +209,11 @@ int main()
 		glDrawElements(GL_TRIANGLES, Indices.size() * 3, GL_UNSIGNED_INT, nullptr);
 		//glDrawElements(GL_TRIANGLES, QuadIndices.size() * 3, GL_UNSIGNED_INT, nullptr);
 
+
+
+
 		cube.DrawCube(vec3(0.2, 0.2, 0.2), vec3(0, 1, 1), shaderProgram, "model");
+
 
 		// Exports the camera Position to the Fragment Shader for specular lighting
 		glUniform3f(glGetUniformLocation(shaderProgram.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
@@ -271,6 +275,12 @@ int main()
 				vec3(PlaneVertices[Index2].x, PlaneVertices[Index2].y, PlaneVertices[Index2].z),
 				vec3(npc.NPCMatrix[3].x,npc.NPCMatrix[3].y,npc.NPCMatrix[3].z));
 
+			// Calculate barycentric coordinates
+			vec3 barycentric3 = trophy.barycentricCoordinates(vec3(PlaneVertices[Index0].x, PlaneVertices[Index0].y, PlaneVertices[Index0].z),
+				vec3(PlaneVertices[Index1].x, PlaneVertices[Index1].y, PlaneVertices[Index1].z),
+				vec3(PlaneVertices[Index2].x, PlaneVertices[Index2].y, PlaneVertices[Index2].z),
+				vec3(trophy.TrophyMatrix[3].x, trophy.TrophyMatrix[3].y, trophy.TrophyMatrix[3].z));
+
 
 
 
@@ -283,7 +293,7 @@ int main()
 				float InterpolatedPos = interpolatedX + InterpolatedY + InterpolatedZ;
 				// Update the translation matrix of the cube with the interpolated y position
 				cube.CubeMatrix[3].y = InterpolatedPos;
-				cout << InterpolatedPos << endl;
+				//cout << InterpolatedPos << endl;
 				
 
 
@@ -297,8 +307,22 @@ int main()
 				float InterpolatedPos = interpolatedX + InterpolatedY + InterpolatedZ;
 				// Update the translation matrix of the cube with the interpolated y position
 				npc.NPCMatrix[3].y = InterpolatedPos;
-				cout << InterpolatedPos << endl;
+				//cout << InterpolatedPos << endl;
 			
+
+
+			}
+			if (barycentric3.x < 1 && barycentric3.x > 0 && barycentric3.y < 1 && barycentric3.y > 0 && barycentric3.z < 1 && barycentric3.z > 0)
+			{
+				// Calculate interpolated y position
+				float interpolatedX = (PlaneVertices[Index0].y * barycentric3.x);
+				float InterpolatedY = (PlaneVertices[Index1].y * barycentric3.y);
+				float InterpolatedZ = (PlaneVertices[Index2].y * barycentric3.z);
+				float InterpolatedPos = interpolatedX + InterpolatedY + InterpolatedZ;
+				// Update the translation matrix of the cube with the interpolated y position
+				trophy.TrophyMatrix[3].y = InterpolatedPos;
+				//cout << InterpolatedPos << endl;
+
 
 
 			}
