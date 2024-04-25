@@ -19,7 +19,7 @@ public:
 	bool trophycollected;
 	Trophy();
 	void PlaceTrophy(glm::vec3 position, glm::vec3 size);
-	void DrawTrophy(glm::vec3 position, glm::vec3 size, Shader& shader, const char* uniform);
+	void DrawTrophy( glm::vec3 size, Shader& shader, const char* uniform);
 	void DestroyTrophy();
 };
 

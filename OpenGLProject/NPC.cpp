@@ -159,6 +159,7 @@ void NPC::Movement(glm::vec3 pos1, glm::vec3 pos2, glm::vec3 pos3, glm::vec3 pos
 			turn = false;
 		}
 	}
+	NPCMatrix = glm::translate(NPCMatrix, glm::vec3(x - NPCMatrix[3].x, 0, z - NPCMatrix[3].z));
 
 }
 

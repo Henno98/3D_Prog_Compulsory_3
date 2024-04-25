@@ -25,7 +25,7 @@ void Trophy::PlaceTrophy(glm::vec3 position, glm::vec3 size)
 
 }
 
-void Trophy::DrawTrophy(glm::vec3 position, glm::vec3 size, Shader& shader, const char* uniform)
+void Trophy::DrawTrophy( glm::vec3 size, Shader& shader, const char* uniform)
 {
 	if (!trophycollected == false)
 		return;
@@ -78,11 +78,11 @@ void Trophy::DrawTrophy(glm::vec3 position, glm::vec3 size, Shader& shader, cons
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 
-	int modelloc = glGetUniformLocation(shader.ID, "model");
+	int modelloc = glGetUniformLocation(shader.ID, uniform);
 	glUniformMatrix4fv(modelloc, 1, GL_FALSE, glm::value_ptr(TrophyMatrix));
 
-	PlaceTrophy(position, size);
-	AABB.Position = position - glm::vec3(size.x / 2, 0, size.z / 2);
+	
+	AABB.Position = TrophyMatrix[3];
 	AABB.Extent = size;
 
 	glDrawElements(GL_TRIANGLES, sizeof(trophyIndices), GL_UNSIGNED_INT, nullptr);

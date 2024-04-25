@@ -89,7 +89,8 @@ void Cube::DrawCube(glm::vec3 scale, glm::vec3 color, Shader& shader, const char
 	CubeVAO.Delete();
 	CubeVBO.Delete();
 	CubeEBO.Delete();
-
+	AABB.Position = CubeMatrix[3];
+	AABB.Extent = scale;
 };
 
 void Cube::CreateCube(glm::vec3 position, glm::vec3 scale, Shader& shader, const char* uniform)

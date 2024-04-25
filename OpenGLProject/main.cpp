@@ -15,7 +15,7 @@
 #include <string>
 #include "NPC.h"
 #include <Eigen/Dense>
-#include "Trophy.h"
+
 #include "Shaders/ShaderClass.h"
 #include "Shaders/VAO.h"
 #include "Shaders/VBO.h"
@@ -23,7 +23,7 @@
 #include "Camera.h"
 #include "Cube.h"
 #include "Shaders/Light.h"
-#include "Wall.h"
+#include "Trophy.h"
 using namespace std;
 using namespace Eigen;
 using namespace glm;
@@ -36,31 +36,26 @@ const unsigned int height = 1200;
 struct Planevertex
 {
 
-	GLfloat x,y,z;
+	GLfloat x, y, z;
 	float r, g, b;
-	float n1,n2,n3;
-	
-	
+	float n1, n2, n3;
+
+
 
 };
 
 struct Triangle
 {
-	GLuint v0,v1,v2;
+	GLuint v0, v1, v2;
 
 };
 
-struct Quad
-{
 
-	GLuint v0, v1, v2, v3;
-
-};
 
 float curveplane(float x, float y)
 {
 
-	return cos(x)+ sin(y);
+	return cos(x) + sin(y) - cos(y);
 }
 
 
@@ -95,39 +90,39 @@ int main()
 
 	// Generates Shader object using shaders defualt.vert and default.frag
 	Shader shaderProgram("default.vert", "default.frag");
-	
-//	NPC npc;
 
-	Camera camera(width, height, glm::vec3((-0.1f ), 5.f, (-0.1f )));
-	
+	//	NPC npc;
+
+	Camera camera(width, height, glm::vec3((-0.1f), 5.f, (-0.1f)));
+
 
 
 
 	mat4 Doormatrix = mat4(1.0f);
-	Doormatrix = translate(Doormatrix, vec3(0, 0, 0));
 	
+
 
 	vector<Planevertex> PlaneVertices;
 	vector<Triangle> Indices;
 	vector<Triangle> QuadIndices;
-	
+
 	float step = 0.5f;
 	float size = 40;
-	for (float i = 0; i < size; i+=step)
+	for (float i = 0; i < size; i += step)
 	{
-		for (float j = 0; j < size; j+=step) {
+		for (float j = 0; j < size; j += step) {
 
-			PlaneVertices.emplace_back(Planevertex{ i, curveplane(i,j),j,0,1,0,1,0,0});
-		
+			PlaneVertices.emplace_back(Planevertex{ i, curveplane(i,j),j,0,1,0,1,0,0 });
+
 		}
-		
+
 
 	}
 	for (int i = 0; i < size - 1; i++) {
 		for (int j = 0; j < size - 1; j++) {
-			unsigned int v0 = i * (size/step) + j;
+			unsigned int v0 = i * (size / step) + j;
 			unsigned int v1 = v0 + 1;
-			unsigned int v2 = v0 + (size/step);
+			unsigned int v2 = v0 + (size / step);
 			unsigned int v3 = v2 + 1;
 
 			Indices.emplace_back(Triangle{ v0, v1, v2 });
@@ -136,19 +131,8 @@ int main()
 		}
 	}
 
-	for (int i = 0; i < size - 1; i++) {
-		for (int j = 0; j < size - 1; j++) {
-			unsigned int v0 = i * (size / step) + j;
-			unsigned int v1 = v0 + 1;
-			unsigned int v2 = v0 + (size / step);
-			unsigned int v3 = v2 + 1;
 
-			QuadIndices.emplace_back(Triangle{ v3, v2, v1 });
-			
-		}
-	}
-	//cube.CubeMatrix = translate(cube.CubeMatrix, vec3(5, 0, 5));
-	
+
 	Light light;
 
 
@@ -158,7 +142,7 @@ int main()
 	planevbo.Bind();
 	EBO planeebo(reinterpret_cast<GLuint*>(Indices.data()), (Indices.size() * sizeof(Triangle)));
 	planeebo.Bind();
-	
+
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
@@ -174,7 +158,7 @@ int main()
 	planevbo.Unbind();
 	planeebo.Unbind();
 
-	
+
 
 
 	//
@@ -183,8 +167,10 @@ int main()
 	Shader lightShader("Light.vert", "Light.frag");
 
 
-	
+	NPC npc;
+	Trophy trophy;
 	Cube cube;
+	trophy.TrophyMatrix = translate(trophy.TrophyMatrix, vec3(10, 2, 10));
 	cube.CubeMatrix = translate(cube.CubeMatrix, vec3(0, 0, 7));
 
 
@@ -192,7 +178,7 @@ int main()
 	glDepthFunc(GL_LESS);
 	float lastFrame = 0.f;
 
-
+//	Doormatrix = translate(Doormatrix, vec3(-5, 0, -5));
 	while (!glfwWindowShouldClose(window))
 	{
 
@@ -206,24 +192,24 @@ int main()
 		// Clean the back buffer and depth buffer
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		// Tell OpenGL which Shader Program we want to use
-		
 
-		
+
+
 		shaderProgram.Activate();
+
+		npc.DrawNPC(shaderProgram, "model");
+		trophy.DrawTrophy(vec3(1,1,1),shaderProgram,"model");
+		npc.Movement(vec3(1, 0, 1), vec3(10, 0, 2), vec3(20, 0, 25), vec3(80, 0, 30),10);
 
 		glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightColor"), light.lightColor.x, light.lightColor.y, light.lightColor.z);
 		glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), light.lightPos.x, light.lightPos.y, light.lightPos.z);
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(Doormatrix));
 
 		planevao.Bind();
-		glDrawElements(GL_TRIANGLES, Indices.size()*3, GL_UNSIGNED_INT, nullptr);
+		glDrawElements(GL_TRIANGLES, Indices.size() * 3, GL_UNSIGNED_INT, nullptr);
 		//glDrawElements(GL_TRIANGLES, QuadIndices.size() * 3, GL_UNSIGNED_INT, nullptr);
 
-	
-		
-	
 		cube.DrawCube(vec3(0.2, 0.2, 0.2), vec3(0, 1, 1), shaderProgram, "model");
-
 
 		// Exports the camera Position to the Fragment Shader for specular lighting
 		glUniform3f(glGetUniformLocation(shaderProgram.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
@@ -232,43 +218,44 @@ int main()
 		camera.Inputs(window);
 		//cube.CubeMatrix[3].y = barycentric.y;
 
-	
+
 		//Cube movement
 		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) //left
 		{
 			cube.CubeMatrix[3].x += 5 * Deltatime;
 			camera.Position.x += 5 * Deltatime;
-			
+
 		}
 		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) //right
 		{
 			cube.CubeMatrix[3].x += -5 * Deltatime;
 			camera.Position.x += -5 * Deltatime;
-			
+
 		}
 		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) //back
 		{
 			cube.CubeMatrix[3].z += 5 * Deltatime;
 			camera.Position.z += 5 * Deltatime;
-			
+
 		}
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) //forward
 		{
 			cube.CubeMatrix[3].z += -5 * Deltatime;
 			camera.Position.z += -5 * Deltatime;
-			
-		}
-	
 
-		   // Check if the cube position lies within the current grid cell
-		for (int i = 0; i < Indices.size() ; i++)
+		}
+
+
+		// Check if the cube position lies within the current grid cell
+		for (int i = 0; i < Indices.size(); i++)
 		{
 
 			unsigned int Index0 = Indices[i].v0;
 			unsigned int Index1 = Indices[i].v1;
 			unsigned int Index2 = Indices[i].v2;
+			unsigned int Index3 = Indices[i].v2 + 1;
 
-			
+
 
 
 
@@ -278,50 +265,70 @@ int main()
 				vec3(PlaneVertices[Index2].x, PlaneVertices[Index2].y, PlaneVertices[Index2].z),
 				vec3(cube.CubeMatrix[3].x, cube.CubeMatrix[3].y, cube.CubeMatrix[3].z));
 
-			
+			// Calculate barycentric coordinates
+			vec3 barycentric2 = npc.barycentricCoordinates(vec3(PlaneVertices[Index0].x, PlaneVertices[Index0].y, PlaneVertices[Index0].z),
+				vec3(PlaneVertices[Index1].x, PlaneVertices[Index1].y, PlaneVertices[Index1].z),
+				vec3(PlaneVertices[Index2].x, PlaneVertices[Index2].y, PlaneVertices[Index2].z),
+				vec3(npc.NPCMatrix[3].x,npc.NPCMatrix[3].y,npc.NPCMatrix[3].z));
 
 
-			if (barycentric.x < 1 && barycentric.x > 0 && barycentric.y < 1 && barycentric.y > 0 && barycentric.z < 1 && barycentric.z > 0 ) {
 
-					// Calculate interpolated y position
+
+			if (barycentric.x < 1 && barycentric.x > 0 && barycentric.y < 1 && barycentric.y > 0 && barycentric.z < 1 && barycentric.z > 0) {
+
+				// Calculate interpolated y position
 				float interpolatedX = (PlaneVertices[Index0].y * barycentric.x);
 				float InterpolatedY = (PlaneVertices[Index1].y * barycentric.y);
 				float InterpolatedZ = (PlaneVertices[Index2].y * barycentric.z);
 				float InterpolatedPos = interpolatedX + InterpolatedY + InterpolatedZ;
-					// Update the translation matrix of the cube with the interpolated y position
-					cube.CubeMatrix[3].y = InterpolatedPos;
-					cout << InterpolatedPos << endl;
-					break;
-
+				// Update the translation matrix of the cube with the interpolated y position
+				cube.CubeMatrix[3].y = InterpolatedPos;
+				cout << InterpolatedPos << endl;
 				
+
+
 			}
+			if(barycentric2.x < 1 && barycentric2.x > 0 && barycentric2.y < 1 && barycentric2.y > 0 && barycentric2.z < 1 && barycentric2.z > 0)
+			{
+				// Calculate interpolated y position
+				float interpolatedX = (PlaneVertices[Index3].y * barycentric2.x);
+				float InterpolatedY = (PlaneVertices[Index1].y * barycentric2.y);
+				float InterpolatedZ = (PlaneVertices[Index2].y * barycentric2.z);
+				float InterpolatedPos = interpolatedX + InterpolatedY + InterpolatedZ;
+				// Update the translation matrix of the cube with the interpolated y position
+				npc.NPCMatrix[3].y = InterpolatedPos;
+				cout << InterpolatedPos << endl;
 			
-		
+
+
+			}
+
+
 		}
-		
-		
+
+
 		lightShader.Activate();
 		glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(light.lightModel));
 		glUniform3f(glGetUniformLocation(lightShader.ID, "lightColor"), light.lightColor.x, light.lightColor.y, light.lightColor.z);
-		camera.Matrix(45.f,0.1f,100.f,lightShader, "camMatrix");
-		light.CreateLight(vec3(1,1,1),vec3(1,1,1));
-	
+		camera.Matrix(45.f, 0.1f, 100.f, lightShader, "camMatrix");
+		light.CreateLight(vec3(1, 1, 1), vec3(1, 1, 1));
 
-	
-		
+
+
+
 
 		//cout << "cube y: " << cube.CubeMatrix[3].y << endl;
-		
+
 		glGetError();
-		
+
 		//Camera
-		
+
 		//Swap the back buffer with the front buffer
 		glfwSwapBuffers(window);
 		// Take care of all GLFW events
 		glfwPollEvents();
 	}
-	
+
 	planevao.Delete();
 	planevbo.Delete();
 	planeebo.Delete();
@@ -336,3 +343,5 @@ int main()
 	return 0;
 
 }
+
+
