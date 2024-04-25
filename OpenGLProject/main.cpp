@@ -26,6 +26,8 @@
 #include "Trophy.h"
 
 
+
+
 using namespace std;
 using namespace Eigen;
 using namespace glm;
@@ -33,6 +35,30 @@ using namespace glm;
 // Window dimensions
 const unsigned int width = 1200;
 const unsigned int height = 1200;
+
+template <typename T>
+struct Bezier
+{
+	T p0, p1, p2, p3;
+
+	Bezier() : p0(T()), p1(T()), p2(T()), p3(T())
+	{
+	}
+
+	Bezier(T p0, T p1, T p2, T p3) : p0(p0), p1(p1), p2(p2), p3(p3)
+	{
+	}
+
+	T operator()(const float t)
+	{
+		const auto u = 1 - t;
+		const auto tp0 = powf(u, 3) * p0;
+		const auto tp1 = 3 * powf(u, 2) * t * p1;
+		const auto tp2 = 3 * u * powf(t, 2) * p2;
+		const auto tp3 = powf(t, 3) * p3;
+		return tp0 + tp1 + tp2 + tp3;
+	}
+};
 
 
 struct Planevertex
@@ -172,6 +198,13 @@ int main()
 	NPC npc;
 	Trophy trophy;
 	Cube cube;
+	vec3 pos1 = vec3(1, 0, 1);
+	vec3 pos2 = vec3(5, 0, 6);
+	vec3 pos3 = vec3(15, 0, 17);
+	vec3 pos4 = vec3(20, 0, -17);
+	auto Bez = Bezier<vec3>(pos1,pos2,pos3,pos4);
+	float t = 0.f;
+
 	trophy.TrophyMatrix = translate(trophy.TrophyMatrix, vec3(10, 2, 10));
 	cube.CubeMatrix = translate(cube.CubeMatrix, vec3(0, 0, 7));
 
@@ -195,12 +228,15 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		// Tell OpenGL which Shader Program we want to use
 
-
+		t = fmod(t + Deltatime, 1.0f);
 
 		shaderProgram.Activate();
 		npc.DrawNPC(shaderProgram, "model");
+
+		npc.NPCMatrix[3] = vec4(Bez(t), 1);
+		
+
 		trophy.DrawTrophy(vec3(1,1,1),shaderProgram,"model");
-		npc.Movement(vec3(1, 0, 1), vec3(10, 0, 2), vec3(20, 0, 25), vec3(80, 0, 30),10);
 		glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightColor"), light.lightColor.x, light.lightColor.y, light.lightColor.z);
 		glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), light.lightPos.x, light.lightPos.y, light.lightPos.z);
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(Doormatrix));
@@ -208,8 +244,6 @@ int main()
 		planevao.Bind();
 		glDrawElements(GL_TRIANGLES, Indices.size() * 3, GL_UNSIGNED_INT, nullptr);
 		//glDrawElements(GL_TRIANGLES, QuadIndices.size() * 3, GL_UNSIGNED_INT, nullptr);
-
-
 
 
 		cube.DrawCube(vec3(0.2, 0.2, 0.2), vec3(0, 1, 1), shaderProgram, "model");
@@ -301,7 +335,7 @@ int main()
 			if(barycentric2.x < 1 && barycentric2.x > 0 && barycentric2.y < 1 && barycentric2.y > 0 && barycentric2.z < 1 && barycentric2.z > 0)
 			{
 				// Calculate interpolated y position
-				float interpolatedX = (PlaneVertices[Index3].y * barycentric2.x);
+				float interpolatedX = (PlaneVertices[Index0].y * barycentric2.x);
 				float InterpolatedY = (PlaneVertices[Index1].y * barycentric2.y);
 				float InterpolatedZ = (PlaneVertices[Index2].y * barycentric2.z);
 				float InterpolatedPos = interpolatedX + InterpolatedY + InterpolatedZ;
@@ -330,6 +364,7 @@ int main()
 
 		}
 
+		cout << npc.NPCMatrix[3].x << " " << npc.NPCMatrix[3].y << " " << npc.NPCMatrix[3].z << endl;
 
 		lightShader.Activate();
 		glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(light.lightModel));

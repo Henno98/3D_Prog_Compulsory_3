@@ -8,7 +8,7 @@
 
 struct NPCVertex
 {
-	GLfloat x, y, z, r, g, b;
+	GLfloat x, y, z, r, g, b,n1,n2,n3;
 };
 class NPC
 {

@@ -18,6 +18,7 @@ using namespace Eigen;
 //};
 
 
+
 NPC::NPC()
 {
 	Color = glm::vec3(1, 0, 1);
