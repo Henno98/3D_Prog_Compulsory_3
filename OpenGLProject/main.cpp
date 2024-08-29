@@ -154,7 +154,6 @@ int main()
 			unsigned int v3 = v2 + 1;
 
 			Indices.emplace_back(Triangle{ v0, v1, v2 });
-
 			Indices.emplace_back(Triangle{ v1, v2, v3 });
 		}
 	}
@@ -197,7 +196,11 @@ int main()
 
 	NPC npc;
 	Trophy trophy;
-	Cube cube;
+	Cube cubeleft;
+	Cube cuberight;
+	Cube cubefront;
+	Cube cubeback;
+	Cube cubebottom;
 	vec3 pos1 = vec3(1, 0, 1);
 	vec3 pos2 = vec3(5, 0, 6);
 	vec3 pos3 = vec3(15, 0, 17);
@@ -206,7 +209,11 @@ int main()
 	float t = 0.f;
 
 	trophy.TrophyMatrix = translate(trophy.TrophyMatrix, vec3(10, 2, 10));
-	cube.CubeMatrix = translate(cube.CubeMatrix, vec3(0, 0, 7));
+	cubeleft.CubeMatrix = translate(cubeleft.CubeMatrix, vec3(-2, 0, 0));
+	cuberight.CubeMatrix = translate(cuberight.CubeMatrix, vec3(2, 0, 0));
+	cubefront.CubeMatrix = translate(cubefront.CubeMatrix, vec3(0, 0, 2));
+	cubeback.CubeMatrix = translate(cubeback.CubeMatrix, vec3(0, 0, -2));
+	cubebottom.CubeMatrix = translate(cubebottom.CubeMatrix, vec3(0, -0.2, 0));
 
 
 	glEnable(GL_DEPTH_TEST);
@@ -231,22 +238,26 @@ int main()
 		t = fmod(t + Deltatime, 1.0f);
 
 		shaderProgram.Activate();
-		npc.DrawNPC(shaderProgram, "model");
+		//npc.DrawNPC(shaderProgram, "model");
 
-		npc.NPCMatrix[3] = vec4(Bez(t), 1);
+		//npc.NPCMatrix[3] = vec4(Bez(t), 1);
 		
 
-		trophy.DrawTrophy(vec3(1,1,1),shaderProgram,"model");
+		//trophy.DrawTrophy(vec3(1,1,1),shaderProgram,"model");
 		glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightColor"), light.lightColor.x, light.lightColor.y, light.lightColor.z);
 		glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), light.lightPos.x, light.lightPos.y, light.lightPos.z);
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(Doormatrix));
 
-		planevao.Bind();
-		glDrawElements(GL_TRIANGLES, Indices.size() * 3, GL_UNSIGNED_INT, nullptr);
+		//planevao.Bind();
+		//glDrawElements(GL_TRIANGLES, Indices.size() * 3, GL_UNSIGNED_INT, nullptr);
 		//glDrawElements(GL_TRIANGLES, QuadIndices.size() * 3, GL_UNSIGNED_INT, nullptr);
 
 
-		cube.DrawCube(vec3(0.2, 0.2, 0.2), vec3(0, 1, 1), shaderProgram, "model");
+		cubeleft.DrawCube(vec3(0.2, 0.4, 2), vec3(0, 1, 1), shaderProgram, "model");
+		cuberight.DrawCube(vec3(0.2, 0.4, 2), vec3(0, 1, 1), shaderProgram, "model");
+		cubefront.DrawCube(vec3(2, 0.4, 0.2), vec3(0, 1, 1), shaderProgram, "model");
+		cubeback.DrawCube(vec3(2, 0.4, 0.2), vec3(0, 1, 1), shaderProgram, "model");
+		cubebottom.DrawCube(vec3(2, 0.2, 2), vec3(1, 0, 1), shaderProgram, "model");
 
 
 		// Exports the camera Position to the Fragment Shader for specular lighting
@@ -257,109 +268,84 @@ int main()
 		//cube.CubeMatrix[3].y = barycentric.y;
 
 
-		//Cube movement
-		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) //left
-		{
-			cube.CubeMatrix[3].x += 5 * Deltatime;
-			camera.Position.x += 5 * Deltatime;
-
-		}
-		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) //right
-		{
-			cube.CubeMatrix[3].x += -5 * Deltatime;
-			camera.Position.x += -5 * Deltatime;
-
-		}
-		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) //back
-		{
-			cube.CubeMatrix[3].z += 5 * Deltatime;
-			camera.Position.z += 5 * Deltatime;
-
-		}
-		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) //forward
-		{
-			cube.CubeMatrix[3].z += -5 * Deltatime;
-			camera.Position.z += -5 * Deltatime;
-
-		}
 
 
 		// Check if the cube position lies within the current grid cell
 		for (int i = 0; i < Indices.size(); i++)
 		{
 
-			unsigned int Index0 = Indices[i].v0;
-			unsigned int Index1 = Indices[i].v1;
-			unsigned int Index2 = Indices[i].v2;
-			unsigned int Index3 = Indices[i].v2 + 1;
+			//unsigned int Index0 = Indices[i].v0;
+			//unsigned int Index1 = Indices[i].v1;
+			//unsigned int Index2 = Indices[i].v2;
+			//unsigned int Index3 = Indices[i].v2 + 1;
 
 
 
 
 
-			// Calculate barycentric coordinates
-			vec3 barycentric = cube.barycentricCoordinates(vec3(PlaneVertices[Index0].x, PlaneVertices[Index0].y, PlaneVertices[Index0].z),
-				vec3(PlaneVertices[Index1].x, PlaneVertices[Index1].y, PlaneVertices[Index1].z),
-				vec3(PlaneVertices[Index2].x, PlaneVertices[Index2].y, PlaneVertices[Index2].z),
-				vec3(cube.CubeMatrix[3].x, cube.CubeMatrix[3].y, cube.CubeMatrix[3].z));
+			//// Calculate barycentric coordinates
+			//vec3 barycentric = cube.barycentricCoordinates(vec3(PlaneVertices[Index0].x, PlaneVertices[Index0].y, PlaneVertices[Index0].z),
+			//	vec3(PlaneVertices[Index1].x, PlaneVertices[Index1].y, PlaneVertices[Index1].z),
+			//	vec3(PlaneVertices[Index2].x, PlaneVertices[Index2].y, PlaneVertices[Index2].z),
+			//	vec3(cube.CubeMatrix[3].x, cube.CubeMatrix[3].y, cube.CubeMatrix[3].z));
 
-			// Calculate barycentric coordinates
-			vec3 barycentric2 = npc.barycentricCoordinates(vec3(PlaneVertices[Index0].x, PlaneVertices[Index0].y, PlaneVertices[Index0].z),
-				vec3(PlaneVertices[Index1].x, PlaneVertices[Index1].y, PlaneVertices[Index1].z),
-				vec3(PlaneVertices[Index2].x, PlaneVertices[Index2].y, PlaneVertices[Index2].z),
-				vec3(npc.NPCMatrix[3].x,npc.NPCMatrix[3].y,npc.NPCMatrix[3].z));
+			//// Calculate barycentric coordinates
+			//vec3 barycentric2 = npc.barycentricCoordinates(vec3(PlaneVertices[Index0].x, PlaneVertices[Index0].y, PlaneVertices[Index0].z),
+			//	vec3(PlaneVertices[Index1].x, PlaneVertices[Index1].y, PlaneVertices[Index1].z),
+			//	vec3(PlaneVertices[Index2].x, PlaneVertices[Index2].y, PlaneVertices[Index2].z),
+			//	vec3(npc.NPCMatrix[3].x,npc.NPCMatrix[3].y,npc.NPCMatrix[3].z));
 
-			// Calculate barycentric coordinates
-			vec3 barycentric3 = trophy.barycentricCoordinates(vec3(PlaneVertices[Index0].x, PlaneVertices[Index0].y, PlaneVertices[Index0].z),
-				vec3(PlaneVertices[Index1].x, PlaneVertices[Index1].y, PlaneVertices[Index1].z),
-				vec3(PlaneVertices[Index2].x, PlaneVertices[Index2].y, PlaneVertices[Index2].z),
-				vec3(trophy.TrophyMatrix[3].x, trophy.TrophyMatrix[3].y, trophy.TrophyMatrix[3].z));
-
-
-
-
-			if (barycentric.x < 1 && barycentric.x > 0 && barycentric.y < 1 && barycentric.y > 0 && barycentric.z < 1 && barycentric.z > 0) {
-
-				// Calculate interpolated y position
-				float interpolatedX = (PlaneVertices[Index0].y * barycentric.x);
-				float InterpolatedY = (PlaneVertices[Index1].y * barycentric.y);
-				float InterpolatedZ = (PlaneVertices[Index2].y * barycentric.z);
-				float InterpolatedPos = interpolatedX + InterpolatedY + InterpolatedZ;
-				// Update the translation matrix of the cube with the interpolated y position
-				cube.CubeMatrix[3].y = InterpolatedPos;
-				//cout << InterpolatedPos << endl;
-				
-
-
-			}
-			if(barycentric2.x < 1 && barycentric2.x > 0 && barycentric2.y < 1 && barycentric2.y > 0 && barycentric2.z < 1 && barycentric2.z > 0)
-			{
-				// Calculate interpolated y position
-				float interpolatedX = (PlaneVertices[Index0].y * barycentric2.x);
-				float InterpolatedY = (PlaneVertices[Index1].y * barycentric2.y);
-				float InterpolatedZ = (PlaneVertices[Index2].y * barycentric2.z);
-				float InterpolatedPos = interpolatedX + InterpolatedY + InterpolatedZ;
-				// Update the translation matrix of the cube with the interpolated y position
-				npc.NPCMatrix[3].y = InterpolatedPos;
-				//cout << InterpolatedPos << endl;
-			
-
-
-			}
-			if (barycentric3.x < 1 && barycentric3.x > 0 && barycentric3.y < 1 && barycentric3.y > 0 && barycentric3.z < 1 && barycentric3.z > 0)
-			{
-				// Calculate interpolated y position
-				float interpolatedX = (PlaneVertices[Index0].y * barycentric3.x);
-				float InterpolatedY = (PlaneVertices[Index1].y * barycentric3.y);
-				float InterpolatedZ = (PlaneVertices[Index2].y * barycentric3.z);
-				float InterpolatedPos = interpolatedX + InterpolatedY + InterpolatedZ;
-				// Update the translation matrix of the cube with the interpolated y position
-				trophy.TrophyMatrix[3].y = InterpolatedPos;
-				//cout << InterpolatedPos << endl;
+			//// Calculate barycentric coordinates
+			//vec3 barycentric3 = trophy.barycentricCoordinates(vec3(PlaneVertices[Index0].x, PlaneVertices[Index0].y, PlaneVertices[Index0].z),
+			//	vec3(PlaneVertices[Index1].x, PlaneVertices[Index1].y, PlaneVertices[Index1].z),
+			//	vec3(PlaneVertices[Index2].x, PlaneVertices[Index2].y, PlaneVertices[Index2].z),
+			//	vec3(trophy.TrophyMatrix[3].x, trophy.TrophyMatrix[3].y, trophy.TrophyMatrix[3].z));
 
 
 
-			}
+
+			//if (barycentric.x < 1 && barycentric.x > 0 && barycentric.y < 1 && barycentric.y > 0 && barycentric.z < 1 && barycentric.z > 0) {
+
+			//	// Calculate interpolated y position
+			//	float interpolatedX = (PlaneVertices[Index0].y * barycentric.x);
+			//	float InterpolatedY = (PlaneVertices[Index1].y * barycentric.y);
+			//	float InterpolatedZ = (PlaneVertices[Index2].y * barycentric.z);
+			//	float InterpolatedPos = interpolatedX + InterpolatedY + InterpolatedZ;
+			//	// Update the translation matrix of the cube with the interpolated y position
+			//	cube.CubeMatrix[3].y = InterpolatedPos;
+			//	//cout << InterpolatedPos << endl;
+			//	
+
+
+			//}
+			//if(barycentric2.x < 1 && barycentric2.x > 0 && barycentric2.y < 1 && barycentric2.y > 0 && barycentric2.z < 1 && barycentric2.z > 0)
+			//{
+			//	// Calculate interpolated y position
+			//	float interpolatedX = (PlaneVertices[Index0].y * barycentric2.x);
+			//	float InterpolatedY = (PlaneVertices[Index1].y * barycentric2.y);
+			//	float InterpolatedZ = (PlaneVertices[Index2].y * barycentric2.z);
+			//	float InterpolatedPos = interpolatedX + InterpolatedY + InterpolatedZ;
+			//	// Update the translation matrix of the cube with the interpolated y position
+			//	npc.NPCMatrix[3].y = InterpolatedPos;
+			//	//cout << InterpolatedPos << endl;
+			//
+
+
+			//}
+			//if (barycentric3.x < 1 && barycentric3.x > 0 && barycentric3.y < 1 && barycentric3.y > 0 && barycentric3.z < 1 && barycentric3.z > 0)
+			//{
+			//	// Calculate interpolated y position
+			//	float interpolatedX = (PlaneVertices[Index0].y * barycentric3.x);
+			//	float InterpolatedY = (PlaneVertices[Index1].y * barycentric3.y);
+			//	float InterpolatedZ = (PlaneVertices[Index2].y * barycentric3.z);
+			//	float InterpolatedPos = interpolatedX + InterpolatedY + InterpolatedZ;
+			//	// Update the translation matrix of the cube with the interpolated y position
+			//	trophy.TrophyMatrix[3].y = InterpolatedPos;
+			//	//cout << InterpolatedPos << endl;
+
+
+
+			//}
 
 
 		}
@@ -373,7 +359,30 @@ int main()
 		light.CreateLight(vec3(1, 1, 1), vec3(1, 1, 1));
 
 
+		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) //left
+		{
+			
+			camera.Position.x += 5 * Deltatime;
 
+		}
+		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) //right
+		{
+			
+			camera.Position.x += -5 * Deltatime;
+
+		}
+		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) //back
+		{
+			
+			camera.Position.z += 5 * Deltatime;
+
+		}
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) //forward
+		{
+			
+			camera.Position.z += -5 * Deltatime;
+
+		}
 
 
 		//cout << "cube y: " << cube.CubeMatrix[3].y << endl;
