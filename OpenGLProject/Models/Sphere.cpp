@@ -2,9 +2,9 @@
 
 #include <vector>
 
-#include "Shaders/EBO.h"
-#include "Shaders/VAO.h"
-#include "Shaders/VBO.h"
+#include "../Shaders/EBO.h"
+#include "../Shaders/VAO.h"
+#include "../Shaders/VBO.h"
 
 #define M_PI 3.1415926535897932384626433832795
 const float H_Angle = M_PI / 180 * 72;
@@ -41,50 +41,6 @@ void Sphere::DrawSphere( Shader& shader, const char* uniform)
 
 void Sphere::CreateSphere( int subdivison, float scale)
 {
-	/*radius = Radius;
-	subdivision = subdivison;
-	float sectorStep = 2 * M_PI / width;
-	float stackStep = M_PI / length;
-
-	for( int i = 0; i <= width; i++)
-	{
-		float stackangle = M_PI / 2 - i *stackStep;
-		
-			float z = radius * glm::sin(stackangle);
-			float xy = radius * glm::cos(stackangle);
-
-		for( int j = 0; j < length; j++)
-		{
-			float sectorAngle = j * sectorStep;
-			float x = xy * glm::cos(sectorAngle);
-			float y = xy * glm::sin(sectorAngle);
-		
-			sphere.push_back(SphereVertex{ x,y,z,x,0,y,0,0,0 });
-		}
-
-	}
-	for (int i = 0; i <width;i++)
-
-	{	unsigned int v0 = i*(length);
-		unsigned int v2 = v0 + length + length*(i) ;
-		
-		for (int j = 0; j < length; j++, ++v0,++v2)
-		{
-			if(i != 0)
-			{
-
-				sphereIndices.emplace_back(SphereIndices{ v0,v2,v0+1 });
-			}
-			if(i != (width-2))
-			{
-				sphereIndices.emplace_back(SphereIndices{ v0,v2,v2 +1});
-
-			}
-		
-
-		}
-
-	}*/
 	glm::vec3 v0(0, 0, 1);
 	glm::vec3 v1(1, 0, 0);
 	glm::vec3 v2(0, 1, 0);
@@ -107,7 +63,8 @@ void Sphere::CreateSphere( int subdivison, float scale)
 	{
 		Vertex.position *= scale;
 	}
-
+	AABB.Position = SphereMatrix[3];
+	AABB.Extent = glm::vec3(scale,scale,scale);
 }
 
 void Sphere::Subdivide(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c, int n)
@@ -141,6 +98,24 @@ void Sphere::CreateTriangle(const glm::vec3& v1, const glm::vec3& v2, const glm:
 	V = Vertex{ glm::vec3(v3.x,v3.y,v3.z),glm::vec3(v3.x,v3.y,v3.z) ,glm::vec3(v3.x,v3.y,v3.z) };
 	sphere.emplace_back(V);
 
+
+}
+
+void Sphere::Movement(glm::vec3 speed)
+{
+	SphereMatrix[3].x += speed.x;
+	SphereMatrix[3].y += speed.y;
+	SphereMatrix[3].z += speed.z;
+}
+
+void Sphere::CollideWithBall(Sphere& otheractor)
+{
+	reflect(otheractor.Speed, Speed);
+
+}
+
+void Sphere::CollideWithWall(Cube& otheractor)
+{
 
 }
 

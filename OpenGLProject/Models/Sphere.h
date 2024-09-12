@@ -1,14 +1,16 @@
 #pragma once
 
-#include "Shaders/ShaderClass.h"
+#include "../Shaders/ShaderClass.h"
 #include <glm/glm.hpp>
-#include "BoundingBox.h"
+#include "../BoundingBox.h"
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
 #include <glm/gtc/type_ptr.hpp>
 #include <math.h>
 #include <vector>
+
+#include "Cube.h"
 
 
 struct Vertex {
@@ -55,15 +57,17 @@ public:
 	std::vector<Vertex> sphere;
 	std::vector < SphereIndices> sphereIndices;
 	BoundingBox AABB;
-	float length;
-	float width;
 	float radius;
-	float angle;
 	int subdivision;
+    glm::vec3 Speed;
 	Sphere();
 	void DrawSphere( Shader& shader, const char* uniform);
 	void CreateSphere( int subdivison, float scale);
 	void Subdivide(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c, int n);
 	void CreateTriangle(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c);
+    void Movement(glm::vec3 speed);
+    void CollideWithBall(Sphere& otheractor);
+    void CollideWithWall(Cube& otheractor);
+
 };
 

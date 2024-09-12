@@ -13,7 +13,7 @@
 #include <cmath>
 #include <cstddef>
 #include <string>
-#include "NPC.h"
+#include "../Models/NPC.h"
 #include <Eigen/Dense>
 
 #include "Shaders/ShaderClass.h"
@@ -21,10 +21,10 @@
 #include "Shaders/VBO.h"
 #include "Shaders/EBO.h"
 #include "Camera.h"
-#include "Cube.h"
+#include "Models/Cube.h"
 #include "Shaders/Light.h"
-#include "Sphere.h"
-#include "Trophy.h"
+#include "Models/Sphere.h"
+#include "Models/Trophy.h"
 
 
 
@@ -62,33 +62,6 @@ struct Bezier
 };
 
 
-struct Planevertex
-{
-
-	GLfloat x, y, z;
-	float r, g, b;
-	float n1, n2, n3;
-
-
-
-};
-
-struct Triangle
-{
-	GLuint v0, v1, v2;
-
-};
-
-
-
-float curveplane(float x, float y)
-{
-
-	return cos(x) + sin(y) - cos(y);
-}
-
-
-
 int main()
 {
 	// Initialize GLFW
@@ -116,81 +89,10 @@ int main()
 	// Specify the viewport of OpenGL in the Window
 	glViewport(0, 0, width, height);
 
-
 	// Generates Shader object using shaders defualt.vert and default.frag
 	Shader shaderProgram("default.vert", "default.frag");
-
-	//	NPC npc;
-
 	Camera camera(width, height, glm::vec3((-0.1f), 5.f, (-0.1f)));
-
-
-
-
-	mat4 Doormatrix = mat4(1.0f);
-	
-
-
-	vector<Planevertex> PlaneVertices;
-	vector<Triangle> Indices;
-	vector<Triangle> QuadIndices;
-
-	float step = 0.5f;
-	float size = 40;
-	for (float i = 0; i < size; i += step)
-	{
-		for (float j = 0; j < size; j += step) {
-
-			PlaneVertices.emplace_back(Planevertex{ i, curveplane(i,j),j,0,1,0,i/size,0,j/size });
-
-		}
-
-
-	}
-	for (int i = 0; i < size - 1; i++) {
-		for (int j = 0; j < size - 1; j++) {
-			unsigned int v0 = i * (size / step) + j;
-			unsigned int v1 = v0 + 1;
-			unsigned int v2 = v0 + (size / step);
-			unsigned int v3 = v2 + 1;
-
-			Indices.emplace_back(Triangle{ v0, v1, v2 });
-			Indices.emplace_back(Triangle{ v1, v2, v3 });
-		}
-	}
-
-
-
 	Light light;
-
-
-	VAO planevao;
-	planevao.Bind();
-	VBO planevbo(reinterpret_cast<GLfloat*>(PlaneVertices.data()), (PlaneVertices.size() * sizeof(Planevertex)));
-	planevbo.Bind();
-	EBO planeebo(reinterpret_cast<GLuint*>(Indices.data()), (Indices.size() * sizeof(Triangle)));
-	planeebo.Bind();
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-
-
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(6 * sizeof(float)));
-	glEnableVertexAttribArray(2);
-
-
-	planevao.Unbind();
-	planevbo.Unbind();
-	planeebo.Unbind();
-
-
-
-
-	//
-
 	// Shader for light cube
 	Shader lightShader("Light.vert", "Light.frag");
 
@@ -204,14 +106,12 @@ int main()
 	Cube cubebottom;
 
 	Sphere sphere;
-	sphere.CreateSphere(2, 3.f);
-	sphere.SphereMatrix = translate(sphere.SphereMatrix, vec3(0, 2, 0));
-	vec3 pos1 = vec3(1, 0, 1);
-	vec3 pos2 = vec3(5, 0, 6);
-	vec3 pos3 = vec3(15, 0, 17);
-	vec3 pos4 = vec3(20, 0, 5);
-	auto Bez = Bezier<vec3>(pos1,pos2,pos3,pos4);
-	float t = 0.f;
+	Sphere sphere_2;
+	sphere.CreateSphere(2, 0.1f);
+	sphere.SphereMatrix = translate(sphere.SphereMatrix, vec3(-1, 0, 0));
+	sphere_2.CreateSphere(2, 0.1f);
+	sphere_2.SphereMatrix = translate(sphere_2.SphereMatrix, vec3(1, 0, 0));
+	
 
 	trophy.TrophyMatrix = translate(trophy.TrophyMatrix, vec3(10, 2, 10));
 	cubeleft.CubeMatrix = translate(cubeleft.CubeMatrix, vec3(-2, 0, 0));
@@ -240,25 +140,24 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		// Tell OpenGL which Shader Program we want to use
 
-		t = fmod(t + Deltatime, 1.0f);
 
 		shaderProgram.Activate();
-		//npc.DrawNPC(shaderProgram, "model");
-
-		//npc.NPCMatrix[3] = vec4(Bez(t), 1);
 		
-
-		//trophy.DrawTrophy(vec3(1,1,1),shaderProgram,"model");
 		glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightColor"), light.lightColor.x, light.lightColor.y, light.lightColor.z);
 		glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), light.lightPos.x, light.lightPos.y, light.lightPos.z);
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(Doormatrix));
 
-		//planevao.Bind();
-		//glDrawElements(GL_TRIANGLES, Indices.size() * 3, GL_UNSIGNED_INT, nullptr);
-		//glDrawElements(GL_TRIANGLES, QuadIndices.size() * 3, GL_UNSIGNED_INT, nullptr);
-
+		
 		sphere.DrawSphere(shaderProgram,"model");
+		sphere.Movement(vec3(0.01, 0, 0));
+		sphere_2.DrawSphere(shaderProgram, "model");
+		sphere_2.Movement(vec3(-0.01, 0, 0));
 
+		if(sphere.AABB.TestAABBAABB(sphere_2.AABB))
+		{
+			sphere.CollideWithBall(sphere_2);
+
+		}
 		cubeleft.DrawCube(vec3(0.2, 0.4, 2), vec3(0, 1, 1), shaderProgram, "model");
 		cuberight.DrawCube(vec3(0.2, 0.4, 2), vec3(0, 1, 1), shaderProgram, "model");
 		cubefront.DrawCube(vec3(2, 0.4, 0.2), vec3(0, 1, 1), shaderProgram, "model");
@@ -271,90 +170,6 @@ int main()
 
 		camera.Matrix(45.f, 0.1f, 100.f, shaderProgram, "camMatrix");
 		camera.Inputs(window);
-		//cube.CubeMatrix[3].y = barycentric.y;
-
-
-
-
-		// Check if the cube position lies within the current grid cell
-		for (int i = 0; i < Indices.size(); i++)
-		{
-
-			//unsigned int Index0 = Indices[i].v0;
-			//unsigned int Index1 = Indices[i].v1;
-			//unsigned int Index2 = Indices[i].v2;
-			//unsigned int Index3 = Indices[i].v2 + 1;
-
-
-
-
-
-			//// Calculate barycentric coordinates
-			//vec3 barycentric = cube.barycentricCoordinates(vec3(PlaneVertices[Index0].x, PlaneVertices[Index0].y, PlaneVertices[Index0].z),
-			//	vec3(PlaneVertices[Index1].x, PlaneVertices[Index1].y, PlaneVertices[Index1].z),
-			//	vec3(PlaneVertices[Index2].x, PlaneVertices[Index2].y, PlaneVertices[Index2].z),
-			//	vec3(cube.CubeMatrix[3].x, cube.CubeMatrix[3].y, cube.CubeMatrix[3].z));
-
-			//// Calculate barycentric coordinates
-			//vec3 barycentric2 = npc.barycentricCoordinates(vec3(PlaneVertices[Index0].x, PlaneVertices[Index0].y, PlaneVertices[Index0].z),
-			//	vec3(PlaneVertices[Index1].x, PlaneVertices[Index1].y, PlaneVertices[Index1].z),
-			//	vec3(PlaneVertices[Index2].x, PlaneVertices[Index2].y, PlaneVertices[Index2].z),
-			//	vec3(npc.NPCMatrix[3].x,npc.NPCMatrix[3].y,npc.NPCMatrix[3].z));
-
-			//// Calculate barycentric coordinates
-			//vec3 barycentric3 = trophy.barycentricCoordinates(vec3(PlaneVertices[Index0].x, PlaneVertices[Index0].y, PlaneVertices[Index0].z),
-			//	vec3(PlaneVertices[Index1].x, PlaneVertices[Index1].y, PlaneVertices[Index1].z),
-			//	vec3(PlaneVertices[Index2].x, PlaneVertices[Index2].y, PlaneVertices[Index2].z),
-			//	vec3(trophy.TrophyMatrix[3].x, trophy.TrophyMatrix[3].y, trophy.TrophyMatrix[3].z));
-
-
-
-
-			//if (barycentric.x < 1 && barycentric.x > 0 && barycentric.y < 1 && barycentric.y > 0 && barycentric.z < 1 && barycentric.z > 0) {
-
-			//	// Calculate interpolated y position
-			//	float interpolatedX = (PlaneVertices[Index0].y * barycentric.x);
-			//	float InterpolatedY = (PlaneVertices[Index1].y * barycentric.y);
-			//	float InterpolatedZ = (PlaneVertices[Index2].y * barycentric.z);
-			//	float InterpolatedPos = interpolatedX + InterpolatedY + InterpolatedZ;
-			//	// Update the translation matrix of the cube with the interpolated y position
-			//	cube.CubeMatrix[3].y = InterpolatedPos;
-			//	//cout << InterpolatedPos << endl;
-			//	
-
-
-			//}
-			//if(barycentric2.x < 1 && barycentric2.x > 0 && barycentric2.y < 1 && barycentric2.y > 0 && barycentric2.z < 1 && barycentric2.z > 0)
-			//{
-			//	// Calculate interpolated y position
-			//	float interpolatedX = (PlaneVertices[Index0].y * barycentric2.x);
-			//	float InterpolatedY = (PlaneVertices[Index1].y * barycentric2.y);
-			//	float InterpolatedZ = (PlaneVertices[Index2].y * barycentric2.z);
-			//	float InterpolatedPos = interpolatedX + InterpolatedY + InterpolatedZ;
-			//	// Update the translation matrix of the cube with the interpolated y position
-			//	npc.NPCMatrix[3].y = InterpolatedPos;
-			//	//cout << InterpolatedPos << endl;
-			//
-
-
-			//}
-			//if (barycentric3.x < 1 && barycentric3.x > 0 && barycentric3.y < 1 && barycentric3.y > 0 && barycentric3.z < 1 && barycentric3.z > 0)
-			//{
-			//	// Calculate interpolated y position
-			//	float interpolatedX = (PlaneVertices[Index0].y * barycentric3.x);
-			//	float InterpolatedY = (PlaneVertices[Index1].y * barycentric3.y);
-			//	float InterpolatedZ = (PlaneVertices[Index2].y * barycentric3.z);
-			//	float InterpolatedPos = interpolatedX + InterpolatedY + InterpolatedZ;
-			//	// Update the translation matrix of the cube with the interpolated y position
-			//	trophy.TrophyMatrix[3].y = InterpolatedPos;
-			//	//cout << InterpolatedPos << endl;
-
-
-
-			//}
-
-
-		}
 
 		cout << npc.NPCMatrix[3].x << " " << npc.NPCMatrix[3].y << " " << npc.NPCMatrix[3].z << endl;
 
@@ -389,9 +204,21 @@ int main()
 			camera.Position.z += -5 * Deltatime;
 
 		}
+		if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) //back
+		{
 
+			camera.Position.y += 5 * Deltatime;
 
-		//cout << "cube y: " << cube.CubeMatrix[3].y << endl;
+		}
+		if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) //forward
+		{
+
+			camera.Position.y += -5 * Deltatime;
+
+		}
+
+		
+		
 
 		glGetError();
 
