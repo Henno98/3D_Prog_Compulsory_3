@@ -204,8 +204,8 @@ int main()
 	Cube cubebottom;
 
 	Sphere sphere;
-	sphere.CreateSphere(5, 2);
-
+	sphere.CreateSphere(2, 3.f);
+	sphere.SphereMatrix = translate(sphere.SphereMatrix, vec3(0, 2, 0));
 	vec3 pos1 = vec3(1, 0, 1);
 	vec3 pos2 = vec3(5, 0, 6);
 	vec3 pos3 = vec3(15, 0, 17);
@@ -258,6 +258,7 @@ int main()
 		//glDrawElements(GL_TRIANGLES, QuadIndices.size() * 3, GL_UNSIGNED_INT, nullptr);
 
 		sphere.DrawSphere(shaderProgram,"model");
+
 		cubeleft.DrawCube(vec3(0.2, 0.4, 2), vec3(0, 1, 1), shaderProgram, "model");
 		cuberight.DrawCube(vec3(0.2, 0.4, 2), vec3(0, 1, 1), shaderProgram, "model");
 		cubefront.DrawCube(vec3(2, 0.4, 0.2), vec3(0, 1, 1), shaderProgram, "model");
