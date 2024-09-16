@@ -66,7 +66,7 @@ void Sphere::CreateSphere( int subdivison, float scale, glm::vec3 speed)
 		Vertex.position *= scale;
 	}
 	
-	AABB.Extent = glm::vec3(1.f);
+	AABB.Extent = glm::vec3(scale);
 }
 
 void Sphere::Subdivide(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c, int n)
@@ -105,22 +105,38 @@ void Sphere::CreateTriangle(const glm::vec3& v1, const glm::vec3& v2, const glm:
 
 void Sphere::Movement()
 {
+	
+	SphereMatrix = glm::translate(SphereMatrix, Speed);
 	AABB.Position = SphereMatrix[3];
-	SphereMatrix[3].x += Speed.x;
-	SphereMatrix[3].y += Speed.y;
-	SphereMatrix[3].z += Speed.z;
 }
 
 void Sphere::CollideWithBall(Sphere& otheractor)
 {
-	otheractor.Speed = reflect(Speed, normalize(otheractor.Speed));
-	Speed = reflect(otheractor.Speed, normalize(Speed));
-	
+	glm::vec3 min = otheractor.AABB.Position - otheractor.AABB.Extent;
+	glm::vec3 max = otheractor.AABB.Position + otheractor.AABB.Extent;
+	glm::vec3 spheremin = SphereMatrix[3];
+	glm::vec3 spheremax = otheractor.SphereMatrix[3];
+
+	glm::vec3 closestpoint = glm::clamp(spheremin, min, max);
+	//glm::distance(spheremin, spheremax);
+	glm::vec3 distance = spheremin - spheremax;
+
+	Speed = reflect(Speed, normalize(distance));
 
 }
 
 void Sphere::CollideWithWall(Cube& otheractor)
 {
+	//otheractor.Speed = reflect(otheractor.Speed, normalize(distance));
+		
+		glm::vec3 min = otheractor.AABB.Position-otheractor.AABB.Extent;
+		glm::vec3 max = otheractor.AABB.Position + otheractor.AABB.Extent;
+		glm::vec3 spheremin = SphereMatrix[3];
+		glm::vec3 closestpoint = glm::clamp(spheremin, min, max);
+		glm::vec3 distance = spheremin - closestpoint;
 
+	Speed = reflect(Speed, normalize(distance));
+
+	
 }
 

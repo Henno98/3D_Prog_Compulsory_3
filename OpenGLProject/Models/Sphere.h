@@ -60,6 +60,7 @@ public:
 	float radius;
 	int subdivision;
     glm::vec3 Speed;
+  
 	Sphere();
 	void DrawSphere( Shader& shader, const char* uniform);
 	void CreateSphere( int subdivison, float scale, glm::vec3 speed);

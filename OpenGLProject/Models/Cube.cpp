@@ -17,7 +17,7 @@ Cube::Cube()
 
 void Cube::DrawCube(glm::vec3 scale, glm::vec3 color, Shader& shader, const char* uniform)
 {
-
+	Scale = scale;
 	GLfloat Matrice[] =
 	{
 		1*scale.x,1*scale.y,1*scale.z, color.x,color.y,color.z, 0,1,0,

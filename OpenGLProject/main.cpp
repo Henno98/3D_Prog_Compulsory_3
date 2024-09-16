@@ -91,34 +91,49 @@ int main()
 
 	// Generates Shader object using shaders defualt.vert and default.frag
 	Shader shaderProgram("default.vert", "default.frag");
-	Camera camera(width, height, glm::vec3((-0.1f), 5.f, (-0.1f)));
+	Camera camera(width, height, glm::vec3(0.f));
 	Light light;
 	// Shader for light cube
 	Shader lightShader("Light.vert", "Light.frag");
 
 
+	vector<Cube> Board;
+	for(int i = 0; i < 5;i++)
+	{
+		Cube cube;
+		Board.emplace_back(cube);
 
+	}
 	
-	Cube cubeleft;
-	Cube cuberight;
-	Cube cubefront;
-	Cube cubeback;
-	Cube cubebottom;
+	
+	srand(time(NULL));
+	vector<Sphere> Spherelist;
+	for(int i = 0; i < 4;i++)
+	{
+		float xdir = -1.f + rand() % 2;
+		float zdir = -1.f + rand() % 2;
+		Sphere sphere;
+		sphere.SphereMatrix = translate(sphere.SphereMatrix, vec3(i*2 , 0, zdir ));
+		sphere.CreateSphere(2, 2.f, vec3(xdir, 0, zdir));
+	//	sphere.SphereMatrix = translate(sphere.SphereMatrix, vec3(i, 0, i));
+		Spherelist.emplace_back(sphere);
 
-	Sphere sphere;
+	}
+	
+	/*Sphere sphere;
 	Sphere sphere_2;
 	sphere.CreateSphere(2, 1.f,vec3(0.01,0,0));
 	sphere.SphereMatrix = translate(sphere.SphereMatrix, vec3(-2, 0, -0.5));
 	sphere_2.CreateSphere(2, 0.5f,vec3(-0.01,0,0));
 	sphere_2.SphereMatrix = translate(sphere_2.SphereMatrix, vec3(2, 0, 0.05));
-	
+	*/
 
 	
-	cubeleft.CubeMatrix = translate(cubeleft.CubeMatrix, vec3(-2, 0, 0));
-	cuberight.CubeMatrix = translate(cuberight.CubeMatrix, vec3(2, 0, 0));
-	cubefront.CubeMatrix = translate(cubefront.CubeMatrix, vec3(0, 0, 2));
-	cubeback.CubeMatrix = translate(cubeback.CubeMatrix, vec3(0, 0, -2));
-	cubebottom.CubeMatrix = translate(cubebottom.CubeMatrix, vec3(0, -0.2, 0));
+	Board[0].CubeMatrix = translate(Board[0].CubeMatrix, vec3(-25, 0, 0));
+	Board[1].CubeMatrix = translate(Board[1].CubeMatrix, vec3(25, 0, 0));
+	Board[2].CubeMatrix = translate(Board[2].CubeMatrix, vec3(0, 0, 25));
+	Board[3].CubeMatrix = translate(Board[3].CubeMatrix, vec3(0, 0, -25));
+	Board[4].CubeMatrix = translate(Board[4].CubeMatrix, vec3(0, -6, 0));
 
 
 	glEnable(GL_DEPTH_TEST);
@@ -146,23 +161,55 @@ int main()
 		glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightColor"), light.lightColor.x, light.lightColor.y, light.lightColor.z);
 		glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), light.lightPos.x, light.lightPos.y, light.lightPos.z);
 		
-		
+		/*
 		sphere.DrawSphere(shaderProgram,"model");
 		sphere.Movement();
 		sphere_2.DrawSphere(shaderProgram, "model");
-		sphere_2.Movement();
+		sphere_2.Movement();*/
 
-		if(sphere.AABB.TestAABBAABB(sphere_2.AABB))
+		Board[0].DrawCube(vec3(2, 4, 26), vec3(0, 1, 1), shaderProgram, "model");
+		Board[1].DrawCube(vec3(2, 4, 26), vec3(0, 1, 1), shaderProgram, "model");
+		Board[2].DrawCube(vec3(26, 4, 2), vec3(0, 1, 1), shaderProgram, "model");
+		Board[3].DrawCube(vec3(26, 4, 2), vec3(0, 1, 1), shaderProgram, "model");
+		Board[4].DrawCube(vec3(25, 2, 25), vec3(1, 0, 1), shaderProgram, "model");
+
+		for (int i = 0; i < Spherelist.size();i++)
 		{
-			sphere.CollideWithBall(sphere_2);
-			cout << "collided" << endl;
+			Spherelist[i].Movement();
+			Spherelist[i].DrawSphere(shaderProgram, "model");
+			cout << Spherelist[i].SphereMatrix[3].x  <<" " << Spherelist[i].SphereMatrix[3].z << endl;
 
 		}
-		cubeleft.DrawCube(vec3(0.2, 0.4, 2), vec3(0, 1, 1), shaderProgram, "model");
-		cuberight.DrawCube(vec3(0.2, 0.4, 2), vec3(0, 1, 1), shaderProgram, "model");
-		cubefront.DrawCube(vec3(2, 0.4, 0.2), vec3(0, 1, 1), shaderProgram, "model");
-		cubeback.DrawCube(vec3(2, 0.4, 0.2), vec3(0, 1, 1), shaderProgram, "model");
-		cubebottom.DrawCube(vec3(2, 0.2, 2), vec3(1, 0, 1), shaderProgram, "model");
+		for (int i = 0; i < Spherelist.size(); i++)
+		{
+
+
+			for (int k = 0; k<Board.size();k++)
+			{
+				if(Spherelist[i].AABB.TestAABBAABB(Board[k].AABB))
+				{
+
+					Spherelist[i].CollideWithWall(Board[k]);
+					cout << i << " collides with wall " << k << endl;
+					break;
+				}
+
+			}
+			for (int j = i + 1; j < Spherelist.size(); j++)
+			{
+				if (Spherelist[i].AABB.TestAABBAABB(Spherelist[j].AABB))
+				{
+					
+					Spherelist[i].CollideWithBall(Spherelist[j]);
+					cout << i << " collides with " << j << endl;
+					break;
+				}
+				
+			}
+			
+		}
+		
+	
 
 
 		// Exports the camera Position to the Fragment Shader for specular lighting

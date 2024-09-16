@@ -24,6 +24,7 @@ public:
 	glm::mat4 CubeMatrix = glm::mat4(1.0f);
 	BoundingBox AABB;
 	int collectedtrophies;
+	glm::vec3 Scale;
 	Cube();
 	void DrawCube(glm::vec3 scale, glm::vec3 color, Shader& shader, const char* uniform);
 	void CreateCube(glm::vec3 position, glm::vec3 scale, Shader& shader, const char* uniform);
