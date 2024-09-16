@@ -18,6 +18,7 @@ Sphere::Sphere()
 
 void Sphere::DrawSphere( Shader& shader, const char* uniform)
 {
+	
 	VAO planevao;
 	planevao.Bind();
 	VBO planevbo(reinterpret_cast<GLfloat*>(sphere.data()), (sphere.size() * sizeof(Vertex)));
@@ -39,7 +40,7 @@ void Sphere::DrawSphere( Shader& shader, const char* uniform)
 
 }
 
-void Sphere::CreateSphere( int subdivison, float scale)
+void Sphere::CreateSphere( int subdivison, float scale, glm::vec3 speed)
 {
 	glm::vec3 v0(0, 0, 1);
 	glm::vec3 v1(1, 0, 0);
@@ -50,6 +51,7 @@ void Sphere::CreateSphere( int subdivison, float scale)
 
 	subdivision = subdivison;
 	radius = scale;
+	Speed = speed;
 	Subdivide(v0, v1, v2, subdivision);
 	Subdivide(v0, v2, v3, subdivision);
 	Subdivide(v0, v3, v4, subdivision);
@@ -63,8 +65,8 @@ void Sphere::CreateSphere( int subdivison, float scale)
 	{
 		Vertex.position *= scale;
 	}
-	AABB.Position = SphereMatrix[3];
-	AABB.Extent = glm::vec3(scale,scale,scale);
+	
+	AABB.Extent = glm::vec3(1.f);
 }
 
 void Sphere::Subdivide(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c, int n)
@@ -101,16 +103,19 @@ void Sphere::CreateTriangle(const glm::vec3& v1, const glm::vec3& v2, const glm:
 
 }
 
-void Sphere::Movement(glm::vec3 speed)
+void Sphere::Movement()
 {
-	SphereMatrix[3].x += speed.x;
-	SphereMatrix[3].y += speed.y;
-	SphereMatrix[3].z += speed.z;
+	AABB.Position = SphereMatrix[3];
+	SphereMatrix[3].x += Speed.x;
+	SphereMatrix[3].y += Speed.y;
+	SphereMatrix[3].z += Speed.z;
 }
 
 void Sphere::CollideWithBall(Sphere& otheractor)
 {
-	reflect(otheractor.Speed, Speed);
+	otheractor.Speed = reflect(Speed, normalize(otheractor.Speed));
+	Speed = reflect(otheractor.Speed, normalize(Speed));
+	
 
 }
 

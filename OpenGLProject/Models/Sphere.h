@@ -62,10 +62,10 @@ public:
     glm::vec3 Speed;
 	Sphere();
 	void DrawSphere( Shader& shader, const char* uniform);
-	void CreateSphere( int subdivison, float scale);
+	void CreateSphere( int subdivison, float scale, glm::vec3 speed);
 	void Subdivide(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c, int n);
 	void CreateTriangle(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c);
-    void Movement(glm::vec3 speed);
+    void Movement();
     void CollideWithBall(Sphere& otheractor);
     void CollideWithWall(Cube& otheractor);
 

@@ -97,8 +97,8 @@ int main()
 	Shader lightShader("Light.vert", "Light.frag");
 
 
-	NPC npc;
-	Trophy trophy;
+
+	
 	Cube cubeleft;
 	Cube cuberight;
 	Cube cubefront;
@@ -107,13 +107,13 @@ int main()
 
 	Sphere sphere;
 	Sphere sphere_2;
-	sphere.CreateSphere(2, 0.1f);
-	sphere.SphereMatrix = translate(sphere.SphereMatrix, vec3(-1, 0, 0));
-	sphere_2.CreateSphere(2, 0.1f);
-	sphere_2.SphereMatrix = translate(sphere_2.SphereMatrix, vec3(1, 0, 0));
+	sphere.CreateSphere(2, 1.f,vec3(0.01,0,0));
+	sphere.SphereMatrix = translate(sphere.SphereMatrix, vec3(-2, 0, -0.5));
+	sphere_2.CreateSphere(2, 0.5f,vec3(-0.01,0,0));
+	sphere_2.SphereMatrix = translate(sphere_2.SphereMatrix, vec3(2, 0, 0.05));
 	
 
-	trophy.TrophyMatrix = translate(trophy.TrophyMatrix, vec3(10, 2, 10));
+	
 	cubeleft.CubeMatrix = translate(cubeleft.CubeMatrix, vec3(-2, 0, 0));
 	cuberight.CubeMatrix = translate(cuberight.CubeMatrix, vec3(2, 0, 0));
 	cubefront.CubeMatrix = translate(cubefront.CubeMatrix, vec3(0, 0, 2));
@@ -145,17 +145,17 @@ int main()
 		
 		glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightColor"), light.lightColor.x, light.lightColor.y, light.lightColor.z);
 		glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), light.lightPos.x, light.lightPos.y, light.lightPos.z);
-		glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(Doormatrix));
-
+		
 		
 		sphere.DrawSphere(shaderProgram,"model");
-		sphere.Movement(vec3(0.01, 0, 0));
+		sphere.Movement();
 		sphere_2.DrawSphere(shaderProgram, "model");
-		sphere_2.Movement(vec3(-0.01, 0, 0));
+		sphere_2.Movement();
 
 		if(sphere.AABB.TestAABBAABB(sphere_2.AABB))
 		{
 			sphere.CollideWithBall(sphere_2);
+			cout << "collided" << endl;
 
 		}
 		cubeleft.DrawCube(vec3(0.2, 0.4, 2), vec3(0, 1, 1), shaderProgram, "model");
@@ -170,8 +170,6 @@ int main()
 
 		camera.Matrix(45.f, 0.1f, 100.f, shaderProgram, "camMatrix");
 		camera.Inputs(window);
-
-		cout << npc.NPCMatrix[3].x << " " << npc.NPCMatrix[3].y << " " << npc.NPCMatrix[3].z << endl;
 
 		lightShader.Activate();
 		glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(light.lightModel));
@@ -230,9 +228,6 @@ int main()
 		glfwPollEvents();
 	}
 
-	planevao.Delete();
-	planevbo.Delete();
-	planeebo.Delete();
 	shaderProgram.Delete();
 	lightShader.Delete();
 
