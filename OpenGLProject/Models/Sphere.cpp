@@ -6,9 +6,7 @@
 #include "../Shaders/VAO.h"
 #include "../Shaders/VBO.h"
 
-#define M_PI 3.1415926535897932384626433832795
-const float H_Angle = M_PI / 180 * 72;
-const float V_Angle = glm::atan(1.0f / 2);
+
 
 Sphere::Sphere()
 {
@@ -19,23 +17,16 @@ Sphere::Sphere()
 void Sphere::DrawSphere( Shader& shader, const char* uniform)
 {
 	
-	VAO planevao;
-	planevao.Bind();
-	VBO planevbo(reinterpret_cast<GLfloat*>(sphere.data()), (sphere.size() * sizeof(Vertex)));
-	planevbo.Bind();
-	EBO planeebo(reinterpret_cast<GLuint*>(sphereIndices.data()), (sphereIndices.size() * sizeof(SphereIndices)));
-	planeebo.Bind();
+	
+	sphereVAO.Bind();
+	sphereVBO.Bind();
 	Vertex::BindAttributes();
+	
 	glUniformMatrix4fv(glGetUniformLocation(shader.ID, uniform), 1, GL_FALSE, glm::value_ptr(SphereMatrix));
 	glDrawArrays(GL_TRIANGLES, 0, sphere.size());
 
-	planevao.Unbind();
-	planevbo.Unbind();
-	planeebo.Unbind();
-
-	planevao.Delete();
-	planevbo.Delete();
-	planeebo.Delete();
+	sphereVAO.Unbind();
+	sphereVBO.Unbind();
 	
 
 }
@@ -65,7 +56,8 @@ void Sphere::CreateSphere(int id, int subdivison, float scale, glm::vec3 speed)
 	{
 		Vertex.position *= scale;
 	}
-	
+	sphereVAO.Initialize();
+	sphereVBO.Initialize(reinterpret_cast<GLfloat*>(sphere.data()), (sphere.size() * sizeof(Vertex)));
 	AABB.Extent = glm::vec3(scale);
 }
 
@@ -141,5 +133,11 @@ void Sphere::CollideWithWall(Cube& otheractor)
 	Speed = reflect(Speed, normalize(distance));
 
 	
+}
+
+void Sphere::DeleteVAO()
+{
+	sphereVAO.Delete();
+	sphereVBO.Delete();
 }
 

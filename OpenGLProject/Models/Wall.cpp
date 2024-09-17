@@ -20,9 +20,11 @@ void Wall::DrawSquare(std::vector<WallVertex> position)
 
 	//Draw Square
 	VAO SquareVAO;
+	//SquareVAO.Initialize();
 	SquareVAO.Bind();
 
-	VBO SquareVBO(reinterpret_cast<GLfloat*>(position.data()), static_cast<GLsizeiptr>(position.size() * sizeof(WallVertex)));
+	VBO SquareVBO;
+	SquareVBO.Initialize(reinterpret_cast<GLfloat*>(position.data()), static_cast<GLsizeiptr>(position.size() * sizeof(WallVertex)));
 	SquareVBO.Bind();
 
 	EBO SquareEBO(SquareIndices, sizeof(SquareIndices));

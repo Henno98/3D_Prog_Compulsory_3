@@ -6,7 +6,7 @@ class Collision
 {
 public:
 	Collision();
-	void CollideWithBall(std::vector<Sphere>& collisions, Sphere& sphere);
+	void CollideWithBall(Sphere& otheractor, Sphere& sphere);
 	void CollideWithWall(Cube& otheractor,Sphere& sphere);
 };
 

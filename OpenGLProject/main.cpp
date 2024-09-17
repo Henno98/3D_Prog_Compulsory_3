@@ -101,6 +101,7 @@ int main()
 	vector<Sphere> Collisionstracker;
 	Collision collision;
 	vector<Cube> Board;
+	bool Moving = false;
 	for(int i = 0; i < 5;i++)
 	{
 		Cube cube;
@@ -110,14 +111,14 @@ int main()
 	
 	
 	
-	for(int i = 0; i < 7;i++)
+	for(int i = 0; i < 10;i++)
 	{
 		float t = rand() % 2;
 		float k = rand() % 2;
 		float xdir = -1.f + t;
 		float zdir = -1.f + k;
 		Sphere sphere;
-		sphere.CreateSphere(i,2, 1.f, vec3(0.1,0,-0.1));
+		sphere.CreateSphere(i,4, 1.f, vec3(0.1,0,-0.1));
 		sphere.SphereMatrix = translate(sphere.SphereMatrix, vec3(i, 0, i));
 		Spherelist.emplace_back(sphere);
 
@@ -155,39 +156,37 @@ int main()
 		for (int i = 0; i < Spherelist.size(); i++)
 		{
 
-			for (int j = i + 1; j < Spherelist.size(); j++)
-			{	//Tests for collision between spheres
-				if (Spherelist[i].AABB.TestAABBAABB(Spherelist[j].AABB))
-				{
-					//Stores colliding spheres
-					Collisionstracker.emplace_back(Spherelist[j]);
-
-				}
-
-
-				cout << i << " collides with " << j << endl;
-			}
+			
 
 			for (int k = 0; k < Board.size(); k++)
 			{	//Tests for wall collisions
 				if (Spherelist[i].AABB.TestAABBAABB(Board[k].AABB))
 				{
 					//Runs collision program
-					//Spherelist[i].CollideWithWall(Board[k]);
-					cout << i << " collides with wall " << k << endl;
+					
 					collision.CollideWithWall(Board[k], Spherelist[i]);
-					break;
+					
+				}
+				for (int j = i + 1; j < Spherelist.size(); j++)
+				{	//Tests for collision between spheres
+					if (Spherelist[i].AABB.TestAABBAABB(Spherelist[j].AABB))
+					{
+						//Runs collision program
+						collision.CollideWithBall(Spherelist[j], Spherelist[i]);
+
+					}
+
+
+
 				}
 
 			}
-			//Checks if collisions happened
-			if (Collisionstracker.size() > 0)
-			{	//resolves collision and empties tracker
-				collision.CollideWithBall(Collisionstracker, Spherelist[i]);
-				Collisionstracker.erase(Collisionstracker.begin(), Collisionstracker.end());
-			}
+			
 			//updates movement and draws vertices
-			Spherelist[i].Movement();
+			if (Moving == true)
+			{
+				Spherelist[i].Movement();
+			}
 			Spherelist[i].DrawSphere(shaderProgram, "model");
 		}
 		glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightColor"), light.lightColor.x, light.lightColor.y, light.lightColor.z);
@@ -247,8 +246,21 @@ int main()
 			camera.Position.y += -15 * Deltatime;
 
 		}
+		if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS) //forward
+		{
+			switch (Moving)
+			{
+			case true:
+				Moving = false;
+				break;
+			case false:
+				Moving = true;
+				break;
 
-		
+			}
+		}
+
+	
 		
 
 		glGetError();
@@ -260,7 +272,10 @@ int main()
 		// Take care of all GLFW events
 		glfwPollEvents();
 	}
-
+	for (int i = 0; i < Spherelist.size(); i++)
+	{
+		Spherelist[i].DeleteVAO();
+	}
 	shaderProgram.Delete();
 	lightShader.Delete();
 

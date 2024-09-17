@@ -4,6 +4,11 @@
 // Constructor that generates a VAO ID
 VAO::VAO()
 {
+	
+}
+
+void VAO::Initialize()
+{
 	glGenVertexArrays(1, &ID);
 }
 

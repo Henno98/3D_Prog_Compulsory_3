@@ -50,9 +50,11 @@ void NPC::DrawNPC(Shader& shader, const char* uniform)
 	
 	//Draw Square
 	VAO NPCVAO;
+	NPCVAO.Initialize();
 	NPCVAO.Bind();
 
-	VBO NPCVBO(Indices, sizeof(Indices));
+	VBO NPCVBO;
+	NPCVBO.Initialize(Indices, sizeof(Indices));
 	NPCVBO.Bind();
 
 	EBO NPCEBO(NPCIndices, sizeof(NPCIndices));

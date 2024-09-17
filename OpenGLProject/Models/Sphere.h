@@ -43,12 +43,6 @@ struct Vertex {
     }
 
 };
-struct SphereIndices
-{
-	GLuint v0, v1, v2;
-
-
-};
 
 class Sphere
 {
@@ -56,11 +50,13 @@ public:
     int ID;
 	glm::mat4 SphereMatrix = glm::mat4(1.0f);
 	std::vector<Vertex> sphere;
-	std::vector < SphereIndices> sphereIndices;
 	BoundingBox AABB;
 	float radius;
 	int subdivision;
     glm::vec3 Speed;
+    VBO sphereVBO;
+	VAO sphereVAO;
+    bool bound = false;
 	Sphere();
 	void DrawSphere( Shader& shader, const char* uniform);
 	void CreateSphere(int id, int subdivison, float scale, glm::vec3 speed);
@@ -69,6 +65,7 @@ public:
     void Movement();
     void CollideWithBall( std::vector<Sphere>& collisions);
     void CollideWithWall(Cube& otheractor);
+    void DeleteVAO();
 
 };
 

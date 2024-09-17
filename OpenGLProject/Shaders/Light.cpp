@@ -67,9 +67,11 @@ void Light::CreateLight( glm::vec3 scale, glm::vec3 color)
 	//Draw Square
 	
 	VAO LightVAO;
+	LightVAO.Initialize();
 	LightVAO.Bind();
 
-	VBO LightVBO(Matrice, sizeof(Matrice));
+	VBO LightVBO;
+	LightVBO.Initialize(Matrice, sizeof(Matrice));
 	LightVBO.Bind();
 
 	EBO LightEBO(LightIndices, sizeof(LightIndices));

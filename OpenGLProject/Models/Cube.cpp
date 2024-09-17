@@ -59,9 +59,11 @@ void Cube::DrawCube(glm::vec3 scale, glm::vec3 color, Shader& shader, const char
 
 	//Draw Square
 	VAO CubeVAO;
+	CubeVAO.Initialize();
 	CubeVAO.Bind();
 
-	VBO CubeVBO(Matrice,sizeof(Matrice));
+	VBO CubeVBO;
+	CubeVBO.Initialize(Matrice, sizeof(Matrice));
 	CubeVBO.Bind();
 
 	EBO CubeEBO(CubeIndices, sizeof(CubeIndices));

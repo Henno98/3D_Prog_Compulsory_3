@@ -63,9 +63,11 @@ void Trophy::DrawTrophy( glm::vec3 size, Shader& shader, const char* uniform)
 
 	//Draw Square
 	VAO trophyVAO;
+	trophyVAO.Initialize();
 	trophyVAO.Bind();
 
-	VBO trophyVBO(Vertices,sizeof(Vertices));
+	VBO trophyVBO;
+	trophyVBO.Initialize(Vertices, sizeof(Vertices));
 	trophyVBO.Bind();
 
 	EBO trophyEBO(trophyIndices, sizeof(trophyIndices));
