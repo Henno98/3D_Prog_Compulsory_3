@@ -40,7 +40,7 @@ void Sphere::DrawSphere( Shader& shader, const char* uniform)
 
 }
 
-void Sphere::CreateSphere( int subdivison, float scale, glm::vec3 speed)
+void Sphere::CreateSphere(int id, int subdivison, float scale, glm::vec3 speed)
 {
 	glm::vec3 v0(0, 0, 1);
 	glm::vec3 v1(1, 0, 0);
@@ -48,7 +48,7 @@ void Sphere::CreateSphere( int subdivison, float scale, glm::vec3 speed)
 	glm::vec3 v3(-1, 0, 0);
 	glm::vec3 v4(0, -1, 0);
 	glm::vec3 v5(0, 0, -1);
-
+	ID = id;
 	subdivision = subdivison;
 	radius = scale;
 	Speed = speed;
@@ -105,24 +105,27 @@ void Sphere::CreateTriangle(const glm::vec3& v1, const glm::vec3& v2, const glm:
 
 void Sphere::Movement()
 {
-	
 	SphereMatrix = glm::translate(SphereMatrix, Speed);
 	AABB.Position = SphereMatrix[3];
 }
 
-void Sphere::CollideWithBall(Sphere& otheractor)
+void Sphere::CollideWithBall( std::vector<Sphere>& collisions)
 {
-	glm::vec3 min = otheractor.AABB.Position - otheractor.AABB.Extent;
-	glm::vec3 max = otheractor.AABB.Position + otheractor.AABB.Extent;
-	glm::vec3 spheremin = SphereMatrix[3];
-	glm::vec3 spheremax = otheractor.SphereMatrix[3];
+	for (int i = 0; i < collisions.size(); i++)
+	{
 
-	glm::vec3 closestpoint = glm::clamp(spheremin, min, max);
-	//glm::distance(spheremin, spheremax);
-	glm::vec3 distance = spheremin - spheremax;
+		glm::vec3 min = collisions[i].AABB.Position - collisions[i].AABB.Extent;
+		glm::vec3 max = collisions[i].AABB.Position + collisions[i].AABB.Extent;
+		glm::vec3 spheremin = SphereMatrix[3];
+		glm::vec3 spheremax = collisions[i].SphereMatrix[3];
 
-	Speed = reflect(Speed, normalize(distance));
-
+		glm::vec3 closestpoint = glm::clamp(spheremin, min, max);
+		float diameter = glm::distance(spheremin, spheremax);
+		glm::vec3 distance = spheremin - spheremax;
+		if (diameter <= radius && diameter>0) {
+			Speed = reflect(Speed, normalize(distance));
+		}
+	}
 }
 
 void Sphere::CollideWithWall(Cube& otheractor)

@@ -25,6 +25,7 @@
 #include "Shaders/Light.h"
 #include "Models/Sphere.h"
 #include "Models/Trophy.h"
+#include "../Models/Collision.h"
 
 
 
@@ -95,8 +96,10 @@ int main()
 	Light light;
 	// Shader for light cube
 	Shader lightShader("Light.vert", "Light.frag");
-
-
+	srand(time(NULL));
+	vector<Sphere> Spherelist;
+	vector<Sphere> Collisionstracker;
+	Collision collision;
 	vector<Cube> Board;
 	for(int i = 0; i < 5;i++)
 	{
@@ -106,34 +109,25 @@ int main()
 	}
 	
 	
-	srand(time(NULL));
-	vector<Sphere> Spherelist;
-	for(int i = 0; i < 4;i++)
+	
+	for(int i = 0; i < 7;i++)
 	{
-		float xdir = -1.f + rand() % 2;
-		float zdir = -1.f + rand() % 2;
+		float t = rand() % 2;
+		float k = rand() % 2;
+		float xdir = -1.f + t;
+		float zdir = -1.f + k;
 		Sphere sphere;
-		sphere.SphereMatrix = translate(sphere.SphereMatrix, vec3(i*2 , 0, zdir ));
-		sphere.CreateSphere(2, 2.f, vec3(xdir, 0, zdir));
-	//	sphere.SphereMatrix = translate(sphere.SphereMatrix, vec3(i, 0, i));
+		sphere.CreateSphere(i,2, 1.f, vec3(0.1,0,-0.1));
+		sphere.SphereMatrix = translate(sphere.SphereMatrix, vec3(i, 0, i));
 		Spherelist.emplace_back(sphere);
 
 	}
-	
-	/*Sphere sphere;
-	Sphere sphere_2;
-	sphere.CreateSphere(2, 1.f,vec3(0.01,0,0));
-	sphere.SphereMatrix = translate(sphere.SphereMatrix, vec3(-2, 0, -0.5));
-	sphere_2.CreateSphere(2, 0.5f,vec3(-0.01,0,0));
-	sphere_2.SphereMatrix = translate(sphere_2.SphereMatrix, vec3(2, 0, 0.05));
-	*/
 
-	
-	Board[0].CubeMatrix = translate(Board[0].CubeMatrix, vec3(-25, 0, 0));
-	Board[1].CubeMatrix = translate(Board[1].CubeMatrix, vec3(25, 0, 0));
-	Board[2].CubeMatrix = translate(Board[2].CubeMatrix, vec3(0, 0, 25));
-	Board[3].CubeMatrix = translate(Board[3].CubeMatrix, vec3(0, 0, -25));
-	Board[4].CubeMatrix = translate(Board[4].CubeMatrix, vec3(0, -6, 0));
+	Board[0].CubeMatrix = translate(Board[0].CubeMatrix, vec3(-15, 0, 0));
+	Board[1].CubeMatrix = translate(Board[1].CubeMatrix, vec3(15, 0, 0));
+	Board[2].CubeMatrix = translate(Board[2].CubeMatrix, vec3(0, 0, 15));
+	Board[3].CubeMatrix = translate(Board[3].CubeMatrix, vec3(0, 0, -15));
+	Board[4].CubeMatrix = translate(Board[4].CubeMatrix, vec3(0, -2, 0));
 
 
 	glEnable(GL_DEPTH_TEST);
@@ -157,60 +151,52 @@ int main()
 
 
 		shaderProgram.Activate();
-		
-		glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightColor"), light.lightColor.x, light.lightColor.y, light.lightColor.z);
-		glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), light.lightPos.x, light.lightPos.y, light.lightPos.z);
-		
-		/*
-		sphere.DrawSphere(shaderProgram,"model");
-		sphere.Movement();
-		sphere_2.DrawSphere(shaderProgram, "model");
-		sphere_2.Movement();*/
 
-		Board[0].DrawCube(vec3(2, 4, 26), vec3(0, 1, 1), shaderProgram, "model");
-		Board[1].DrawCube(vec3(2, 4, 26), vec3(0, 1, 1), shaderProgram, "model");
-		Board[2].DrawCube(vec3(26, 4, 2), vec3(0, 1, 1), shaderProgram, "model");
-		Board[3].DrawCube(vec3(26, 4, 2), vec3(0, 1, 1), shaderProgram, "model");
-		Board[4].DrawCube(vec3(25, 2, 25), vec3(1, 0, 1), shaderProgram, "model");
-
-		for (int i = 0; i < Spherelist.size();i++)
-		{
-			Spherelist[i].Movement();
-			Spherelist[i].DrawSphere(shaderProgram, "model");
-			cout << Spherelist[i].SphereMatrix[3].x  <<" " << Spherelist[i].SphereMatrix[3].z << endl;
-
-		}
 		for (int i = 0; i < Spherelist.size(); i++)
 		{
 
-
-			for (int k = 0; k<Board.size();k++)
-			{
-				if(Spherelist[i].AABB.TestAABBAABB(Board[k].AABB))
-				{
-
-					Spherelist[i].CollideWithWall(Board[k]);
-					cout << i << " collides with wall " << k << endl;
-					break;
-				}
-
-			}
 			for (int j = i + 1; j < Spherelist.size(); j++)
-			{
+			{	//Tests for collision between spheres
 				if (Spherelist[i].AABB.TestAABBAABB(Spherelist[j].AABB))
 				{
-					
-					Spherelist[i].CollideWithBall(Spherelist[j]);
-					cout << i << " collides with " << j << endl;
+					//Stores colliding spheres
+					Collisionstracker.emplace_back(Spherelist[j]);
+
+				}
+
+
+				cout << i << " collides with " << j << endl;
+			}
+
+			for (int k = 0; k < Board.size(); k++)
+			{	//Tests for wall collisions
+				if (Spherelist[i].AABB.TestAABBAABB(Board[k].AABB))
+				{
+					//Runs collision program
+					//Spherelist[i].CollideWithWall(Board[k]);
+					cout << i << " collides with wall " << k << endl;
+					collision.CollideWithWall(Board[k], Spherelist[i]);
 					break;
 				}
-				
-			}
-			
-		}
-		
-	
 
+			}
+			//Checks if collisions happened
+			if (Collisionstracker.size() > 0)
+			{	//resolves collision and empties tracker
+				collision.CollideWithBall(Collisionstracker, Spherelist[i]);
+				Collisionstracker.erase(Collisionstracker.begin(), Collisionstracker.end());
+			}
+			//updates movement and draws vertices
+			Spherelist[i].Movement();
+			Spherelist[i].DrawSphere(shaderProgram, "model");
+		}
+		glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightColor"), light.lightColor.x, light.lightColor.y, light.lightColor.z);
+		glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), light.lightPos.x, light.lightPos.y, light.lightPos.z);
+		Board[0].DrawCube(vec3(1, 2, 16), vec3(0, 1, 1), shaderProgram, "model");
+		Board[1].DrawCube(vec3(1, 2, 16), vec3(0, 1, 1), shaderProgram, "model");
+		Board[2].DrawCube(vec3(16, 2, 1), vec3(0, 1, 1), shaderProgram, "model");
+		Board[3].DrawCube(vec3(16, 2, 1), vec3(0, 1, 1), shaderProgram, "model");
+		Board[4].DrawCube(vec3(15, 1, 15), vec3(1, 0, 1), shaderProgram, "model");
 
 		// Exports the camera Position to the Fragment Shader for specular lighting
 		glUniform3f(glGetUniformLocation(shaderProgram.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
@@ -228,37 +214,37 @@ int main()
 		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) //left
 		{
 			
-			camera.Position.x += 5 * Deltatime;
+			camera.Position.x += 15 * Deltatime;
 
 		}
 		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) //right
 		{
 			
-			camera.Position.x += -5 * Deltatime;
+			camera.Position.x += -15 * Deltatime;
 
 		}
 		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) //back
 		{
 			
-			camera.Position.z += 5 * Deltatime;
+			camera.Position.z += 15 * Deltatime;
 
 		}
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) //forward
 		{
 			
-			camera.Position.z += -5 * Deltatime;
+			camera.Position.z += -15 * Deltatime;
 
 		}
 		if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) //back
 		{
 
-			camera.Position.y += 5 * Deltatime;
+			camera.Position.y += 15 * Deltatime;
 
 		}
 		if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) //forward
 		{
 
-			camera.Position.y += -5 * Deltatime;
+			camera.Position.y += -15 * Deltatime;
 
 		}
 

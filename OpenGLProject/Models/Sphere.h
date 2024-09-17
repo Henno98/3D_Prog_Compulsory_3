@@ -53,6 +53,7 @@ struct SphereIndices
 class Sphere
 {
 public:
+    int ID;
 	glm::mat4 SphereMatrix = glm::mat4(1.0f);
 	std::vector<Vertex> sphere;
 	std::vector < SphereIndices> sphereIndices;
@@ -60,14 +61,13 @@ public:
 	float radius;
 	int subdivision;
     glm::vec3 Speed;
-  
 	Sphere();
 	void DrawSphere( Shader& shader, const char* uniform);
-	void CreateSphere( int subdivison, float scale, glm::vec3 speed);
+	void CreateSphere(int id, int subdivison, float scale, glm::vec3 speed);
 	void Subdivide(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c, int n);
 	void CreateTriangle(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c);
     void Movement();
-    void CollideWithBall(Sphere& otheractor);
+    void CollideWithBall( std::vector<Sphere>& collisions);
     void CollideWithWall(Cube& otheractor);
 
 };

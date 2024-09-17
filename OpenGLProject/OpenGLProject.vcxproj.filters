@@ -60,6 +60,9 @@
     <ClCompile Include="Models\Sphere.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Models\Collision.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Dependencies\libs\glfw3.dll" />
@@ -2325,6 +2328,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Models\Sphere.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Models\Collision.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
