@@ -52,6 +52,7 @@ public:
 	std::vector<Vertex> sphere;
 	BoundingBox AABB;
 	float radius;
+    float mass = 5;
 	int subdivision;
     glm::vec3 Speed;
     VBO sphereVBO;
@@ -61,7 +62,7 @@ public:
 	void DrawSphere( Shader& shader, const char* uniform);
 	void CreateSphere(int id, int subdivison, float scale, glm::vec3 speed);
 	void Subdivide(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c, int n);
-	void CreateTriangle(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c);
+	void CreateTriangle(const glm::vec3& v1, const glm::vec3& v2, const glm::vec3& v3);
     void Movement();
     void CollideWithBall( std::vector<Sphere>& collisions);
     void CollideWithWall(Cube& otheractor);

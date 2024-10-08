@@ -35,8 +35,8 @@ using namespace Eigen;
 using namespace glm;
 
 // Window dimensions
-const unsigned int width = 1200;
-const unsigned int height = 1200;
+const unsigned int width = 2000;
+const unsigned int height = 1440;
 
 template <typename T>
 struct Bezier
@@ -111,15 +111,16 @@ int main()
 	
 	
 	
-	for(int i = 0; i < 10;i++)
+	for(int i = -5; i < 7;i++)
 	{
-		float t = rand() % 2;
+		float t = rand() % 5 +1;
 		float k = rand() % 2;
 		float xdir = -1.f + t;
 		float zdir = -1.f + k;
 		Sphere sphere;
 		sphere.CreateSphere(i,4, 1.f, vec3(0.1,0,-0.1));
-		sphere.SphereMatrix = translate(sphere.SphereMatrix, vec3(i, 0, i));
+		sphere.SphereMatrix = translate(sphere.SphereMatrix, vec3(i+i, 0, i+i));
+		sphere.mass = t;
 		Spherelist.emplace_back(sphere);
 
 	}
@@ -128,7 +129,7 @@ int main()
 	Board[1].CubeMatrix = translate(Board[1].CubeMatrix, vec3(15, 0, 0));
 	Board[2].CubeMatrix = translate(Board[2].CubeMatrix, vec3(0, 0, 15));
 	Board[3].CubeMatrix = translate(Board[3].CubeMatrix, vec3(0, 0, -15));
-	Board[4].CubeMatrix = translate(Board[4].CubeMatrix, vec3(0, -2, 0));
+	Board[4].CubeMatrix = translate(Board[4].CubeMatrix, vec3(0, -2.5, 0));
 
 
 	glEnable(GL_DEPTH_TEST);
