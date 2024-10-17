@@ -106,6 +106,8 @@ int main()
 	EntityManager EManager;
 	ComponentManager<PositionComponent> PositionData;
 	ComponentManager<MovementComponent> MovementData;
+	ComponentManager<HealthComponent> HealthData;
+	ComponentManager<DamageComponent> DamageData;
 	SystemManager<MovementSystem> MovementCalc;
 	Cube Box;
 	MovementSystem Movement;
@@ -117,6 +119,8 @@ int main()
 
 	PositionData.AddComponent(Player.EntityID, PositionComponent(glm::vec3(0, 0, 0)));
 	MovementData.AddComponent(Player.EntityID, MovementComponent(glm::vec3(1, 0, 1)));
+	HealthData.AddComponent(Player.GetId(), HealthComponent(20));
+	DamageData.AddComponent(Player.GetId(), DamageComponent(5));
 
 	for(int i = 0; i < 500 ; i++)
 	{
@@ -132,6 +136,8 @@ int main()
 		float randz = rand() %20 -10;
 		PositionData.AddComponent(Boars[i].EntityID, PositionComponent(glm::vec3(randx*3, 0, randy*3)));
 		MovementData.AddComponent(Boars[i].EntityID, MovementComponent(glm::vec3(randx, randy, randz)));
+		HealthData.AddComponent(Boars[i].GetId(), HealthComponent(10));
+		DamageData.AddComponent(Boars[i].GetId(), DamageComponent(1));
 		
 	}
 	

@@ -5,6 +5,8 @@
 #include "vector"
 #include "unordered_map"
 #include "EntityManager.h"
+#include "HealthComponent.h"
+#include "DamageComponent.h"
 
 struct BaseClass
 {

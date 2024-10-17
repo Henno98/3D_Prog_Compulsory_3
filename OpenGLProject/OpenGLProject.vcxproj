@@ -131,6 +131,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Functions\AttackCheck.cpp" />
+    <ClCompile Include="Components\CollisionComponent.cpp" />
+    <ClCompile Include="Components\DamageComponent.cpp" />
     <ClCompile Include="Functions\ActorRenderingSystem.cpp" />
     <ClCompile Include="Components\BaseClass.cpp" />
     <ClCompile Include="BoundingBox.cpp" />
@@ -156,6 +159,7 @@
     <ClCompile Include="Models\Trophy.cpp" />
     <ClCompile Include="Models\Wall.cpp" />
     <ClCompile Include="Functions\SystemManager.cpp" />
+    <ClCompile Include="Components\SizeComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="default.frag" />
@@ -336,6 +340,9 @@
     <Library Include="Dependencies\libs\glfw3_mt.lib" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Functions\AttackCheck.h" />
+    <ClInclude Include="Components\CollisionComponent.h" />
+    <ClInclude Include="Components\DamageComponent.h" />
     <ClInclude Include="Functions\ActorRenderingSystem.h" />
     <ClInclude Include="Components\BaseClass.h" />
     <ClInclude Include="BoundingBox.h" />
@@ -951,6 +958,7 @@
     <ClInclude Include="Models\Trophy.h" />
     <ClInclude Include="Models\Wall.h" />
     <ClInclude Include="Functions\SystemManager.h" />
+    <ClInclude Include="Components\SizeComponent.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
