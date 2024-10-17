@@ -131,12 +131,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Functions\ActorRenderingSystem.cpp" />
+    <ClCompile Include="Components\BaseClass.cpp" />
     <ClCompile Include="BoundingBox.cpp" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="Components\ComponentManager.cpp" />
+    <ClCompile Include="Components\EntityManager.cpp" />
+    <ClCompile Include="Components\HealthComponent.cpp" />
     <ClCompile Include="Models\Collision.cpp" />
     <ClCompile Include="Models\Cube.cpp" />
     <ClCompile Include="Dependencies\includes\glm\detail\glm.cpp" />
     <ClCompile Include="glad.c" />
+    <ClCompile Include="Components\MovementComponent.cpp" />
+    <ClCompile Include="Components\PositionComponent.cpp" />
+    <ClCompile Include="Functions\MovementSystem.cpp" />
     <ClCompile Include="Shaders\Light.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Models\NPC.cpp" />
@@ -147,6 +155,7 @@
     <ClCompile Include="Models\Sphere.cpp" />
     <ClCompile Include="Models\Trophy.cpp" />
     <ClCompile Include="Models\Wall.cpp" />
+    <ClCompile Include="Functions\SystemManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="default.frag" />
@@ -327,8 +336,13 @@
     <Library Include="Dependencies\libs\glfw3_mt.lib" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Functions\ActorRenderingSystem.h" />
+    <ClInclude Include="Components\BaseClass.h" />
     <ClInclude Include="BoundingBox.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="Components\ComponentManager.h" />
+    <ClInclude Include="Components\EntityManager.h" />
+    <ClInclude Include="Components\HealthComponent.h" />
     <ClInclude Include="Models\Collision.h" />
     <ClInclude Include="Models\Cube.h" />
     <ClInclude Include="Dependencies\Eigen\src\Cholesky\LDLT.h" />
@@ -924,6 +938,9 @@
     <ClInclude Include="Dependencies\includes\glm\vec4.hpp" />
     <ClInclude Include="Dependencies\includes\glm\vector_relational.hpp" />
     <ClInclude Include="Dependencies\includes\KHR\khrplatform.h" />
+    <ClInclude Include="Components\MovementComponent.h" />
+    <ClInclude Include="Components\PositionComponent.h" />
+    <ClInclude Include="Functions\MovementSystem.h" />
     <ClInclude Include="Shaders\Light.h" />
     <ClInclude Include="Models\NPC.h" />
     <ClInclude Include="Shaders\EBO.h" />
@@ -933,6 +950,7 @@
     <ClInclude Include="Models\Sphere.h" />
     <ClInclude Include="Models\Trophy.h" />
     <ClInclude Include="Models\Wall.h" />
+    <ClInclude Include="Functions\SystemManager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

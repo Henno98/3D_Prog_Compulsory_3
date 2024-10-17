@@ -26,9 +26,12 @@
 #include "Models/Sphere.h"
 #include "Models/Trophy.h"
 #include "../Models/Collision.h"
-
-
-
+#include "Components/ComponentManager.h"
+#include "Components/EntityManager.h"
+#include "Components/PositionComponent.h"
+#include "Functions/MovementSystem.h"
+#include "Functions/SystemManager.h"
+#include "Functions/ActorRenderingSystem.h"
 
 using namespace std;
 using namespace Eigen;
@@ -97,45 +100,45 @@ int main()
 	// Shader for light cube
 	Shader lightShader("Light.vert", "Light.frag");
 	srand(time(NULL));
-	vector<Sphere> Spherelist;
-	vector<Sphere> Collisionstracker;
-	Collision collision;
-	vector<Cube> Board;
-	bool Moving = false;
-	for(int i = 0; i < 5;i++)
+	
+	
+
+	EntityManager EManager;
+	ComponentManager<PositionComponent> PositionData;
+	ComponentManager<MovementComponent> MovementData;
+	SystemManager<MovementSystem> MovementCalc;
+	Cube Box;
+	MovementSystem Movement;
+	ActorRenderingSystem Render;
+	std::vector<Entity> Boars;
+
+	Entity Player = EManager.CreateEntity();
+	Boars.emplace_back(Player);
+
+	PositionData.AddComponent(Player.EntityID, PositionComponent(glm::vec3(0, 0, 0)));
+	MovementData.AddComponent(Player.EntityID, MovementComponent(glm::vec3(1, 0, 1)));
+
+	for(int i = 0; i < 500 ; i++)
 	{
-		Cube cube;
-		Board.emplace_back(cube);
+		Entity Actor = EManager.CreateEntity();
+		
+		Boars.emplace_back(Actor);
 
 	}
-	
-	
-	
-	for(int i = -5; i < 7;i++)
+	for(int i = 1 ; i < Boars.size();i++)
 	{
-		float t = rand() % 5 +1;
-		float k = rand() % 2;
-		float xdir = -1.f + t;
-		float zdir = -1.f + k;
-		Sphere sphere;
-		sphere.CreateSphere(i,4, 1.f, vec3(0.1,0,-0.1));
-		sphere.SphereMatrix = translate(sphere.SphereMatrix, vec3(i+i, 0, i+i));
-		sphere.mass = t;
-		Spherelist.emplace_back(sphere);
-
+		float randx = rand() %20 -10;
+		float randy = rand() %20 -10;
+		float randz = rand() %20 -10;
+		PositionData.AddComponent(Boars[i].EntityID, PositionComponent(glm::vec3(randx*3, 0, randy*3)));
+		MovementData.AddComponent(Boars[i].EntityID, MovementComponent(glm::vec3(randx, randy, randz)));
+		
 	}
-
-	Board[0].CubeMatrix = translate(Board[0].CubeMatrix, vec3(-15, 0, 0));
-	Board[1].CubeMatrix = translate(Board[1].CubeMatrix, vec3(15, 0, 0));
-	Board[2].CubeMatrix = translate(Board[2].CubeMatrix, vec3(0, 0, 15));
-	Board[3].CubeMatrix = translate(Board[3].CubeMatrix, vec3(0, 0, -15));
-	Board[4].CubeMatrix = translate(Board[4].CubeMatrix, vec3(0, -2.5, 0));
-
-
+	
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	float lastFrame = 0.f;
-
+	
 //	Doormatrix = translate(Doormatrix, vec3(-5, 0, -5));
 	while (!glfwWindowShouldClose(window))
 	{
@@ -151,57 +154,20 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		// Tell OpenGL which Shader Program we want to use
 
-
+		
+	
+		
 		shaderProgram.Activate();
-
-		for (int i = 0; i < Spherelist.size(); i++)
-		{
-
-			
-
-			for (int k = 0; k < Board.size(); k++)
-			{	//Tests for wall collisions
-				if (Spherelist[i].AABB.TestAABBAABB(Board[k].AABB))
-				{
-					//Runs collision program
-					
-					collision.CollideWithWall(Board[k], Spherelist[i]);
-					
-				}
-				for (int j = i + 1; j < Spherelist.size(); j++)
-				{	//Tests for collision between spheres
-					if (Spherelist[i].AABB.TestAABBAABB(Spherelist[j].AABB))
-					{
-						//Runs collision program
-						collision.CollideWithBall(Spherelist[j], Spherelist[i]);
-
-					}
-
-
-
-				}
-
-			}
-			
+		Render.DrawActor(shaderProgram, "model", PositionData, Boars);
+		Movement.Update(Deltatime, PositionData, MovementData, Boars);
+		Box.DrawCube(vec3(1.f), vec3(1.f), shaderProgram, "model");
 			//updates movement and draws vertices
-			if (Moving == true)
-			{
-				Spherelist[i].Movement();
-			}
-			Spherelist[i].DrawSphere(shaderProgram, "model");
-		}
+		
 		glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightColor"), light.lightColor.x, light.lightColor.y, light.lightColor.z);
 		glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), light.lightPos.x, light.lightPos.y, light.lightPos.z);
-		Board[0].DrawCube(vec3(1, 2, 16), vec3(0, 1, 1), shaderProgram, "model");
-		Board[1].DrawCube(vec3(1, 2, 16), vec3(0, 1, 1), shaderProgram, "model");
-		Board[2].DrawCube(vec3(16, 2, 1), vec3(0, 1, 1), shaderProgram, "model");
-		Board[3].DrawCube(vec3(16, 2, 1), vec3(0, 1, 1), shaderProgram, "model");
-		Board[4].DrawCube(vec3(15, 1, 15), vec3(1, 0, 1), shaderProgram, "model");
-
 		// Exports the camera Position to the Fragment Shader for specular lighting
 		glUniform3f(glGetUniformLocation(shaderProgram.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
-
-		camera.Matrix(45.f, 0.1f, 100.f, shaderProgram, "camMatrix");
+		camera.Matrix(45.f, 0.1f, 1000.f, shaderProgram, "camMatrix");
 		camera.Inputs(window);
 
 		lightShader.Activate();
@@ -247,19 +213,7 @@ int main()
 			camera.Position.y += -15 * Deltatime;
 
 		}
-		if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS) //forward
-		{
-			switch (Moving)
-			{
-			case true:
-				Moving = false;
-				break;
-			case false:
-				Moving = true;
-				break;
-
-			}
-		}
+		
 
 	
 		
@@ -273,10 +227,7 @@ int main()
 		// Take care of all GLFW events
 		glfwPollEvents();
 	}
-	for (int i = 0; i < Spherelist.size(); i++)
-	{
-		Spherelist[i].DeleteVAO();
-	}
+	
 	shaderProgram.Delete();
 	lightShader.Delete();
 
