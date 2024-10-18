@@ -66,7 +66,8 @@ void Cube::DrawCube(glm::vec3 scale, glm::vec3 color, Shader& shader, const char
 	CubeVBO.Initialize(Matrice, sizeof(Matrice));
 	CubeVBO.Bind();
 
-	EBO CubeEBO(CubeIndices, sizeof(CubeIndices));
+	EBO CubeEBO;
+	CubeEBO.init(CubeIndices, sizeof(CubeIndices));
 	CubeEBO.Bind();
 
 	//Specify vertex attribute pointers

@@ -10,9 +10,10 @@ public:
 
 	};
 	Type type;
-	float value;
-	bool isActive;
-	PickUpComponent(Type type = Type::Health,float value) : type(type),value(value),isActive(true)
+	float value{0};
+	bool isActive{};
+	PickUpComponent() = default;
+	PickUpComponent(Type type , float value) : type(type), value(value), isActive(true)
 	{
 		
 	}

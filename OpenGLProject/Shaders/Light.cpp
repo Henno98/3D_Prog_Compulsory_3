@@ -74,7 +74,8 @@ void Light::CreateLight( glm::vec3 scale, glm::vec3 color)
 	LightVBO.Initialize(Matrice, sizeof(Matrice));
 	LightVBO.Bind();
 
-	EBO LightEBO(LightIndices, sizeof(LightIndices));
+	EBO LightEBO;
+	LightEBO.init(LightIndices, sizeof(LightIndices));
 	LightEBO.Bind();
 
 	//Specify vertex attribute pointers

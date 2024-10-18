@@ -70,7 +70,8 @@ void Trophy::DrawTrophy( glm::vec3 size, Shader& shader, const char* uniform)
 	trophyVBO.Initialize(Vertices, sizeof(Vertices));
 	trophyVBO.Bind();
 
-	EBO trophyEBO(trophyIndices, sizeof(trophyIndices));
+	EBO trophyEBO;
+	trophyEBO.init(trophyIndices, sizeof(trophyIndices));
 	trophyEBO.Bind();
 
 	//Specify vertex attribute pointers

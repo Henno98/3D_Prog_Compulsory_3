@@ -27,7 +27,8 @@ void Wall::DrawSquare(std::vector<WallVertex> position)
 	SquareVBO.Initialize(reinterpret_cast<GLfloat*>(position.data()), static_cast<GLsizeiptr>(position.size() * sizeof(WallVertex)));
 	SquareVBO.Bind();
 
-	EBO SquareEBO(SquareIndices, sizeof(SquareIndices));
+	EBO SquareEBO;
+	SquareEBO.init(SquareIndices, sizeof(SquareIndices));
 	SquareEBO.Bind();
 
 	//Specify vertex attribute pointers

@@ -57,7 +57,8 @@ void NPC::DrawNPC(Shader& shader, const char* uniform)
 	NPCVBO.Initialize(Indices, sizeof(Indices));
 	NPCVBO.Bind();
 
-	EBO NPCEBO(NPCIndices, sizeof(NPCIndices));
+	EBO NPCEBO;
+	NPCEBO.init(NPCIndices, sizeof(NPCIndices));
 	NPCEBO.Bind();
 
 	//Specify vertex attribute pointers

@@ -11,6 +11,7 @@ public:
         timeelapsed += deltaTime;
        
         for (int i = 0; i < entities.size() ;i++) {
+            if (speed.HasComponent(entities[i].GetId())) {
             if (timeelapsed > 3)
             {
              
@@ -19,10 +20,11 @@ public:
                 speed.GetComponent(entities[i].GetId()).SetVelocity(Direction * speed.GetComponent(entities[i].GetId()).GetSpeed());
                 
             }
-            pos.GetComponent(entities[i].GetId()).SetPosition(
-                pos.GetComponent(entities[i].GetId()).GetPosition() +=
-                speed.GetComponent(entities[i].GetId()).GetVelocity()*deltaTime);
-
+           
+                pos.GetComponent(entities[i].GetId()).SetPosition(
+                    pos.GetComponent(entities[i].GetId()).GetPosition() +=
+                    speed.GetComponent(entities[i].GetId()).GetVelocity() * deltaTime);
+            }
             //MatrixCalc(pos.GetComponent(entities[i].GetId()).GetPosition());
 
            
@@ -30,7 +32,8 @@ public:
         if (timeelapsed > 3)
             timeelapsed = 0;
 
-    };
+    }
+
     glm::mat4 MatrixCalc(glm::vec3 pos)
     {
 			

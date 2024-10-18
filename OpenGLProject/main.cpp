@@ -95,7 +95,7 @@ int main()
 
 	// Generates Shader object using shaders defualt.vert and default.frag
 	Shader shaderProgram("default.vert", "default.frag");
-	Camera camera(width, height, glm::vec3(0.f));
+	Camera camera(width, height, glm::vec3(0.f,100.f,0.f));
 	Light light;
 	// Shader for light cube
 	Shader lightShader("Light.vert", "Light.frag");
@@ -181,18 +181,19 @@ int main()
 		
 		
 		shaderProgram.Activate();
-
+		Render.initBinders();
 		Render.DrawActor(shaderProgram, "model", PositionData, AllEntities);
-		
+		//Handles movement for input actors
 		Movement.Update(Deltatime,camera.Position, PositionData, MovementData, AllEntities);
 		Box.DrawCube(vec3(100.f,-0.2f,100.f), vec3(1.f), shaderProgram, "model");
-			//updates movement and draws vertices
+
+		//Checks collision for all entities
 		for(int i = 0; i < AllEntities.size();i++)
 		{
 
-			if(CollisionDetection.CheckifOverlap(CollisionData,PositionData, AllEntities[i].GetId()))
+			if(CollisionDetection.CheckifOverlap(CollisionData,PositionData, AllEntities[i].GetId()) )
 			{
-				CollisionDetection.Collision(MovementData, AllEntities[i].GetId());
+				CollisionDetection.Collision(MovementData, Boars[i].GetId());
 			}
 
 		}
@@ -206,7 +207,7 @@ int main()
 		lightShader.Activate();
 		glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(light.lightModel));
 		glUniform3f(glGetUniformLocation(lightShader.ID, "lightColor"), light.lightColor.x, light.lightColor.y, light.lightColor.z);
-		camera.Matrix(45.f, 0.1f, 100.f, lightShader, "camMatrix");
+		camera.Matrix(45.f, 0.1f, 1000.f, lightShader, "camMatrix");
 		light.CreateLight(vec3(1, 1, 1), vec3(1, 1, 1));
 
 
@@ -255,7 +256,7 @@ int main()
 		// Take care of all GLFW events
 		glfwPollEvents();
 	}
-	
+	Render.DeleteBinders();
 	shaderProgram.Delete();
 	lightShader.Delete();
 
