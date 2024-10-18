@@ -141,7 +141,6 @@
     <ClCompile Include="Components\ComponentManager.cpp" />
     <ClCompile Include="Components\EntityManager.cpp" />
     <ClCompile Include="Components\HealthComponent.cpp" />
-    <ClCompile Include="GunComponent.cpp" />
     <ClCompile Include="Models\Collision.cpp" />
     <ClCompile Include="Models\Cube.cpp" />
     <ClCompile Include="Dependencies\includes\glm\detail\glm.cpp" />
@@ -149,6 +148,7 @@
     <ClCompile Include="Components\MovementComponent.cpp" />
     <ClCompile Include="Components\PositionComponent.cpp" />
     <ClCompile Include="Functions\MovementSystem.cpp" />
+    <ClCompile Include="Components\PickUpComponent.cpp" />
     <ClCompile Include="Shaders\Light.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Models\NPC.cpp" />
@@ -351,7 +351,6 @@
     <ClInclude Include="Components\ComponentManager.h" />
     <ClInclude Include="Components\EntityManager.h" />
     <ClInclude Include="Components\HealthComponent.h" />
-    <ClInclude Include="GunComponent.h" />
     <ClInclude Include="Models\Collision.h" />
     <ClInclude Include="Models\Cube.h" />
     <ClInclude Include="Dependencies\Eigen\src\Cholesky\LDLT.h" />
@@ -950,6 +949,7 @@
     <ClInclude Include="Components\MovementComponent.h" />
     <ClInclude Include="Components\PositionComponent.h" />
     <ClInclude Include="Functions\MovementSystem.h" />
+    <ClInclude Include="Components\PickUpComponent.h" />
     <ClInclude Include="Shaders\Light.h" />
     <ClInclude Include="Models\NPC.h" />
     <ClInclude Include="Shaders\EBO.h" />

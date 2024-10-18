@@ -23,7 +23,7 @@ public:
                 pos.GetComponent(entities[i].GetId()).GetPosition() +=
                 speed.GetComponent(entities[i].GetId()).GetVelocity()*deltaTime);
 
-            MatrixCalc(pos.GetComponent(entities[i].GetId()).GetPosition());
+            //MatrixCalc(pos.GetComponent(entities[i].GetId()).GetPosition());
 
            
         }

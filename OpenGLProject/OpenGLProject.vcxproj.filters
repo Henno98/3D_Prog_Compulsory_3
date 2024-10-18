@@ -102,7 +102,7 @@
     <ClCompile Include="Components\SizeComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GunComponent.cpp">
+    <ClCompile Include="Components\PickUpComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -2414,7 +2414,7 @@
     <ClInclude Include="Components\SizeComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GunComponent.h">
+    <ClInclude Include="Components\PickUpComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

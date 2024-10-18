@@ -14,7 +14,7 @@ class ActorRenderingSystem
 {
 
 public:
-	
+	GLfloat Vertices[];
 	
 	glm::mat4 Matrix = glm::mat4(1.f);
 	void Update(const std::vector<std::shared_ptr<Entity>>& entities) 

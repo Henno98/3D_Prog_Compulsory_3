@@ -9,6 +9,7 @@
 #include "DamageComponent.h"
 #include "CollisionComponent.h"
 #include "SizeComponent.h"
+#include "PickUpComponent.h"
 
 struct BaseClass
 {

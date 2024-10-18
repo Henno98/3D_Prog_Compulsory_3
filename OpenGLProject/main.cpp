@@ -102,7 +102,7 @@ int main()
 	srand(time(NULL));
 	
 	
-
+	//Init the Components
 	EntityManager EManager;
 	ComponentManager<PositionComponent> PositionData;
 	ComponentManager<MovementComponent> MovementData;
@@ -110,22 +110,34 @@ int main()
 	ComponentManager<DamageComponent> DamageData;
 	ComponentManager<SizeComponent> SizeData;
 	ComponentManager<CollisionComponent> CollisionData;
-	
+	ComponentManager<PickUpComponent> PickUpData;
 	Cube Box;
+	//Init the Functions
 	MovementSystem Movement;
 	AttackCheck CollisionDetection;
 	ActorRenderingSystem Render;
-	std::vector<Entity> Boars;
+
+	//Vector Containing All Actors
 	std::vector<Entity> AllEntities;
 
+	//CreatePlayer
 	Entity Player = EManager.CreateEntity();
 	AllEntities.emplace_back(Player);
-
 	PositionData.AddComponent(Player.GetId(), PositionComponent(glm::vec3(1.f)));
 	MovementData.AddComponent(Player.GetId(), MovementComponent(glm::vec3(1.F),2.f,10.f));
 	HealthData.AddComponent(Player.GetId(), HealthComponent(20));
 	//DamageData.AddComponent(Player.GetId(), DamageComponent(5));
 	CollisionData.AddComponent(Player.GetId(), CollisionComponent(true, vec3(1.f)));
+
+	//Create Pickup
+	Entity HealthPickup = EManager.CreateEntity();
+	AllEntities.emplace_back(HealthPickup);
+	PositionData.AddComponent(HealthPickup.GetId(), PositionComponent(vec3(3.f, 0.f, 2.f)));
+	CollisionData.AddComponent(HealthPickup.GetId(), CollisionComponent(true, vec3(1.f)));
+	PickUpData.AddComponent(HealthPickup.GetId(), PickUpComponent(PickUpComponent::Type::Health, 10));
+
+	//Making Enemies
+	std::vector<Entity> Boars;
 	for(int i = 0; i < 100 ; i++)
 	{
 		Entity Actor = EManager.CreateEntity();
@@ -180,9 +192,7 @@ int main()
 
 			if(CollisionDetection.CheckifOverlap(CollisionData,PositionData, AllEntities[i].GetId()))
 			{
-				cout << "collision happened";
 				CollisionDetection.Collision(MovementData, AllEntities[i].GetId());
-				
 			}
 
 		}
