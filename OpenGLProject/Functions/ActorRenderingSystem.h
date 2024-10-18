@@ -38,7 +38,6 @@ struct Vertex {
 
 };
 
-
 class ActorRenderingSystem 
 {
 
@@ -47,7 +46,7 @@ public:
 	VBO ActorVBO;
 	EBO ActorEBO;
 	std::vector<Vertex> Datapoints;
-	std::vector<int> Indices;
+	
 	//Init the Matrix
 	glm::mat4 Matrix = glm::mat4(1.f);
 
@@ -55,36 +54,65 @@ public:
 	{
 		float halfSize = 0.5f;
 
-		// Define the vertices of the cube based on the center position
-		glm::vec3 vertexOffsets[8] = {
-			glm::vec3(-halfSize, -halfSize, -halfSize), // Vertex 0
-			glm::vec3(halfSize, -halfSize, -halfSize), // Vertex 1
-			glm::vec3(halfSize,  halfSize, -halfSize), // Vertex 2
-			glm::vec3(-halfSize,  halfSize, -halfSize), // Vertex 3
-			glm::vec3(-halfSize, -halfSize,  halfSize), // Vertex 4
-			glm::vec3(halfSize, -halfSize,  halfSize), // Vertex 5
-			glm::vec3(halfSize,  halfSize,  halfSize), // Vertex 6
-			glm::vec3(-halfSize,  halfSize,  halfSize)  // Vertex 7
-		};
-		Vertex V{ glm::vec3(v1.x,v1.y,v1.z),glm::vec3(v1.x,v1.y,v1.z) ,glm::vec3(1.f)};
-		Datapoints.emplace_back(V);
 		
+		Vertex V{ glm::vec3(-halfSize, -halfSize, -halfSize),glm::vec3(v1.x,v1.y,v1.z) ,glm::vec3(1.f)};
+		Datapoints.emplace_back(V);
+		V = Vertex{ glm::vec3(halfSize, -halfSize, -halfSize),glm::vec3(v1.x,v1.y,v1.z) ,glm::vec3(1.f) };
+		Datapoints.emplace_back(V);
+		V = Vertex{ glm::vec3(halfSize,  halfSize, -halfSize),glm::vec3(v1.x,v1.y,v1.z) ,glm::vec3(1.f) };
+		Datapoints.emplace_back(V);
+		V = Vertex{ glm::vec3(-halfSize,  halfSize, -halfSize),glm::vec3(v1.x,v1.y,v1.z) ,glm::vec3(1.f) };
+		Datapoints.emplace_back(V);
+		V = Vertex{ glm::vec3(-halfSize, -halfSize,  halfSize),glm::vec3(v1.x,v1.y,v1.z) ,glm::vec3(1.f) };
+		Datapoints.emplace_back(V);
+		V = Vertex{ glm::vec3(halfSize, -halfSize,  halfSize),glm::vec3(v1.x,v1.y,v1.z) ,glm::vec3(1.f) };
+		Datapoints.emplace_back(V);
+		V = Vertex{ glm::vec3(halfSize,  halfSize,  halfSize),glm::vec3(v1.x,v1.y,v1.z) ,glm::vec3(1.f) };
+		Datapoints.emplace_back(V);
+		V = Vertex{ glm::vec3(-halfSize,  halfSize,  halfSize),glm::vec3(v1.x,v1.y,v1.z) ,glm::vec3(1.f) };
+		Datapoints.emplace_back(V);
+
+		
+		/*Indices.emplace_back( 0,1,2 );
+		Indices.emplace_back(2,3,0);
+		Indices.emplace_back( 0,1,2 );
+		Indices.emplace_back( 0,1,2 );
+		Indices.emplace_back(0,1,2 );
+		Indices.emplace_back( 0,1,2 );*/
 	}
 	void initBinders()
 	{
 		//init binders
 		ActorVAO.Initialize();
-		ActorVBO.Initialize(reinterpret_cast<GLfloat*>(Datapoints.data()), (Datapoints.size() * sizeof(Vertex)));
-		ActorEBO.init(Indices, sizeof(Indices));
+		ActorVBO.Initialize(reinterpret_cast<GLfloat*>(Datapoints.data()), Datapoints.size() * sizeof(Vertex));
+		//ActorEBO.init(cubeIndices, sizeof(cubeIndices));
 	}
 	
 	//Draws all inputted Actors
 	void DrawActor(Shader& shader, const char* uniform, ComponentManager<PositionComponent>& pos, const std::vector<Entity>& entities)
 	{
 
-
-
-
+		unsigned int cubeIndices[] = {
+			// Front face
+			0, 1, 2,
+			2, 3, 0,
+			// Back face
+			4, 5, 6,
+			6, 7, 4,
+			// Left face
+			0, 3, 7,
+			7, 4, 0,
+			// Right face
+			1, 5, 6,
+			6, 2, 1,
+			// Bottom face
+			0, 4, 5,
+			5, 1, 0,
+			// Top face
+			3, 2, 6,
+			6, 7, 3
+		};
+		ActorEBO.init(cubeIndices, sizeof(cubeIndices));
 
 		ActorVAO.Bind();
 		ActorVBO.Bind();
@@ -94,16 +122,9 @@ public:
 
 			Matrix = MatrixCalc(pos.GetComponent(entities[i].EntityID).GetPosition());
 
-			//Specify vertex attribute pointers
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)0);
-			glEnableVertexAttribArray(0);
-
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(3 * sizeof(float)));
-			glEnableVertexAttribArray(1);
-			glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(6 * sizeof(float)));
-			glEnableVertexAttribArray(2);
+			Vertex::BindAttributes();
 			glUniformMatrix4fv(glGetUniformLocation(shader.ID, uniform), 1, GL_FALSE, glm::value_ptr(Matrix));
-			glDrawElements(GL_TRIANGLES, Indices.size(), GL_UNSIGNED_INT, nullptr);
+			glDrawElements(GL_TRIANGLES, sizeof(cubeIndices), GL_UNSIGNED_INT, nullptr);
 
 		}
 

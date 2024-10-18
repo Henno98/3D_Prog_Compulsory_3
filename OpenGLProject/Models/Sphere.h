@@ -13,29 +13,29 @@
 #include "Cube.h"
 
 
-struct Vertex {
+struct SphereVertex {
     glm::vec3 position = glm::vec3(0.f);
     glm::vec3 Color = glm::vec3(0.f, 1.f, 0.f);
     glm::vec3 normal = glm::vec3(0.f);
 
-    Vertex() = default;
-    Vertex(glm::vec3 pos) : position(pos) {}
-    Vertex(float x, float y, float z) : position(glm::vec3(x, y, z)) {}
-    Vertex(glm::vec3 pos, glm::vec3 nor) : position(pos), normal(nor) {}
-    Vertex(glm::vec3 pos, glm::vec3 nor, glm::vec3 tex) : position(pos), normal(nor), Color(tex) {}
+    SphereVertex() = default;
+    SphereVertex(glm::vec3 pos) : position(pos) {}
+    SphereVertex(float x, float y, float z) : position(glm::vec3(x, y, z)) {}
+    SphereVertex(glm::vec3 pos, glm::vec3 nor) : position(pos), normal(nor) {}
+    SphereVertex(glm::vec3 pos, glm::vec3 nor, glm::vec3 tex) : position(pos), normal(nor), Color(tex) {}
 
-    // Bind Vertex Attributes for the shader. Remember to change the shader to accept the corrent attributes
+    // Bind SphereVertex Attributes for the shader. Remember to change the shader to accept the corrent attributes
     static void BindAttributes() {
         // Position
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(SphereVertex), (void*)offsetof(SphereVertex, position));
         glEnableVertexAttribArray(0);
 
         // Normal
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Color));
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(SphereVertex), (void*)offsetof(SphereVertex, Color));
         glEnableVertexAttribArray(1);
 
         // Texture Coordinates
-        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
+        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(SphereVertex), (void*)offsetof(SphereVertex, normal));
         glEnableVertexAttribArray(2);
         /*
         glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, mTexCoord));
@@ -49,7 +49,7 @@ class Sphere
 public:
     int ID;
 	glm::mat4 SphereMatrix = glm::mat4(1.0f);
-	std::vector<Vertex> sphere;
+	std::vector<SphereVertex> sphere;
 	BoundingBox AABB;
 	float radius;
     float mass = 5;

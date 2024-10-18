@@ -10,6 +10,7 @@
 #include "CollisionComponent.h"
 #include "SizeComponent.h"
 #include "PickUpComponent.h"
+#include "InputComponent.h"
 
 struct BaseClass
 {

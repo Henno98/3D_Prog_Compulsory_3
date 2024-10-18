@@ -1,6 +1,8 @@
 #pragma once
 #include "../Components/ComponentManager.h"
+#include "GLFW/glfw3.h"
 #include "glm/gtc/matrix_transform.hpp"
+#include "../Dependencies/includes/GLFW/glfw3.h"
 class MovementSystem
 
 {
@@ -41,6 +43,52 @@ public:
            Actor =  glm::translate(Actor, pos);
 			
         return Actor;
+    }
+	void RecieveInput(ComponentManager<MovementComponent>& speed,ComponentManager<InputComponent>& state, std::vector<Entity>& entities, float deltatime, GLFWwindow* window )
+    {
+
+        //for (int i = 0; i < entities.size(); i++) {
+        //    if (state.HasComponent(entities[i].GetId()) == true)
+        //    {
+        //        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) //left
+        //        {
+        //            speed.GetComponent(entities[i].GetId()).SetVelocity(glm::vec3(0, 0, 15));
+
+        //        }
+        //        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) //right
+        //        {
+
+        //            speed.GetComponent(entities[i].GetId()).SetVelocity(glm::vec3(0,0, -15));
+
+        //        }
+        //        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) //back
+        //        {
+
+        //            speed.GetComponent(entities[i].GetId()).SetVelocity(glm::vec3(-15, 0, 0));
+
+        //        }
+        //        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) //forward
+        //        {
+
+        //            speed.GetComponent(entities[i].GetId()).SetVelocity(glm::vec3(15, 0, 0) );
+
+        //        }
+        //        if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) //back
+        //        {
+
+        //            speed.GetComponent(entities[i].GetId()).SetVelocity(glm::vec3(0, -15, 0));
+
+        //        }
+        //        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) //forward
+        //        {
+
+        //            speed.GetComponent(entities[i].GetId()).SetVelocity(glm::vec3(0, 15, 0));
+
+        //        }
+        //    }
+        //}
+
+
     }
 };
 

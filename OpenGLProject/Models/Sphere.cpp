@@ -20,7 +20,7 @@ void Sphere::DrawSphere( Shader& shader, const char* uniform)
 	
 	sphereVAO.Bind();
 	sphereVBO.Bind();
-	Vertex::BindAttributes();
+	SphereVertex::BindAttributes();
 	
 	glUniformMatrix4fv(glGetUniformLocation(shader.ID, uniform), 1, GL_FALSE, glm::value_ptr(SphereMatrix));
 	glDrawArrays(GL_TRIANGLES, 0, sphere.size());
@@ -57,7 +57,7 @@ void Sphere::CreateSphere(int id, int subdivison, float scale, glm::vec3 speed)
 		Vertex.position *= scale;
 	}
 	sphereVAO.Initialize();
-	sphereVBO.Initialize(reinterpret_cast<GLfloat*>(sphere.data()), (sphere.size() * sizeof(Vertex)));
+	sphereVBO.Initialize(reinterpret_cast<GLfloat*>(sphere.data()), (sphere.size() * sizeof(SphereVertex)));
 	AABB.Extent = glm::vec3(scale);
 }
 
@@ -85,11 +85,11 @@ void Sphere::Subdivide(const glm::vec3& a, const glm::vec3& b, const glm::vec3& 
 
 void Sphere::CreateTriangle(const glm::vec3& v1, const glm::vec3& v2, const glm::vec3& v3)
 {
-	Vertex V{glm::vec3( v1.x,v1.y,v1.z),glm::vec3(v1.x,v1.y,v1.z) ,glm::vec3(v1.x,v1.y,v1.z )};
+	SphereVertex V{glm::vec3( v1.x,v1.y,v1.z),glm::vec3(v1.x,v1.y,v1.z) ,glm::vec3(v1.x,v1.y,v1.z )};
 	sphere.emplace_back(V);
-	V = Vertex{ glm::vec3(v2.x,v2.y,v2.z),glm::vec3(v2.x,v2.y,v2.z) ,glm::vec3(v2.x,v2.y,v2.z) };
+	V = SphereVertex{ glm::vec3(v2.x,v2.y,v2.z),glm::vec3(v2.x,v2.y,v2.z) ,glm::vec3(v2.x,v2.y,v2.z) };
 	sphere.emplace_back(V);
-	V = Vertex{ glm::vec3(v3.x,v3.y,v3.z),glm::vec3(v3.x,v3.y,v3.z) ,glm::vec3(v3.x,v3.y,v3.z) };
+	V = SphereVertex{ glm::vec3(v3.x,v3.y,v3.z),glm::vec3(v3.x,v3.y,v3.z) ,glm::vec3(v3.x,v3.y,v3.z) };
 	sphere.emplace_back(V);
 
 

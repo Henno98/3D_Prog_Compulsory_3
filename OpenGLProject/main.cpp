@@ -95,7 +95,7 @@ int main()
 
 	// Generates Shader object using shaders defualt.vert and default.frag
 	Shader shaderProgram("default.vert", "default.frag");
-	Camera camera(width, height, glm::vec3(0.f,100.f,0.f));
+	
 	Light light;
 	// Shader for light cube
 	Shader lightShader("Light.vert", "Light.frag");
@@ -111,6 +111,7 @@ int main()
 	ComponentManager<SizeComponent> SizeData;
 	ComponentManager<CollisionComponent> CollisionData;
 	ComponentManager<PickUpComponent> PickUpData;
+	ComponentManager<InputComponent> InputData;
 	Cube Box;
 	//Init the Functions
 	MovementSystem Movement;
@@ -128,6 +129,9 @@ int main()
 	HealthData.AddComponent(Player.GetId(), HealthComponent(20));
 	//DamageData.AddComponent(Player.GetId(), DamageComponent(5));
 	CollisionData.AddComponent(Player.GetId(), CollisionComponent(true, vec3(1.f)));
+	InputData.AddComponent(Player.GetId(), InputComponent(true));
+
+	Camera camera(width, height, glm::vec3(1.f));
 
 	//Create Pickup
 	Entity HealthPickup = EManager.CreateEntity();
@@ -157,11 +161,11 @@ int main()
 		DamageData.AddComponent(Boars[i].GetId(), DamageComponent(1));
 		CollisionData.AddComponent(Boars[i].GetId(), CollisionComponent(true,vec3(1,1,1)));
 	}
-	
+	Render.InsertData(vec3(0.25f));
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	float lastFrame = 0.f;
-
+	Render.initBinders();
 //	Doormatrix = translate(Doormatrix, vec3(-5, 0, -5));
 	while (!glfwWindowShouldClose(window))
 	{
@@ -181,12 +185,13 @@ int main()
 		
 		
 		shaderProgram.Activate();
-		Render.initBinders();
+		
 		Render.DrawActor(shaderProgram, "model", PositionData, AllEntities);
 		//Handles movement for input actors
-		Movement.Update(Deltatime,camera.Position, PositionData, MovementData, AllEntities);
-		Box.DrawCube(vec3(100.f,-0.2f,100.f), vec3(1.f), shaderProgram, "model");
-
+		Movement.Update(Deltatime,camera.Position, PositionData, MovementData, Boars);
+		//Box.DrawCube(vec3(100.f,-0.2f,100.f), vec3(1.f), shaderProgram, "model");
+		//Movement.RecieveInput(MovementData, InputData, AllEntities, Deltatime, window);
+		
 		//Checks collision for all entities
 		for(int i = 0; i < AllEntities.size();i++)
 		{

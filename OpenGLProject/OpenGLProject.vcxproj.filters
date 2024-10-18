@@ -105,6 +105,9 @@
     <ClCompile Include="Components\PickUpComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Components\InputComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Dependencies\libs\glfw3.dll" />
@@ -2415,6 +2418,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Components\PickUpComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\InputComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -141,6 +141,7 @@
     <ClCompile Include="Components\ComponentManager.cpp" />
     <ClCompile Include="Components\EntityManager.cpp" />
     <ClCompile Include="Components\HealthComponent.cpp" />
+    <ClCompile Include="Components\InputComponent.cpp" />
     <ClCompile Include="Models\Collision.cpp" />
     <ClCompile Include="Models\Cube.cpp" />
     <ClCompile Include="Dependencies\includes\glm\detail\glm.cpp" />
@@ -351,6 +352,7 @@
     <ClInclude Include="Components\ComponentManager.h" />
     <ClInclude Include="Components\EntityManager.h" />
     <ClInclude Include="Components\HealthComponent.h" />
+    <ClInclude Include="Components\InputComponent.h" />
     <ClInclude Include="Models\Collision.h" />
     <ClInclude Include="Models\Cube.h" />
     <ClInclude Include="Dependencies\Eigen\src\Cholesky\LDLT.h" />
