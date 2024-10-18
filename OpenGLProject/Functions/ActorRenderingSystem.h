@@ -14,6 +14,8 @@ class ActorRenderingSystem
 {
 
 public:
+	
+	
 	glm::mat4 Matrix = glm::mat4(1.f);
 	void Update(const std::vector<std::shared_ptr<Entity>>& entities) 
 	{
@@ -29,43 +31,45 @@ public:
 	{
 		VAO ActorVAO;
 		VBO ActorVBO;
+
+			GLfloat Vertices[] = {
+				//  x,  y,  z,    R,  G,  B,   Nx, Ny, Nz
+		 1,  1,  1,   1, 1, 1,    1,  1,  1,   // Vertex 0
+		 1,  1, -1,   1, 1,   0,    1,  1, -1,   // Vertex 1
+		 1, -1,  1,   1,   0, 1,    1, -1,  1,   // Vertex 2
+		 1, -1, -1,   1,   0,   0,    1, -1, -1,   // Vertex 3
+		-1,  1,  1,     0, 1, 1,   -1,  1,  1,   // Vertex 4
+		-1,  1, -1,     0, 1,   0,   -1,  1, -1,   // Vertex 5
+		-1, -1,  1,     0,   0, 1,   -1, -1,  1,   // Vertex 6
+		-1, -1, -1,     0,   0,   0,   -1, -1, -1    // Vertex 7
+			};
+			unsigned int indices[] = {
+				// Front face
+				0, 2, 4,   // First triangle
+				2, 4, 6,   // Second triangle
+
+				// Back face
+				1, 3, 5,   // First triangle
+				3, 5, 7,   // Second triangle
+
+				// Top face
+				0, 1, 4,   // First triangle
+				1, 4, 5,   // Second triangle
+
+				// Bottom face
+				2, 3, 6,   // First triangle
+				3, 6, 7,   // Second triangle
+
+				// Left face
+				4, 5, 6,   // First triangle
+				5, 6, 7,   // Second triangle
+
+				// Right face
+				0, 1, 2,   // First triangle
+				1, 2, 3    // Second triangle
+			};
 		
-		GLfloat Vertices[] = {
-			//  x,  y,  z,    R,  G,  B,   Nx, Ny, Nz
-	 1,  1,  1,   1, 1, 1,    1,  1,  1,   // Vertex 0
-	 1,  1, -1,   1, 1,   0,    1,  1, -1,   // Vertex 1
-	 1, -1,  1,   1,   0, 1,    1, -1,  1,   // Vertex 2
-	 1, -1, -1,   1,   0,   0,    1, -1, -1,   // Vertex 3
-	-1,  1,  1,     0, 1, 1,   -1,  1,  1,   // Vertex 4
-	-1,  1, -1,     0, 1,   0,   -1,  1, -1,   // Vertex 5
-	-1, -1,  1,     0,   0, 1,   -1, -1,  1,   // Vertex 6
-	-1, -1, -1,     0,   0,   0,   -1, -1, -1    // Vertex 7
-		};
-		unsigned int indices[] = {
-			// Front face
-			0, 2, 4,   // First triangle
-			2, 4, 6,   // Second triangle
-
-			// Back face
-			1, 3, 5,   // First triangle
-			3, 5, 7,   // Second triangle
-
-			// Top face
-			0, 1, 4,   // First triangle
-			1, 4, 5,   // Second triangle
-
-			// Bottom face
-			2, 3, 6,   // First triangle
-			3, 6, 7,   // Second triangle
-
-			// Left face
-			4, 5, 6,   // First triangle
-			5, 6, 7,   // Second triangle
-
-			// Right face
-			0, 1, 2,   // First triangle
-			1, 2, 3    // Second triangle
-		};
+		
 		ActorVAO.Initialize();
 		ActorVBO.Initialize(Vertices, sizeof(Vertices));
 		ActorVAO.Bind();

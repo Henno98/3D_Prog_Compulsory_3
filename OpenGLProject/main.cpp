@@ -32,7 +32,7 @@
 #include "Functions/MovementSystem.h"
 #include "Functions/SystemManager.h"
 #include "Functions/ActorRenderingSystem.h"
-
+#include "Functions/AttackCheck.h"
 using namespace std;
 using namespace Eigen;
 using namespace glm;
@@ -108,43 +108,48 @@ int main()
 	ComponentManager<MovementComponent> MovementData;
 	ComponentManager<HealthComponent> HealthData;
 	ComponentManager<DamageComponent> DamageData;
-	SystemManager<MovementSystem> MovementCalc;
+	ComponentManager<SizeComponent> SizeData;
+	ComponentManager<CollisionComponent> CollisionData;
+	
 	Cube Box;
 	MovementSystem Movement;
+	AttackCheck CollisionDetection;
 	ActorRenderingSystem Render;
 	std::vector<Entity> Boars;
+	std::vector<Entity> AllEntities;
 
 	Entity Player = EManager.CreateEntity();
-	Boars.emplace_back(Player);
+	AllEntities.emplace_back(Player);
 
-	PositionData.AddComponent(Player.EntityID, PositionComponent(glm::vec3(0, 0, 0)));
-	MovementData.AddComponent(Player.EntityID, MovementComponent(glm::vec3(1, 0, 1)));
+	PositionData.AddComponent(Player.GetId(), PositionComponent(glm::vec3(1.f)));
+	MovementData.AddComponent(Player.GetId(), MovementComponent(glm::vec3(1.F),2.f,10.f));
 	HealthData.AddComponent(Player.GetId(), HealthComponent(20));
-	DamageData.AddComponent(Player.GetId(), DamageComponent(5));
-
-	for(int i = 0; i < 500 ; i++)
+	//DamageData.AddComponent(Player.GetId(), DamageComponent(5));
+	CollisionData.AddComponent(Player.GetId(), CollisionComponent(true, vec3(1.f)));
+	for(int i = 0; i < 100 ; i++)
 	{
 		Entity Actor = EManager.CreateEntity();
 		
 		Boars.emplace_back(Actor);
-
+		AllEntities.emplace_back(Actor);
 	}
-	for(int i = 1 ; i < Boars.size();i++)
+	for(int i = 0 ; i < Boars.size();i++)
 	{
-		float randx = rand() %20 -10;
-		float randy = rand() %20 -10;
-		float randz = rand() %20 -10;
-		PositionData.AddComponent(Boars[i].EntityID, PositionComponent(glm::vec3(randx*3, 0, randy*3)));
-		MovementData.AddComponent(Boars[i].EntityID, MovementComponent(glm::vec3(randx, randy, randz)));
+		float randx = rand() %10 -5;
+		float randy = rand() %10 ;
+		float randz = rand() %10 -5;
+		float speed = rand() % 5+2;
+		PositionData.AddComponent(Boars[i].GetId(), PositionComponent(glm::vec3(randx*5, randy*5, randy*5)));
+		MovementData.AddComponent(Boars[i].GetId(), MovementComponent(glm::vec3(randx, randy, randz),speed,speed));
 		HealthData.AddComponent(Boars[i].GetId(), HealthComponent(10));
 		DamageData.AddComponent(Boars[i].GetId(), DamageComponent(1));
-		
+		CollisionData.AddComponent(Boars[i].GetId(), CollisionComponent(true,vec3(1,1,1)));
 	}
 	
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	float lastFrame = 0.f;
-	
+
 //	Doormatrix = translate(Doormatrix, vec3(-5, 0, -5));
 	while (!glfwWindowShouldClose(window))
 	{
@@ -161,14 +166,26 @@ int main()
 		// Tell OpenGL which Shader Program we want to use
 
 		
-	
+		
 		
 		shaderProgram.Activate();
-		Render.DrawActor(shaderProgram, "model", PositionData, Boars);
-		Movement.Update(Deltatime, PositionData, MovementData, Boars);
-		Box.DrawCube(vec3(1.f), vec3(1.f), shaderProgram, "model");
-			//updates movement and draws vertices
+
+		Render.DrawActor(shaderProgram, "model", PositionData, AllEntities);
 		
+		Movement.Update(Deltatime,camera.Position, PositionData, MovementData, AllEntities);
+		Box.DrawCube(vec3(100.f,-0.2f,100.f), vec3(1.f), shaderProgram, "model");
+			//updates movement and draws vertices
+		for(int i = 0; i < AllEntities.size();i++)
+		{
+
+			if(CollisionDetection.CheckifOverlap(CollisionData,PositionData, AllEntities[i].GetId()))
+			{
+				cout << "collision happened";
+				CollisionDetection.Collision(MovementData, AllEntities[i].GetId());
+				
+			}
+
+		}
 		glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightColor"), light.lightColor.x, light.lightColor.y, light.lightColor.z);
 		glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), light.lightPos.x, light.lightPos.y, light.lightPos.z);
 		// Exports the camera Position to the Fragment Shader for specular lighting
@@ -219,11 +236,6 @@ int main()
 			camera.Position.y += -15 * Deltatime;
 
 		}
-		
-
-	
-		
-
 		glGetError();
 
 		//Camera

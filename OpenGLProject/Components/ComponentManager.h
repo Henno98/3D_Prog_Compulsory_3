@@ -7,6 +7,8 @@
 #include "EntityManager.h"
 #include "HealthComponent.h"
 #include "DamageComponent.h"
+#include "CollisionComponent.h"
+#include "SizeComponent.h"
 
 struct BaseClass
 {

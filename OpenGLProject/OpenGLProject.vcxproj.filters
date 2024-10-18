@@ -102,6 +102,9 @@
     <ClCompile Include="Components\SizeComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="GunComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Dependencies\libs\glfw3.dll" />
@@ -2409,6 +2412,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Components\SizeComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GunComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
