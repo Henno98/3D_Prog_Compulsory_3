@@ -37,7 +37,11 @@ struct Vertex {
 	}
 
 };
+struct Indice
+{
 
+	GLint v0, v1, v2;
+};
 class ActorRenderingSystem 
 {
 
@@ -46,6 +50,7 @@ public:
 	VBO ActorVBO;
 	EBO ActorEBO;
 	std::vector<Vertex> Datapoints;
+	std::vector<Indice> Indices;
 	
 	//Init the Matrix
 	glm::mat4 Matrix = glm::mat4(1.f);
@@ -54,8 +59,8 @@ public:
 	{
 		float halfSize = 0.5f;
 
-		
-		Vertex V{ glm::vec3(-halfSize, -halfSize, -halfSize),glm::vec3(v1.x,v1.y,v1.z) ,glm::vec3(1.f)};
+
+		Vertex V{ glm::vec3(-halfSize, -halfSize, -halfSize),glm::vec3(v1.x,v1.y,v1.z) ,glm::vec3(1.f) };
 		Datapoints.emplace_back(V);
 		V = Vertex{ glm::vec3(halfSize, -halfSize, -halfSize),glm::vec3(v1.x,v1.y,v1.z) ,glm::vec3(1.f) };
 		Datapoints.emplace_back(V);
@@ -72,19 +77,47 @@ public:
 		V = Vertex{ glm::vec3(-halfSize,  halfSize,  halfSize),glm::vec3(v1.x,v1.y,v1.z) ,glm::vec3(1.f) };
 		Datapoints.emplace_back(V);
 
-		
-		/*Indices.emplace_back( 0,1,2 );
-		Indices.emplace_back(2,3,0);
-		Indices.emplace_back( 0,1,2 );
-		Indices.emplace_back( 0,1,2 );
-		Indices.emplace_back(0,1,2 );
-		Indices.emplace_back( 0,1,2 );*/
+
+		/*Indices.emplace_back(Indice{ 0,1,2 });
+		Indices.emplace_back(Indice{ 2,3,0 });
+		Indices.emplace_back(Indice{ 4, 5, 6 });
+		Indices.emplace_back(Indice{ 6, 7, 4 });
+		Indices.emplace_back(Indice{ 0, 3, 7 });
+		Indices.emplace_back(Indice{ 7, 4, 0 });
+		Indices.emplace_back(Indice{ 1, 5, 6 });
+		Indices.emplace_back(Indice{ 6, 2, 1 });
+		Indices.emplace_back(Indice{ 0, 4, 5 });
+		Indices.emplace_back(Indice{ 5, 1, 0 });
+		Indices.emplace_back(Indice{ 3, 2, 6 });
+		Indices.emplace_back(Indice{ 6, 7, 3 });*/
+
 	}
 	void initBinders()
 	{
+		unsigned int cubeIndices[] = {
+			// Front face
+			0, 1, 2,
+			2, 3, 0,
+			// Back face
+			4, 5, 6,
+			6, 7, 4,
+			// Left face
+			0, 3, 7,
+			7, 4, 0,
+			// Right face
+			1, 5, 6,
+			6, 2, 1,
+			// Bottom face
+			0, 4, 5,
+			5, 1, 0,
+			// Top face
+			3, 2, 6,
+			6, 7, 3
+		};
 		//init binders
 		ActorVAO.Initialize();
-		ActorVBO.Initialize(reinterpret_cast<GLfloat*>(Datapoints.data()), Datapoints.size() * sizeof(Vertex));
+		ActorVBO.Initialize(reinterpret_cast<GLfloat*>(Datapoints.data()), static_cast<GLsizeiptr>(Datapoints.size() * sizeof(Vertex)));
+		ActorEBO.init(cubeIndices,sizeof(cubeIndices));
 		//ActorEBO.init(cubeIndices, sizeof(cubeIndices));
 	}
 	
@@ -112,7 +145,7 @@ public:
 			3, 2, 6,
 			6, 7, 3
 		};
-		ActorEBO.init(cubeIndices, sizeof(cubeIndices));
+		
 
 		ActorVAO.Bind();
 		ActorVBO.Bind();
@@ -128,10 +161,7 @@ public:
 
 		}
 
-		//unbind when done
-		ActorVAO.Unbind();
-		ActorVBO.Unbind();
-		ActorEBO.Unbind();
+		
 	}
 
 	void DeleteBinders()
