@@ -5,6 +5,7 @@ class MovementComponent
 	glm::vec3 Velocity;
 	float Mass;
 	float Speed;
+
 	MovementComponent() = default;
 	MovementComponent(glm::vec3 velocity,float mass, float speed) : Velocity(velocity), Mass(mass), Speed(speed){}
 

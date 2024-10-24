@@ -161,7 +161,7 @@ int main()
 		DamageData.AddComponent(Boars[i].GetId(), DamageComponent(1));
 		CollisionData.AddComponent(Boars[i].GetId(), CollisionComponent(true,vec3(1,1,1)));
 	}
-	Render.InsertData(vec3(0.25f));
+	Render.InsertData(vec3(0.5f));
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	float lastFrame = 0.f;
@@ -213,7 +213,7 @@ int main()
 		glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(light.lightModel));
 		glUniform3f(glGetUniformLocation(lightShader.ID, "lightColor"), light.lightColor.x, light.lightColor.y, light.lightColor.z);
 		camera.Matrix(45.f, 0.1f, 1000.f, lightShader, "camMatrix");
-		light.CreateLight(vec3(1, 1, 1), vec3(1, 1, 1));
+		light.CreateLight(vec3(3.f), vec3(1, 1, 1));
 
 
 		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) //left

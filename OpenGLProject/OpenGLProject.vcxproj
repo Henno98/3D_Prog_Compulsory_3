@@ -132,24 +132,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Functions\AttackCheck.cpp" />
-    <ClCompile Include="Components\CollisionComponent.cpp" />
-    <ClCompile Include="Components\DamageComponent.cpp" />
     <ClCompile Include="Functions\ActorRenderingSystem.cpp" />
     <ClCompile Include="Components\BaseClass.cpp" />
     <ClCompile Include="BoundingBox.cpp" />
     <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="Components\ComponentManager.cpp" />
     <ClCompile Include="Components\EntityManager.cpp" />
-    <ClCompile Include="Components\HealthComponent.cpp" />
-    <ClCompile Include="Components\InputComponent.cpp" />
     <ClCompile Include="Models\Collision.cpp" />
     <ClCompile Include="Models\Cube.cpp" />
     <ClCompile Include="Dependencies\includes\glm\detail\glm.cpp" />
     <ClCompile Include="glad.c" />
-    <ClCompile Include="Components\MovementComponent.cpp" />
-    <ClCompile Include="Components\PositionComponent.cpp" />
     <ClCompile Include="Functions\MovementSystem.cpp" />
-    <ClCompile Include="Components\PickUpComponent.cpp" />
     <ClCompile Include="Shaders\Light.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Models\NPC.cpp" />
@@ -161,7 +153,6 @@
     <ClCompile Include="Models\Trophy.cpp" />
     <ClCompile Include="Models\Wall.cpp" />
     <ClCompile Include="Functions\SystemManager.cpp" />
-    <ClCompile Include="Components\SizeComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="default.frag" />
