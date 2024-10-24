@@ -37,15 +37,15 @@ const unsigned int width = 1200;
 const unsigned int height = 1200;
 
 template <typename T>
-struct Bezier
+struct B_Spline
 {
 	T p0, p1, p2, p3;
 
-	Bezier() : p0(T()), p1(T()), p2(T()), p3(T())
+	B_Spline() : p0(T()), p1(T()), p2(T()), p3(T())
 	{
 	}
 
-	Bezier(T p0, T p1, T p2, T p3) : p0(p0), p1(p1), p2(p2), p3(p3)
+	B_Spline(T p0, T p1, T p2, T p3) : p0(p0), p1(p1), p2(p2), p3(p3)
 	{
 	}
 
@@ -60,6 +60,76 @@ struct Bezier
 	}
 };
 
+template<typename T>
+struct Bezier
+{
+
+	int FunctionGrade;
+	float PointDistance;
+	float KnotMin;
+	float KnotMax;
+	int KnotSample;
+	vector<vec3> ControlPoints_V;
+	vector<vec3> ControlPoints_U;
+	vector<vec3> SurfacePoints;
+	vector<float> KnotVector_V;
+	vector<float> KnotVector_U;
+
+	Bezier(int grade,float distance, float min, float max, int size) : FunctionGrade(grade),PointDistance(distance),KnotMin(min),KnotMax(max),KnotSample(size)
+	{
+		
+	}
+	void GenerateKnotVector()
+	{
+		for (int i = 0; i < KnotSample; i++)
+		{
+			float t = KnotMin + (KnotMax - KnotMin) * i / KnotSample;
+			//KnotVector.emplace_back(t);
+		}
+
+
+	}
+	int KnotInterval(float k)
+	{	/*int interval = ControlPoints.size() -1;
+		while (k < KnotVector[interval])
+		{
+			interval--;
+		}
+	return interval;*/
+	}
+	vec3 Lerp(const vec3& p1, const vec3& p2,float t)
+	{
+		return ((1.f - t) * p1 + t * p2);
+
+	}
+	vec3 DeBoor(vector<vec3>& controlpoints, vector<double>& knotpoints,int k, int i, float t)
+	{
+		if(k == 0)
+		{
+			return controlpoints[i];
+		}
+		float alpha = (t - knotpoints[i] / (knotpoints[i + k] - knotpoints[i]));
+		vec3 Point1 = DeBoor(controlpoints,knotpoints,k-1,i-1,t);
+		vec3 Point2 = DeBoor(controlpoints, knotpoints, k - 1, i, t);
+
+		return Lerp(Point1, Point2, alpha);
+
+		
+	}
+	vec3 EvaluateBiQuadratic()
+	{
+		
+	}
+	void Derivative()
+	{
+		
+	}
+	void IndiceCalc()
+	{
+		
+	}
+
+};
 
 struct Planevertex
 {
@@ -202,7 +272,7 @@ int main()
 	vec3 pos2 = vec3(5, 0, 6);
 	vec3 pos3 = vec3(15, 0, 17);
 	vec3 pos4 = vec3(20, 0, 5);
-	auto Bez = Bezier<vec3>(pos1,pos2,pos3,pos4);
+	auto Bez = B_Spline<vec3>(pos1,pos2,pos3,pos4);
 	float t = 0.f;
 
 	trophy.TrophyMatrix = translate(trophy.TrophyMatrix, vec3(10, 2, 10));
