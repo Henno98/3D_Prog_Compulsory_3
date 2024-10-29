@@ -187,11 +187,11 @@ struct Bezier
 			{
 				float v = KnotMin + (KnotMax - KnotMin) * j / (vSamples - 1);
 				vec3 surfacePoint = EvaluateBiQuadratic(u, v);
-				SurfacePoints.push_back(Vertex{ surfacePoint,vec3(1.f),vec3(1.f) });
+				SurfacePoints.emplace_back(Vertex{ surfacePoint,vec3(1.f),vec3(1.f) });
+
 			}
 		}
 	}
-
 
 
 };
