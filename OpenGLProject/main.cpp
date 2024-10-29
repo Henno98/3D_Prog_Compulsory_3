@@ -60,76 +60,167 @@ struct B_Spline
 	}
 };
 
+struct Vertex
+{
+	vec3 Position, Color, Normal;
+
+};
+
 template<typename T>
 struct Bezier
 {
+
 
 	int FunctionGrade;
 	float PointDistance;
 	float KnotMin;
 	float KnotMax;
 	int KnotSample;
-	vector<vec3> ControlPoints_V;
-	vector<vec3> ControlPoints_U;
-	vector<vec3> SurfacePoints;
+	vector<vec3> ControlPoints;
+	vector<Vertex> SurfacePoints;
 	vector<float> KnotVector_V;
 	vector<float> KnotVector_U;
 
-	Bezier(int grade,float distance, float min, float max, int size) : FunctionGrade(grade),PointDistance(distance),KnotMin(min),KnotMax(max),KnotSample(size)
+	Bezier(int grade, float distance, float min, float max, int size)
+		: FunctionGrade(grade), PointDistance(distance), KnotMin(min), KnotMax(max), KnotSample(size)
 	{
-		
 	}
-	void GenerateKnotVector()
+	void GenerateUniformKnotVector(std::vector<float>& knotVector, int size)
 	{
-		for (int i = 0; i < KnotSample; i++)
-		{
-			float t = KnotMin + (KnotMax - KnotMin) * i / KnotSample;
-			//KnotVector.emplace_back(t);
+		if (size <= FunctionGrade) {
+			throw std::invalid_argument("Size must be greater than FunctionGrade.");
 		}
 
+		int n = size + FunctionGrade + 1; // Total number of knots
+		knotVector.resize(n);
 
-	}
-	int KnotInterval(float k)
-	{	/*int interval = ControlPoints.size() -1;
-		while (k < KnotVector[interval])
-		{
-			interval--;
+		// Fill in the knots
+		// First segment: KnotMin
+		for (int i = 0; i <= FunctionGrade; ++i) {
+			knotVector[i] = KnotMin;
 		}
-	return interval;*/
+
+		// Middle segment: Uniformly spaced knots
+		for (int i = FunctionGrade + 1; i < n - FunctionGrade - 1; ++i) {
+			knotVector[i] = KnotMin + (KnotMax - KnotMin) * (i - FunctionGrade) / (size - 1);
+		}
+
+		// Last segment: KnotMax
+		for (int i = n - FunctionGrade - 1; i < n; ++i) {
+			knotVector[i] = KnotMax;
+		}
 	}
-	vec3 Lerp(const vec3& p1, const vec3& p2,float t)
+	void GenerateKnotVectors(float _u, float _v)
+	{
+		GenerateUniformKnotVector(KnotVector_U, _u);
+		GenerateUniformKnotVector(KnotVector_V,_v);
+	}
+
+	//}
+	int FindKnotSpan(float t, const vector<float>& knotVector)
+	{
+		int n = knotVector.size() - 1;
+		if (t == knotVector[n]) return n - 1;
+
+		int low = FunctionGrade;
+		int high = n;
+		int mid = (low + high) / 2;
+
+		while (t < knotVector[mid] || t >= knotVector[mid + 1])
+		{
+			if (t < knotVector[mid]) high = mid;
+			else low = mid;
+			mid = (low + high) / 2;
+		}
+		return mid;
+	}
+
+	vec3 Lerp(const vec3& p1, const vec3& p2, float t)
 	{
 		return ((1.f - t) * p1 + t * p2);
 
 	}
-	vec3 DeBoor(vector<vec3>& controlpoints, vector<double>& knotpoints,int k, int i, float t)
+
+	vec3 DeBoor(int k, int i, float t, const vector<vec3>& controlPoints, const vector<float>& knotPoints)
 	{
-		if(k == 0)
+		if (k == 0)
 		{
-			return controlpoints[i];
+			return controlPoints[i];
 		}
-		float alpha = (t - knotpoints[i] / (knotpoints[i + k] - knotpoints[i]));
-		vec3 Point1 = DeBoor(controlpoints,knotpoints,k-1,i-1,t);
-		vec3 Point2 = DeBoor(controlpoints, knotpoints, k - 1, i, t);
+		float alpha = (t - knotPoints[i]) / (knotPoints[i + FunctionGrade] - knotPoints[i]);
 
-		return Lerp(Point1, Point2, alpha);
+		vec3 point1 = DeBoor(k - 1, i - 1, t, controlPoints, knotPoints);
+		vec3 point2 = DeBoor(k - 1, i, t, controlPoints, knotPoints);
 
-		
+		return Lerp(point1, point2, alpha);
 	}
-	vec3 EvaluateBiQuadratic()
+
+	vec3 EvaluateBiQuadratic(float _u, float _v)
 	{
-		
+		vec3 surfacePoint(0.0f);
+
+		int numControlPointsU = ControlPoints.size() - 1; // U direction control points count
+		int numControlPointsV = ControlPoints.size() - 1; // V direction control points count (assuming square grid)
+
+		// Find knot spans for u and v
+		int knotSpanU = FindKnotSpan(_u, KnotVector_U);
+		int knotSpanV = FindKnotSpan(_v, KnotVector_V);
+
+		// Loop through control points and calculate weighted sum for surface point
+		for (int i = knotSpanU - FunctionGrade + 1; i <= knotSpanU; ++i)
+		{
+			for (int j = knotSpanV - FunctionGrade + 1; j <= knotSpanV; ++j)
+			{
+				vec3 controlPointWeight = DeBoor(FunctionGrade - 1, i, _u, ControlPoints, KnotVector_U) *
+					DeBoor(FunctionGrade - 1, j, _v, ControlPoints, KnotVector_V);
+				surfacePoint += controlPointWeight;
+			}
+		}
+		return surfacePoint;
 	}
-	void Derivative()
+	void GenerateSurfacePoints(int uSamples, int vSamples)
 	{
-		
+		for (int i = 0; i < uSamples; ++i)
+		{
+			float u = KnotMin + (KnotMax - KnotMin) * i / (uSamples - 1);
+			for (int j = 0; j < vSamples; ++j)
+			{
+				float v = KnotMin + (KnotMax - KnotMin) * j / (vSamples - 1);
+				vec3 surfacePoint = EvaluateBiQuadratic(u, v);
+				SurfacePoints.push_back(Vertex{ surfacePoint,vec3(1.f),vec3(1.f) });
+			}
+		}
 	}
-	void IndiceCalc()
-	{
-		
-	}
+
+
 
 };
+
+vector<unsigned int> GenerateIndices(int uSamples, int vSamples)
+{
+	vector<unsigned int> indices;
+
+	for (int i = 0; i < uSamples - 1; ++i)
+	{
+		for (int j = 0; j < vSamples - 1; ++j)
+		{
+			int topLeft = i * vSamples + j;       // Correct row, column
+			int topRight = topLeft + 1;            // Correct row, column + 1
+			int bottomLeft = (i + 1) * vSamples + j; // Next row, same column
+			int bottomRight = bottomLeft + 1;      // Next row, same column + 1
+
+			// Ensure these indices are within bounds
+			indices.push_back(topLeft);
+			indices.push_back(bottomLeft);
+			indices.push_back(bottomRight);
+			indices.push_back(topLeft);
+			indices.push_back(bottomRight);
+			indices.push_back(topRight);
+		}
+	}
+	return indices;
+}
+
 
 struct Planevertex
 {
@@ -193,42 +284,35 @@ int main()
 
 	Camera camera(width, height, glm::vec3((-0.1f), 5.f, (-0.1f)));
 
+	Bezier<float> bezier(3, 0.5f, -2.0f, 3.0f,7);
+	bezier.ControlPoints = {
+		 glm::vec3(0.0f, 0.0f, 0.0f),  // Point 0 (Bottom Left)
+	glm::vec3(1.0f, 0.0f, 0.0f),  // Point 1 (Bottom Right)
+	glm::vec3(2.0f, 0.0f, 0.0f),  // Point 2 (Bottom Right)
+	glm::vec3(3.0f, 0.0f, 0.0f),  // Point 3 (Bottom Right)
 
+	glm::vec3(0.0f, 1.0f, 0.0f),  // Point 4 (Middle Left)
+	glm::vec3(1.0f, 1.0f, 0.0f),  // Point 5 (Middle Right)
+	glm::vec3(2.0f, 1.0f, 0.0f),  // Point 6 (Middle Right)
+	glm::vec3(3.0f, 1.0f, 0.0f),  // Point 7 (Middle Right)
 
+	glm::vec3(0.0f, 2.0f, 0.0f),  // Point 8 (Top Left)
+	glm::vec3(1.0f, 2.0f, 0.0f),  // Point 9 (Top Right)
+	glm::vec3(2.0f, 2.0f, 0.0f),  // Point 10 (Top Right)
+	glm::vec3(3.0f, 2.0f, 0.0f)   // Point 11 (Top Right)
+
+	};
+
+	int u = 4;
+	int v = 6;
+	bezier.GenerateKnotVectors(u,v);
+
+	// Generate surface points for 20x20 samples
+	bezier.GenerateSurfacePoints(u,v);
+	vector<unsigned int> Indices = GenerateIndices(16,18);
 
 	mat4 Doormatrix = mat4(1.0f);
-	
-
-
-	vector<Planevertex> PlaneVertices;
-	vector<Triangle> Indices;
-	vector<Triangle> QuadIndices;
-
-	float step = 0.5f;
-	float size = 40;
-	for (float i = 0; i < size; i += step)
-	{
-		for (float j = 0; j < size; j += step) {
-
-			PlaneVertices.emplace_back(Planevertex{ i, curveplane(i,j),j,0,1,0,i/size,0,j/size });
-
-		}
-
-
-	}
-	for (int i = 0; i < size - 1; i++) {
-		for (int j = 0; j < size - 1; j++) {
-			unsigned int v0 = i * (size / step) + j;
-			unsigned int v1 = v0 + 1;
-			unsigned int v2 = v0 + (size / step);
-			unsigned int v3 = v2 + 1;
-
-			Indices.emplace_back(Triangle{ v0, v1, v2 });
-
-			Indices.emplace_back(Triangle{ v1, v2, v3 });
-		}
-	}
-
+	Doormatrix = translate(Doormatrix, vec3(-1.f));
 
 
 	Light light;
@@ -236,9 +320,9 @@ int main()
 
 	VAO planevao;
 	planevao.Bind();
-	VBO planevbo(reinterpret_cast<GLfloat*>(PlaneVertices.data()), (PlaneVertices.size() * sizeof(Planevertex)));
+	VBO planevbo(reinterpret_cast<GLfloat*>(bezier.SurfacePoints.data()), (bezier.SurfacePoints.size() * sizeof(Planevertex)));
 	planevbo.Bind();
-	EBO planeebo(reinterpret_cast<GLuint*>(Indices.data()), (Indices.size() * sizeof(Triangle)));
+	EBO planeebo(Indices.data(), Indices.size());
 	planeebo.Bind();
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)0);
@@ -250,14 +334,12 @@ int main()
 
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(6 * sizeof(float)));
 	glEnableVertexAttribArray(2);
+	glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(Doormatrix));
 
 
 	planevao.Unbind();
 	planevbo.Unbind();
 	planeebo.Unbind();
-
-
-
 
 	//
 
@@ -312,7 +394,8 @@ int main()
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(Doormatrix));
 
 		planevao.Bind();
-		glDrawElements(GL_TRIANGLES, Indices.size() * 3, GL_UNSIGNED_INT, nullptr);
+		planeebo.Bind();
+		glDrawElements(GL_TRIANGLES, Indices.size(), GL_UNSIGNED_INT, nullptr);
 		//glDrawElements(GL_TRIANGLES, QuadIndices.size() * 3, GL_UNSIGNED_INT, nullptr);
 
 
@@ -353,86 +436,6 @@ int main()
 
 		}
 
-
-		// Check if the cube position lies within the current grid cell
-		for (int i = 0; i < Indices.size(); i++)
-		{
-
-			unsigned int Index0 = Indices[i].v0;
-			unsigned int Index1 = Indices[i].v1;
-			unsigned int Index2 = Indices[i].v2;
-			unsigned int Index3 = Indices[i].v2 + 1;
-
-
-
-
-
-			// Calculate barycentric coordinates
-			vec3 barycentric = cube.barycentricCoordinates(vec3(PlaneVertices[Index0].x, PlaneVertices[Index0].y, PlaneVertices[Index0].z),
-				vec3(PlaneVertices[Index1].x, PlaneVertices[Index1].y, PlaneVertices[Index1].z),
-				vec3(PlaneVertices[Index2].x, PlaneVertices[Index2].y, PlaneVertices[Index2].z),
-				vec3(cube.CubeMatrix[3].x, cube.CubeMatrix[3].y, cube.CubeMatrix[3].z));
-
-			// Calculate barycentric coordinates
-			vec3 barycentric2 = npc.barycentricCoordinates(vec3(PlaneVertices[Index0].x, PlaneVertices[Index0].y, PlaneVertices[Index0].z),
-				vec3(PlaneVertices[Index1].x, PlaneVertices[Index1].y, PlaneVertices[Index1].z),
-				vec3(PlaneVertices[Index2].x, PlaneVertices[Index2].y, PlaneVertices[Index2].z),
-				vec3(npc.NPCMatrix[3].x,npc.NPCMatrix[3].y,npc.NPCMatrix[3].z));
-
-			// Calculate barycentric coordinates
-			vec3 barycentric3 = trophy.barycentricCoordinates(vec3(PlaneVertices[Index0].x, PlaneVertices[Index0].y, PlaneVertices[Index0].z),
-				vec3(PlaneVertices[Index1].x, PlaneVertices[Index1].y, PlaneVertices[Index1].z),
-				vec3(PlaneVertices[Index2].x, PlaneVertices[Index2].y, PlaneVertices[Index2].z),
-				vec3(trophy.TrophyMatrix[3].x, trophy.TrophyMatrix[3].y, trophy.TrophyMatrix[3].z));
-
-
-
-
-			if (barycentric.x < 1 && barycentric.x > 0 && barycentric.y < 1 && barycentric.y > 0 && barycentric.z < 1 && barycentric.z > 0) {
-
-				// Calculate interpolated y position
-				float interpolatedX = (PlaneVertices[Index0].y * barycentric.x);
-				float InterpolatedY = (PlaneVertices[Index1].y * barycentric.y);
-				float InterpolatedZ = (PlaneVertices[Index2].y * barycentric.z);
-				float InterpolatedPos = interpolatedX + InterpolatedY + InterpolatedZ;
-				// Update the translation matrix of the cube with the interpolated y position
-				cube.CubeMatrix[3].y = InterpolatedPos;
-				//cout << InterpolatedPos << endl;
-				
-
-
-			}
-			if(barycentric2.x < 1 && barycentric2.x > 0 && barycentric2.y < 1 && barycentric2.y > 0 && barycentric2.z < 1 && barycentric2.z > 0)
-			{
-				// Calculate interpolated y position
-				float interpolatedX = (PlaneVertices[Index0].y * barycentric2.x);
-				float InterpolatedY = (PlaneVertices[Index1].y * barycentric2.y);
-				float InterpolatedZ = (PlaneVertices[Index2].y * barycentric2.z);
-				float InterpolatedPos = interpolatedX + InterpolatedY + InterpolatedZ;
-				// Update the translation matrix of the cube with the interpolated y position
-				npc.NPCMatrix[3].y = InterpolatedPos;
-				//cout << InterpolatedPos << endl;
-			
-
-
-			}
-			if (barycentric3.x < 1 && barycentric3.x > 0 && barycentric3.y < 1 && barycentric3.y > 0 && barycentric3.z < 1 && barycentric3.z > 0)
-			{
-				// Calculate interpolated y position
-				float interpolatedX = (PlaneVertices[Index0].y * barycentric3.x);
-				float InterpolatedY = (PlaneVertices[Index1].y * barycentric3.y);
-				float InterpolatedZ = (PlaneVertices[Index2].y * barycentric3.z);
-				float InterpolatedPos = interpolatedX + InterpolatedY + InterpolatedZ;
-				// Update the translation matrix of the cube with the interpolated y position
-				trophy.TrophyMatrix[3].y = InterpolatedPos;
-				//cout << InterpolatedPos << endl;
-
-
-
-			}
-
-
-		}
 
 		cout << npc.NPCMatrix[3].x << " " << npc.NPCMatrix[3].y << " " << npc.NPCMatrix[3].z << endl;
 
