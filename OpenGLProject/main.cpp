@@ -128,39 +128,46 @@ int main()
 	MovementData.AddComponent(Player.GetId(), MovementComponent(glm::vec3(1.F),2.f,10.f));
 	HealthData.AddComponent(Player.GetId(), HealthComponent(20));
 	//DamageData.AddComponent(Player.GetId(), DamageComponent(5));
-	CollisionData.AddComponent(Player.GetId(), CollisionComponent(true, vec3(1.f)));
+	CollisionData.AddComponent(Player.GetId(), CollisionComponent(true, vec3(0.1f)));
 	InputData.AddComponent(Player.GetId(), InputComponent(true));
-
+	//init camera
 	Camera camera(width, height, glm::vec3(1.f));
+	//create Pit
+	Entity Pit = EManager.CreateEntity();
+		AllEntities.emplace_back(Pit);
+		PositionData.AddComponent(Pit.GetId(), PositionComponent(glm::vec3(-1.f)));
+		CollisionData.AddComponent(Pit.GetId(), CollisionComponent(true, glm::vec3(0.1f)));
+		DamageData.AddComponent(Pit.GetId(), DamageComponent(5.f));
 
-	//Create Pickup
-	Entity HealthPickup = EManager.CreateEntity();
-	AllEntities.emplace_back(HealthPickup);
-	PositionData.AddComponent(HealthPickup.GetId(), PositionComponent(vec3(3.f, 0.f, 2.f)));
-	CollisionData.AddComponent(HealthPickup.GetId(), CollisionComponent(true, vec3(1.f)));
-	PickUpData.AddComponent(HealthPickup.GetId(), PickUpComponent(PickUpComponent::Type::Health, 10));
+	////Create Pickup
+	//Entity HealthPickup = EManager.CreateEntity();
+	//AllEntities.emplace_back(HealthPickup);
+	//PositionData.AddComponent(HealthPickup.GetId(), PositionComponent(vec3(3.f, 0.f, 2.f)));
+	//CollisionData.AddComponent(HealthPickup.GetId(), CollisionComponent(true, vec3(1.f)));
+	//PickUpData.AddComponent(HealthPickup.GetId(), PickUpComponent(PickUpComponent::Type::Health, 10));
 
+	
 	//Making Enemies
-	std::vector<Entity> Boars;
-	for(int i = 0; i < 100 ; i++)
-	{
-		Entity Actor = EManager.CreateEntity();
-		
-		Boars.emplace_back(Actor);
-		AllEntities.emplace_back(Actor);
-	}
-	for(int i = 0 ; i < Boars.size();i++)
-	{
-		float randx = rand() %10 -5;
-		float randy = rand() %10 ;
-		float randz = rand() %10 -5;
-		float speed = rand() % 5+2;
-		PositionData.AddComponent(Boars[i].GetId(), PositionComponent(glm::vec3(randx*5, randy*5, randy*5)));
-		MovementData.AddComponent(Boars[i].GetId(), MovementComponent(glm::vec3(randx, randy, randz),speed,speed));
-		HealthData.AddComponent(Boars[i].GetId(), HealthComponent(10));
-		DamageData.AddComponent(Boars[i].GetId(), DamageComponent(1));
-		CollisionData.AddComponent(Boars[i].GetId(), CollisionComponent(true,vec3(1,1,1)));
-	}
+	//std::vector<Entity> Boars;
+	//for(int i = 0; i < 100 ; i++)
+	//{
+	//	Entity Actor = EManager.CreateEntity();
+	//	
+	//	Boars.emplace_back(Actor);
+	//	AllEntities.emplace_back(Actor);
+	//}
+	//for(int i = 0 ; i < Boars.size();i++)
+	//{
+	//	float randx = rand() %10 -5;
+	//	float randy = rand() %10 ;
+	//	float randz = rand() %10 -5;
+	//	float speed = rand() % 5+2;
+	//	PositionData.AddComponent(Boars[i].GetId(), PositionComponent(glm::vec3(randx*5, randy*5, randy*5)));
+	//	MovementData.AddComponent(Boars[i].GetId(), MovementComponent(glm::vec3(randx, randy, randz),speed,speed));
+	//	HealthData.AddComponent(Boars[i].GetId(), HealthComponent(10));
+	//	DamageData.AddComponent(Boars[i].GetId(), DamageComponent(1));
+	//	CollisionData.AddComponent(Boars[i].GetId(), CollisionComponent(true,vec3(1,1,1)));
+	//}
 	Render.InsertData(vec3(0.5f));
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
@@ -185,20 +192,32 @@ int main()
 		
 		
 		shaderProgram.Activate();
-		
+		PositionData.GetComponent(Player.GetId()).SetPosition(glm::vec3(camera.Position.x, camera.Position.y-2, camera.Position.z));
 		Render.DrawActor(shaderProgram, "model", PositionData, AllEntities);
 		//Handles movement for input actors
-		Movement.Update(Deltatime,camera.Position, PositionData, MovementData, Boars);
+	//	Movement.Update(Deltatime,camera.Position, PositionData, MovementData, Boars);
 		//Box.DrawCube(vec3(100.f,-0.2f,100.f), vec3(1.f), shaderProgram, "model");
 		//Movement.RecieveInput(MovementData, InputData, AllEntities, Deltatime, window);
 		
 		//Checks collision for all entities
 		for(int i = 0; i < AllEntities.size();i++)
 		{
-
-			if(CollisionDetection.CheckifOverlap(CollisionData,PositionData, AllEntities[i].GetId()) )
-			{
-				CollisionDetection.Collision(MovementData, Boars[i].GetId());
+			for (int j = i + 1; j < AllEntities.size(); j++) {
+				bool colliding = CollisionDetection.CheckifOverlap(CollisionData, PositionData, AllEntities[i].GetId(), AllEntities[j].GetId());
+				if(colliding == true)
+				{
+					//CollisionDetection.Collision(MovementData, Boars[i].GetId());
+					cout << "collision happened" << endl;
+					if (DamageData.HasComponent(AllEntities[j].GetId()))
+					{
+						if (HealthData.HasComponent(AllEntities[i].GetId())) {
+							float currenthealt = HealthData.GetComponent(Player.GetId()).GetHealth();
+							float damage = DamageData.GetComponent(AllEntities[j].GetId()).GetDamage();
+							HealthData.GetComponent(Player.GetId()).SetHealth(currenthealt - damage);
+							cout << "Player took " << DamageData.GetComponent(AllEntities[j].GetId()).GetDamage() << " Damage" << endl;
+						}
+					}
+				}
 			}
 
 		}

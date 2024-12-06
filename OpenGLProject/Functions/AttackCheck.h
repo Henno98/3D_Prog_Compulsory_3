@@ -5,18 +5,18 @@ class AttackCheck
 	
 public:
 
-	bool CheckifOverlap(ComponentManager<CollisionComponent>& collisiondata, ComponentManager<PositionComponent>& pos, int EntityID)
+	bool CheckifOverlap(ComponentManager<CollisionComponent>& collisiondata, ComponentManager<PositionComponent>& pos, int Entityone,int Entitytwo)
 	{
 		
-			if (collisiondata.GetComponent(EntityID).CheckifHasCollision())
+			if (collisiondata.GetComponent(Entityone).CheckifHasCollision())
 			{
-				if (collisiondata.HasComponent(EntityID + 1)) {
-					if (collisiondata.HasComponent(EntityID)) {
+				if (collisiondata.HasComponent(Entitytwo)) {
+					if (collisiondata.HasComponent(Entityone)) {
 
-					auto a = pos.GetComponent(EntityID).GetPosition();
-					auto b = pos.GetComponent(EntityID + 1).GetPosition();
-					auto ae = collisiondata.GetComponent(EntityID).GetSize();
-					auto be = collisiondata.GetComponent(EntityID + 1).GetSize();
+					glm::vec3 a = pos.GetComponent(Entityone).GetPosition();
+					glm::vec3 b = pos.GetComponent(Entitytwo).GetPosition();
+					glm::vec3 ae = collisiondata.GetComponent(Entityone).GetSize();
+					glm::vec3 be = collisiondata.GetComponent(Entitytwo).GetSize();
 
 					if (abs(a[0] - b[0]) > (ae[0] + be[0])) return false;
 					if (abs(a[1] - b[1]) > (ae[1] + be[1])) return false;
