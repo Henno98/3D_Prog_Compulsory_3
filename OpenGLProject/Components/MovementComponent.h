@@ -1,13 +1,21 @@
 #pragma once
 #include "includes/glm/glm.hpp"
+enum MovementType
+{
+	Tracking,
+	Falling,
+	Custom
+
+};
+
 class MovementComponent
 {public:
 	glm::vec3 Velocity;
 	float Mass;
 	float Speed;
-
+	MovementType Type;
 	MovementComponent() = default;
-	MovementComponent(glm::vec3 velocity,float mass, float speed) : Velocity(velocity), Mass(mass), Speed(speed){}
+	MovementComponent(MovementType type, glm::vec3 velocity,float mass, float speed) :Type(type), Velocity(velocity), Mass(mass), Speed(speed){}
 
 	glm::vec3 GetVelocity()
 	{
@@ -36,6 +44,11 @@ class MovementComponent
 	void SetSpeed(float newspeed)
 	{
 		Speed = newspeed;
+	}
+	MovementType GetType()
+	{
+
+		return Type;
 	}
 };
 

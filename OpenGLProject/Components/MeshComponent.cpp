@@ -187,6 +187,7 @@ void MeshComponent::CustomCreateSpline(std::vector<Vertex>& vertices)
 
 void MeshComponent::ReBind(std::vector<Vertex>& vertices)
 {
+
 	Binders.ReBind(vertices);
 }
 
@@ -229,7 +230,6 @@ void MeshComponent::Draw(const char* uniform, Shader& shader)
 {
 	collider.Position = Position;
 	Binders.Bind();
-
 	glUniformMatrix4fv(glGetUniformLocation(shader.ID, uniform), 1, GL_FALSE, glm::value_ptr(Matrix));
 	switch (Mesh) {
 	case Pyramid:

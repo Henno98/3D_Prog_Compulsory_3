@@ -110,7 +110,7 @@ int main()
 	//Init the Functions
 	MovementSystem Movement;
 	AttackCheck CollisionDetection;
-	//ActorRenderingSystem Render;
+	ActorRenderingSystem Render;
 
 	//Vector Containing All Actors
 	std::vector<Entity> AllEntities;
@@ -120,7 +120,7 @@ int main()
 	AllEntities.emplace_back(Player);
 	PositionData.AddComponent(Player.GetId(), PositionComponent(glm::vec3(1.f)));
 	MeshData.AddComponent(Player.GetId(), MeshComponent(Cube, vec3(1.f), PositionData.GetComponent(Player.GetId()).GetPosition()));
-	MovementData.AddComponent(Player.GetId(), MovementComponent(glm::vec3(1.F),2.f,10.f));
+	MovementData.AddComponent(Player.GetId(), MovementComponent(Custom, glm::vec3(1.F),2.f,10.f));
 	HealthData.AddComponent(Player.GetId(), HealthComponent(20));
 	//DamageData.AddComponent(Player.GetId(), DamageComponent(5));
 	CollisionData.AddComponent(Player.GetId(), CollisionComponent(true, vec3(0.1f)));
@@ -158,9 +158,10 @@ int main()
 		float randz = rand() %10 -5;
 		float speed = rand() % 5+2;
 		PositionData.AddComponent(Boars[i].GetId(), PositionComponent(glm::vec3(randx*5, randy*5, randy*5)));
-		MovementData.AddComponent(Boars[i].GetId(), MovementComponent(glm::vec3(randx, randy, randz),speed,speed));
+		MovementData.AddComponent(Boars[i].GetId(), MovementComponent(Tracking,glm::vec3(randx, randy, randz),speed,speed));
 		HealthData.AddComponent(Boars[i].GetId(), HealthComponent(10));
 		DamageData.AddComponent(Boars[i].GetId(), DamageComponent(1));
+		MeshData.AddComponent(Boars[i].GetId(), MeshComponent(Sphere, vec3(1.f), PositionData.GetComponent(Boars[i].GetId()).GetPosition()));
 		CollisionData.AddComponent(Boars[i].GetId(), CollisionComponent(true,vec3(1,1,1)));
 	}
 //	Render.InsertData(vec3(0.5f));
@@ -190,7 +191,7 @@ int main()
 		PositionData.GetComponent(Player.GetId()).SetPosition(glm::vec3(camera.Position.x, camera.Position.y-2, camera.Position.z));
 		//Render.DrawActor(shaderProgram, "model", PositionData, AllEntities);
 		//Handles movement for input actors
-	//	Movement.Update(Deltatime,camera.Position, PositionData, MovementData, Boars);
+		Movement.Update(Deltatime,camera.Position, PositionData, MovementData, Boars);
 		//Box.DrawCube(vec3(100.f,-0.2f,100.f), vec3(1.f), shaderProgram, "model");
 		//Movement.RecieveInput(MovementData, InputData, AllEntities, Deltatime, window);
 		
@@ -202,17 +203,23 @@ int main()
 				if(colliding == true)
 				{
 					//CollisionDetection.Collision(MovementData, Boars[i].GetId());
-					cout << "collision happened" << endl;
+					//cout << "collision happened" << endl;
 					if (DamageData.HasComponent(AllEntities[j].GetId()))
 					{
 						if (HealthData.HasComponent(AllEntities[i].GetId())) {
 							float currenthealt = HealthData.GetComponent(Player.GetId()).GetHealth();
 							float damage = DamageData.GetComponent(AllEntities[j].GetId()).GetDamage();
 							HealthData.GetComponent(Player.GetId()).SetHealth(currenthealt - damage);
-							cout << "Player took " << DamageData.GetComponent(AllEntities[j].GetId()).GetDamage() << " Damage" << endl;
+							//cout << "Player took " << DamageData.GetComponent(AllEntities[j].GetId()).GetDamage() << " Damage" << endl;
 						}
 					}
 				}
+			}
+			if(MeshData.HasComponent(AllEntities[i].GetId()))
+			{
+				Render.UpdateMesh(MeshData.GetComponent(AllEntities[i].GetId()), PositionData.GetComponent(AllEntities[i].GetId()));
+				MeshData.GetComponent(AllEntities[i].GetId()).Draw("model", shaderProgram);
+
 			}
 
 		}

@@ -35,7 +35,7 @@ public:
 	float Radius{ 1.f };
 	glm::vec3 Position;
 	glm::vec3 Extent;
-	MeshComponent(MeshType meshtype, glm::vec3 extent,glm::vec3 pos) :Mesh(meshtype), Extent(extent),Position(pos)
+	MeshComponent(MeshType meshtype, glm::vec3 extent,glm::vec3 pos) : Mesh(meshtype), Extent(extent),Position(pos)
 	{
 		
 		switch (Mesh) {
@@ -69,10 +69,10 @@ public:
 	void ReBind(std::vector<Vertex>& vertices);
 	void CalculateNormals();
 	void Draw(const char* uniform, Shader& shader);
-	glm::mat4 MatrixCalc()
+	glm::mat4 MatrixCalc(glm::vec3 pos)
 	{
 		glm::mat4 newMatrix = glm::mat4(1.f);
-		newMatrix = glm::translate(glm::mat4(1.f), Position);
+		newMatrix = glm::translate(glm::mat4(1.f), pos);
 		return newMatrix;
 	}
 };
