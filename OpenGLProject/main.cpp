@@ -13,26 +13,19 @@
 #include <cmath>
 #include <cstddef>
 #include <string>
-#include "../Models/NPC.h"
 #include <Eigen/Dense>
-
 #include "Shaders/ShaderClass.h"
-#include "Shaders/VAO.h"
-#include "Shaders/VBO.h"
-#include "Shaders/EBO.h"
 #include "Camera.h"
-#include "Models/Cube.h"
 #include "Shaders/Light.h"
-#include "Models/Sphere.h"
-#include "Models/Trophy.h"
-#include "../Models/Collision.h"
 #include "Components/ComponentManager.h"
 #include "Components/EntityManager.h"
+#include "Components/MeshComponent.h"
 #include "Components/PositionComponent.h"
 #include "Functions/MovementSystem.h"
 #include "Functions/SystemManager.h"
 #include "Functions/ActorRenderingSystem.h"
 #include "Functions/AttackCheck.h"
+
 using namespace std;
 using namespace Eigen;
 using namespace glm;
@@ -112,11 +105,12 @@ int main()
 	ComponentManager<CollisionComponent> CollisionData;
 	ComponentManager<PickUpComponent> PickUpData;
 	ComponentManager<InputComponent> InputData;
-	Cube Box;
+	ComponentManager<MeshComponent> MeshData;
+	
 	//Init the Functions
 	MovementSystem Movement;
 	AttackCheck CollisionDetection;
-	ActorRenderingSystem Render;
+	//ActorRenderingSystem Render;
 
 	//Vector Containing All Actors
 	std::vector<Entity> AllEntities;
@@ -125,6 +119,7 @@ int main()
 	Entity Player = EManager.CreateEntity();
 	AllEntities.emplace_back(Player);
 	PositionData.AddComponent(Player.GetId(), PositionComponent(glm::vec3(1.f)));
+	MeshData.AddComponent(Player.GetId(), MeshComponent(Cube, vec3(1.f), PositionData.GetComponent(Player.GetId()).GetPosition()));
 	MovementData.AddComponent(Player.GetId(), MovementComponent(glm::vec3(1.F),2.f,10.f));
 	HealthData.AddComponent(Player.GetId(), HealthComponent(20));
 	//DamageData.AddComponent(Player.GetId(), DamageComponent(5));
@@ -139,40 +134,40 @@ int main()
 		CollisionData.AddComponent(Pit.GetId(), CollisionComponent(true, glm::vec3(0.1f)));
 		DamageData.AddComponent(Pit.GetId(), DamageComponent(5.f));
 
-	////Create Pickup
-	//Entity HealthPickup = EManager.CreateEntity();
-	//AllEntities.emplace_back(HealthPickup);
-	//PositionData.AddComponent(HealthPickup.GetId(), PositionComponent(vec3(3.f, 0.f, 2.f)));
-	//CollisionData.AddComponent(HealthPickup.GetId(), CollisionComponent(true, vec3(1.f)));
-	//PickUpData.AddComponent(HealthPickup.GetId(), PickUpComponent(PickUpComponent::Type::Health, 10));
+	//Create Pickup
+	Entity HealthPickup = EManager.CreateEntity();
+	AllEntities.emplace_back(HealthPickup);
+	PositionData.AddComponent(HealthPickup.GetId(), PositionComponent(vec3(3.f, 0.f, 2.f)));
+	CollisionData.AddComponent(HealthPickup.GetId(), CollisionComponent(true, vec3(1.f)));
+	PickUpData.AddComponent(HealthPickup.GetId(), PickUpComponent(PickUpComponent::Type::Health, 10));
 
 	
 	//Making Enemies
-	//std::vector<Entity> Boars;
-	//for(int i = 0; i < 100 ; i++)
-	//{
-	//	Entity Actor = EManager.CreateEntity();
-	//	
-	//	Boars.emplace_back(Actor);
-	//	AllEntities.emplace_back(Actor);
-	//}
-	//for(int i = 0 ; i < Boars.size();i++)
-	//{
-	//	float randx = rand() %10 -5;
-	//	float randy = rand() %10 ;
-	//	float randz = rand() %10 -5;
-	//	float speed = rand() % 5+2;
-	//	PositionData.AddComponent(Boars[i].GetId(), PositionComponent(glm::vec3(randx*5, randy*5, randy*5)));
-	//	MovementData.AddComponent(Boars[i].GetId(), MovementComponent(glm::vec3(randx, randy, randz),speed,speed));
-	//	HealthData.AddComponent(Boars[i].GetId(), HealthComponent(10));
-	//	DamageData.AddComponent(Boars[i].GetId(), DamageComponent(1));
-	//	CollisionData.AddComponent(Boars[i].GetId(), CollisionComponent(true,vec3(1,1,1)));
-	//}
-	Render.InsertData(vec3(0.5f));
+	std::vector<Entity> Boars;
+	for(int i = 0; i < 100 ; i++)
+	{
+		Entity Actor = EManager.CreateEntity();
+		
+		Boars.emplace_back(Actor);
+		AllEntities.emplace_back(Actor);
+	}
+	for(int i = 0 ; i < Boars.size();i++)
+	{
+		float randx = rand() %10 -5;
+		float randy = rand() %10 ;
+		float randz = rand() %10 -5;
+		float speed = rand() % 5+2;
+		PositionData.AddComponent(Boars[i].GetId(), PositionComponent(glm::vec3(randx*5, randy*5, randy*5)));
+		MovementData.AddComponent(Boars[i].GetId(), MovementComponent(glm::vec3(randx, randy, randz),speed,speed));
+		HealthData.AddComponent(Boars[i].GetId(), HealthComponent(10));
+		DamageData.AddComponent(Boars[i].GetId(), DamageComponent(1));
+		CollisionData.AddComponent(Boars[i].GetId(), CollisionComponent(true,vec3(1,1,1)));
+	}
+//	Render.InsertData(vec3(0.5f));
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	float lastFrame = 0.f;
-	Render.initBinders();
+	//Render.initBinders();
 //	Doormatrix = translate(Doormatrix, vec3(-5, 0, -5));
 	while (!glfwWindowShouldClose(window))
 	{
@@ -193,7 +188,7 @@ int main()
 		
 		shaderProgram.Activate();
 		PositionData.GetComponent(Player.GetId()).SetPosition(glm::vec3(camera.Position.x, camera.Position.y-2, camera.Position.z));
-		Render.DrawActor(shaderProgram, "model", PositionData, AllEntities);
+		//Render.DrawActor(shaderProgram, "model", PositionData, AllEntities);
 		//Handles movement for input actors
 	//	Movement.Update(Deltatime,camera.Position, PositionData, MovementData, Boars);
 		//Box.DrawCube(vec3(100.f,-0.2f,100.f), vec3(1.f), shaderProgram, "model");
@@ -280,7 +275,7 @@ int main()
 		// Take care of all GLFW events
 		glfwPollEvents();
 	}
-	Render.DeleteBinders();
+//	Render.DeleteBinders();
 	shaderProgram.Delete();
 	lightShader.Delete();
 
