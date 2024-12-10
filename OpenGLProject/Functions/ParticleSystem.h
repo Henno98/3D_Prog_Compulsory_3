@@ -1,19 +1,20 @@
 #pragma once
 #include <vector>
-#include "Shaders/ShaderClass.h"
+#include "../Shaders/ShaderClass.h"
 #include "glad/glad.h"
 #include "glm/vec3.hpp"
-#include "Vertex.h"
+#include "../Vertex.h"
 #include "glm/gtc/type_ptr.hpp"
-#include "Shaders/ObjectBinders.h"
+#include "../Shaders/ObjectBinders.h"
 
 
 class ParticleSystem
 {
 public:
     struct Particle {
-        Vertex vertex;      // Particle represented as a Vertex (position, color, normal)
-        glm::vec3 velocity; // Current velocity of the particle
+        glm::vec3 position;      // Particle represented as a Vertex (position, color, normal)
+        glm::vec3 Color; 
+    	glm::vec3 velocity; // Current velocity of the particle
         float lifetime;     // Remaining lifetime of the particle
         bool active;        // If true, particle is active
     };
@@ -37,7 +38,7 @@ public:
     void UpdateParticles(float deltaTime) {
         for (auto& particle : particles) {
             // Apply velocity to position
-            particle.vertex.position += particle.velocity * deltaTime;
+            particle.position += particle.velocity * deltaTime;
 
             // Apply gravity to velocity
             particle.velocity += glm::vec3(0.0f, -9.8f, 0.0f) * deltaTime;
@@ -46,7 +47,7 @@ public:
             particle.lifetime -= deltaTime;
 
             // Respawn if necessary
-            if (particle.lifetime <= 0.0f || particle.vertex.position.y < -10.0f) {
+            if (particle.lifetime <= 0.0f || particle.position.y < -10.0f) {
                 RespawnParticle(particle);
             }
         }
@@ -55,7 +56,7 @@ public:
         std::vector<Vertex> vertices;
         vertices.reserve(particles.size());
         for (const auto& particle : particles) {
-            vertices.push_back(particle.vertex);
+            vertices.emplace_back(particle.position,particle.Color);
         }
 
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -80,8 +81,8 @@ private:
     void InitializeParticles() {
         particles.resize(maxParticles);
         for (auto& particle : particles) {
-            particle.vertex.position = RandomPosition();
-            particle.vertex.Color = glm::vec3(0.0f, 0.5f, 1.0f); // Light blue
+            particle.position = RandomPosition();
+            particle.Color = glm::vec3(0.0f, 0.5f, 1.0f); // Light blue
             particle.velocity = glm::vec3(0.0f, -1.0f, 0.0f);    // Falling velocity
             particle.lifetime = RandomLifetime();
             particle.active = true;
@@ -96,7 +97,7 @@ private:
         glBindVertexArray(VAO);
 
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, particles.size() * sizeof(Vertex), &particles[0].vertex, GL_DYNAMIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, particles.size() * sizeof(Vertex), &particles[0].position, GL_DYNAMIC_DRAW);
 
         Vertex::BindAttributes();
 
@@ -105,7 +106,7 @@ private:
     }
 
     void RespawnParticle(Particle& particle) {
-        particle.vertex.position = RandomPosition(); // Respawn above
+        particle.position = RandomPosition(); // Respawn above
        // particle.vertex.Color = glm::vec3(0.0f, 0.5f, 1.0f); // Reset color
         particle.velocity = glm::vec3(0.0f, -1.0f, 0.0f);    // Reset velocity
         particle.lifetime = RandomLifetime();               // Reset lifetime

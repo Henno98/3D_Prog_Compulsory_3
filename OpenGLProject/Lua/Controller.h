@@ -2,9 +2,9 @@
 
 extern "C"
 {
-#include "Dependencies/includes/lua54/include/lua.h"
-#include "Dependencies/includes/lua54/include/lauxlib.h"
-#include "Dependencies/includes/lua54/include/lualib.h"
+#include "../Dependencies/includes/lua54/include/lua.h"
+#include "../Dependencies/includes/lua54/include/lauxlib.h"
+#include "../Dependencies/includes/lua54/include/lualib.h"
 }
 // Link to lua library
 #ifdef _WIN32
@@ -15,21 +15,14 @@ extern "C"
 #include <string>
 #include <iostream>
 #include <vector>
-#include "Components/EntityManager.h"
-#include "Components/ComponentManager.h"
-#include "Components/PositionComponent.h"
-#include "Components/MeshComponent.h"
-#include "Components/MovementComponent.h"
-#include "Components/HealthComponent.h"
-#include "Components/DamageComponent.h"
-#include "Components/CollisionComponent.h"
+
+#include "../Components/ComponentManager.h"
 
 class Controller {
 private:
     lua_State* L; // Lua state
     EntityManager& EManager;
     std::vector<Entity>& AllEntities;
-
     // Component managers (assumed to exist in your game)
     ComponentManager<PositionComponent>& PositionData;
     ComponentManager<MeshComponent>& MeshData;

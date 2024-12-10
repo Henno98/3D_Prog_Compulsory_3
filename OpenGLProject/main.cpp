@@ -16,7 +16,6 @@
 #include <Eigen/Dense>
 #include "Shaders/ShaderClass.h"
 #include "Camera.h"
-#include "ParticleSystem.h"
 #include "Shaders/Light.h"
 #include "Components/ComponentManager.h"
 #include "Components/EntityManager.h"
@@ -26,7 +25,8 @@
 #include "Functions/SystemManager.h"
 #include "Functions/ActorRenderingSystem.h"
 #include "Functions/AttackCheck.h"
-#include "Controller.h"
+#include "Functions/ParticleSystem.h"
+#include "Lua/Controller.h"
 using namespace std;
 using namespace Eigen;
 using namespace glm;
@@ -145,7 +145,7 @@ int main()
 	
 
 	// Run Lua script to spawn entities
-	controller.RunScript("Lua.lua");
+	controller.RunScript("Lua/Lua.lua");
 	
 	////Making Enemies
 	//std::vector<Entity> Boars;
