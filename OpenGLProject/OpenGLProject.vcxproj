@@ -111,7 +111,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)\OpenGLProject\Dependencies\libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;lua54.lib</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -130,7 +130,6 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)\OpenGLProject\Dependencies\libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;lua54.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -324,8 +323,6 @@
     <None Include="Dependencies\libs\glfw3.dll" />
     <None Include="Light.frag" />
     <None Include="Light.vert" />
-    <None Include="Particle.frag" />
-    <None Include="Particle.vert" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Dependencies\libs\glfw3.lib" />
@@ -333,8 +330,6 @@
     <Library Include="Dependencies\libs\glfw3_mt.lib" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Dependencies\includes\lauxlib.h" />
-    <ClInclude Include="Dependencies\includes\lua.h" />
     <ClInclude Include="Functions\AttackCheck.h" />
     <ClInclude Include="Components\CollisionComponent.h" />
     <ClInclude Include="Components\DamageComponent.h" />

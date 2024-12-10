@@ -6,7 +6,7 @@ class Vertex
 {
 public:
     glm::vec3 position = glm::vec3(0.f);
-    glm::vec3 Color = glm::vec3(1.f);
+    glm::vec3 Color = glm::vec3(0.f, 1.f, 0.f);
     glm::vec3 normal = glm::vec3(0.f);
 
     Vertex() = default;
@@ -18,19 +18,16 @@ public:
     // Bind Vertex Attributes for the shader. Remember to change the shader to accept the corrent attributes
     static void BindAttributes() {
         // Position
-        glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
-        
+        glEnableVertexAttribArray(0);
 
         // Color
-        glEnableVertexAttribArray(1);
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Color));
-        
+        glEnableVertexAttribArray(1);
 
         // Normals
-        glEnableVertexAttribArray(2);
         glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
-       
+        glEnableVertexAttribArray(2);
 
     }
 };

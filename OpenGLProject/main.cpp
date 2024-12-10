@@ -89,7 +89,6 @@ int main()
 
 	// Generates Shader object using shaders defualt.vert and default.frag
 	Shader shaderProgram("default.vert", "default.frag");
-	Shader ParticleShader("Particle.vert", "particle.frag");
 	Light light;
 	// Shader for light cube
 	Shader lightShader("Light.vert", "Light.frag");
@@ -115,7 +114,7 @@ int main()
 	AttackCheck CollisionDetection;
 	ActorRenderingSystem Render;
 
-	ParticleSystem particleSystem(100, glm::vec3(10.0f, 10.0f, 10.0f));
+	ParticleSystem particleSystem(10000, glm::vec3(100.0f, 100.0f, 100.0f));
 
 	//Vector Containing All Actors
 	std::vector<Entity> AllEntities;
@@ -138,25 +137,16 @@ int main()
 	std::vector<Entity> Boars;
 	std::vector<Entity> Particles;
 
-	for(int i = 0; i < 100 ; i++)
-	{
 
-		Entity Particle = EManager.CreateEntity();
-		Particles.emplace_back(Particle);
-		AllEntities.emplace_back(Particle);
 
-	}
-	for(int i = 0; i < Particles.size(); i++)
-	{
-		float randx = rand() % 10 - 5;
-		float randy = rand() % 10;
-		float randz = rand() % 10 - 5;
-		float speed = rand() % 5 + 2;
-		PositionData.AddComponent(Particles[i].GetId(), PositionComponent(glm::vec3(randx * 5, 20, randz * 5)));
-		MeshData.AddComponent(Particles[i].GetId(), MeshComponent(Cube, glm::vec3(0.1f), PositionData.GetComponent(Particles[i].GetId()).GetPosition()));
-		MovementData.AddComponent(Particles[i].GetId(), MovementComponent(Falling, glm::vec3(randx, randy, randz),0.1f,1.f));
+		Entity Platform = EManager.CreateEntity();
+		AllEntities.emplace_back(Platform);
+		PositionData.AddComponent(Platform.GetId(), PositionComponent(glm::vec3(0.f)));
+		MeshData.AddComponent(Platform.GetId(), MeshComponent(Cube, glm::vec3(20.f,0.1f,20.f), PositionData.GetComponent(Platform.GetId()).GetPosition()));
+		MovementData.AddComponent(Platform.GetId(), MovementComponent(Stationary, glm::vec3(0.f),0.1f,1.f));
+		CollisionData.AddComponent(Platform.GetId(), CollisionComponent(true, MeshData.GetComponent(Platform.GetId()).Extent));
 
-	}
+	
 	for(int i = 0; i < 10 ; i++)
 	{
 		Entity Actor = EManager.CreateEntity();
@@ -216,8 +206,7 @@ int main()
 				bool colliding = CollisionDetection.CheckifOverlap(CollisionData, PositionData, AllEntities[i].GetId(), AllEntities[j].GetId());
 				if(colliding == true)
 				{
-					//CollisionDetection.Collision(MovementData, Boars[i].GetId());
-					//cout << "collision happened" << endl;
+					CollisionDetection.Collision(AllEntities[i],AllEntities[j],PositionData,MovementData);
 					if (DamageData.HasComponent(AllEntities[j].GetId()))
 					{
 						if (HealthData.HasComponent(AllEntities[i].GetId())) {

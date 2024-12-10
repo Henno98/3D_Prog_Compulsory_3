@@ -36,8 +36,6 @@ public:
 
     void UpdateParticles(float deltaTime) {
         for (auto& particle : particles) {
-           
-
             // Apply velocity to position
             particle.vertex.position += particle.velocity * deltaTime;
 
@@ -47,17 +45,23 @@ public:
             // Decrease lifetime
             particle.lifetime -= deltaTime;
 
-            // Deactivate or respawn if necessary
+            // Respawn if necessary
             if (particle.lifetime <= 0.0f || particle.vertex.position.y < -10.0f) {
-               RespawnParticle(particle);
+                RespawnParticle(particle);
             }
         }
 
-        // Update GPU buffer with new particle data
+        // Update GPU buffer with new vertex data
+        std::vector<Vertex> vertices;
+        vertices.reserve(particles.size());
+        for (const auto& particle : particles) {
+            vertices.push_back(particle.vertex);
+        }
+
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
-       
-        glBufferSubData(GL_ARRAY_BUFFER, 0, particles.size() * sizeof(Vertex), &particles[0]);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(Vertex), vertices.data());
         glBindBuffer(GL_ARRAY_BUFFER, 0);
+        
     }
 
     void RenderParticles(Shader& shader) {
@@ -74,11 +78,11 @@ public:
 
 private:
     void InitializeParticles() {
-       // particles.resize(maxParticles);
+        particles.resize(maxParticles);
         for (auto& particle : particles) {
             particle.vertex.position = RandomPosition();
-            particle.vertex.Color = glm::vec3(0.0f, 0.5f, 1.0f); // Light blue for rain
-            particle.velocity = glm::vec3(0.0f, -1.0f, 0.0f);    // Falling down
+            particle.vertex.Color = glm::vec3(0.0f, 0.5f, 1.0f); // Light blue
+            particle.velocity = glm::vec3(0.0f, -1.0f, 0.0f);    // Falling velocity
             particle.lifetime = RandomLifetime();
             particle.active = true;
         }
@@ -110,10 +114,11 @@ private:
 
     glm::vec3 RandomPosition() {
         return glm::vec3(
-            static_cast<float>(rand()) / RAND_MAX * spawnArea.x,
-            static_cast<float>(rand()) / RAND_MAX * spawnArea.y,
-            static_cast<float>(rand()) / RAND_MAX * spawnArea.z
+            (static_cast<float>(rand()) / RAND_MAX - 0.5f) * spawnArea.x,
+            (static_cast<float>(rand()) / RAND_MAX) * spawnArea.y, // Only spawn above
+            (static_cast<float>(rand()) / RAND_MAX - 0.5f) * spawnArea.z
         );
+        
     }
 
     float RandomLifetime() {
