@@ -11,6 +11,7 @@
 #include "SizeComponent.h"
 #include "PickUpComponent.h"
 #include "InputComponent.h"
+#include "MeshComponent.h"
 
 struct BaseClass
 {

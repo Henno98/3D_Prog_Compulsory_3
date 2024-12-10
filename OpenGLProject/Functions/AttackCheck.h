@@ -83,30 +83,17 @@ public:
 			
 		}
 	}
-	void PickUpHandler(ComponentManager<PickUpComponent>& pickup, Entity& entity)
+	void SphereCollision()
 	{
-		//Borrowed Code for Ideas
+		
 
-		//switch (pickup.GetComponent()) {
-		//case PickUp::Type::Health:
-		//	std::cout << "Player picked up health: " << pickup.value << "\n";
-		//	// Add health logic here
-		//	break;
-		//case PickUp::Type::Ammo:
-		//	std::cout << "Player picked up ammo: " << pickup.value << "\n";
-		//	// Add ammo logic here
-		//	break;
-		//case PickUp::Type::Points:
-		//	std::cout << "Player picked up points: " << pickup.value << "\n";
-		//	// Add points logic here
-		//	break;
-		//case PickUp::Type::PowerUp:
-		//	std::cout << "Player picked up a power-up!\n";
-		//	// Add power-up logic here
-		//	break;
-		//}
 	}
+	void WallCollision()
+	{
 
+
+
+	}
 
 };
 

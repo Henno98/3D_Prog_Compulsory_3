@@ -133,6 +133,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Controller.cpp" />
     <ClCompile Include="Functions\AttackCheck.cpp" />
     <ClCompile Include="Functions\ActorRenderingSystem.cpp" />
     <ClCompile Include="Components\BaseClass.cpp" />
@@ -323,6 +324,7 @@
     <None Include="Dependencies\libs\glfw3.dll" />
     <None Include="Light.frag" />
     <None Include="Light.vert" />
+    <None Include="Lua.lua" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Dependencies\libs\glfw3.lib" />
@@ -330,6 +332,7 @@
     <Library Include="Dependencies\libs\glfw3_mt.lib" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Controller.h" />
     <ClInclude Include="Functions\AttackCheck.h" />
     <ClInclude Include="Components\CollisionComponent.h" />
     <ClInclude Include="Components\DamageComponent.h" />

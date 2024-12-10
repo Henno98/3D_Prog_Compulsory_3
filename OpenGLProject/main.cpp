@@ -26,7 +26,7 @@
 #include "Functions/SystemManager.h"
 #include "Functions/ActorRenderingSystem.h"
 #include "Functions/AttackCheck.h"
-
+#include "Controller.h"
 using namespace std;
 using namespace Eigen;
 using namespace glm;
@@ -34,6 +34,9 @@ using namespace glm;
 // Window dimensions
 const unsigned int width = 2000;
 const unsigned int height = 1440;
+
+// include Lua, assumes it is local to this file
+
 
 template <typename T>
 struct Bezier
@@ -59,7 +62,11 @@ struct Bezier
 	}
 };
 
+void CreatePlayer()
+{
 
+
+}
 int main()
 {
 	// Initialize GLFW
@@ -93,8 +100,6 @@ int main()
 	// Shader for light cube
 	Shader lightShader("Light.vert", "Light.frag");
 	srand(time(NULL));
-	
-
 
 
 	//Init the Components
@@ -119,6 +124,10 @@ int main()
 	//Vector Containing All Actors
 	std::vector<Entity> AllEntities;
 
+
+	Controller controller(EManager, AllEntities, PositionData, MeshData, MovementData, HealthData, DamageData, CollisionData);
+	controller.RegisterInstance();
+
 	//CreatePlayer
 	Entity Player = EManager.CreateEntity();
 	AllEntities.emplace_back(Player);
@@ -132,41 +141,46 @@ int main()
 	//init camera
 	Camera camera(width, height, glm::vec3(1.f));
 
-	
-	//Making Enemies
-	std::vector<Entity> Boars;
-	std::vector<Entity> Particles;
-
-
-
-		Entity Platform = EManager.CreateEntity();
-		AllEntities.emplace_back(Platform);
-		PositionData.AddComponent(Platform.GetId(), PositionComponent(glm::vec3(0.f)));
-		MeshData.AddComponent(Platform.GetId(), MeshComponent(Cube, glm::vec3(20.f,0.1f,20.f), PositionData.GetComponent(Platform.GetId()).GetPosition()));
-		MovementData.AddComponent(Platform.GetId(), MovementComponent(Stationary, glm::vec3(0.f),0.1f,1.f));
-		CollisionData.AddComponent(Platform.GetId(), CollisionComponent(true, MeshData.GetComponent(Platform.GetId()).Extent));
 
 	
-	for(int i = 0; i < 10 ; i++)
-	{
-		Entity Actor = EManager.CreateEntity();
-		
-		Boars.emplace_back(Actor);
-		AllEntities.emplace_back(Actor);
-	}
-	for(int i = 0 ; i < Boars.size();i++)
-	{
-		float randx = rand() %10 -5;
-		float randy = rand() %10 ;
-		float randz = rand() %10 -5;
-		float speed = rand() % 5+2;
-		PositionData.AddComponent(Boars[i].GetId(), PositionComponent(glm::vec3(randx*5, randy*5, randz*5)));
-		MovementData.AddComponent(Boars[i].GetId(), MovementComponent(Tracking,glm::vec3(randx, randy, randz),speed,speed));
-		HealthData.AddComponent(Boars[i].GetId(), HealthComponent(10));
-		DamageData.AddComponent(Boars[i].GetId(), DamageComponent(1));
-		MeshData.AddComponent(Boars[i].GetId(), MeshComponent(Sphere, vec3(1.f), PositionData.GetComponent(Boars[i].GetId()).GetPosition()));
-		CollisionData.AddComponent(Boars[i].GetId(), CollisionComponent(true,vec3(1,1,1)));
-	}
+
+	// Run Lua script to spawn entities
+	controller.RunScript("Lua.lua");
+	
+	////Making Enemies
+	//std::vector<Entity> Boars;
+	//std::vector<Entity> Particles;
+
+
+
+	//	Entity Platform = EManager.CreateEntity();
+	//	AllEntities.emplace_back(Platform);
+	//	PositionData.AddComponent(Platform.GetId(), PositionComponent(glm::vec3(0.f)));
+	//	MeshData.AddComponent(Platform.GetId(), MeshComponent(Cube, glm::vec3(20.f,0.1f,20.f), PositionData.GetComponent(Platform.GetId()).GetPosition()));
+	//	MovementData.AddComponent(Platform.GetId(), MovementComponent(Stationary, glm::vec3(0.f),0.1f,1.f));
+	//	CollisionData.AddComponent(Platform.GetId(), CollisionComponent(true, MeshData.GetComponent(Platform.GetId()).Extent));
+
+	//
+	//for(int i = 0; i < 10 ; i++)
+	//{
+	//	Entity Actor = EManager.CreateEntity();
+	//	
+	//	Boars.emplace_back(Actor);
+	//	AllEntities.emplace_back(Actor);
+	//}
+	//for(int i = 0 ; i < Boars.size();i++)
+	//{
+	//	float randx = rand() %10 -5;
+	//	float randy = rand() %10 ;
+	//	float randz = rand() %10 -5;
+	//	float speed = rand() % 5+2;
+	//	PositionData.AddComponent(Boars[i].GetId(), PositionComponent(glm::vec3(randx*5, randy*5, randz*5)));
+	//	MovementData.AddComponent(Boars[i].GetId(), MovementComponent(Tracking,glm::vec3(randx, randy, randz),speed,speed));
+	//	HealthData.AddComponent(Boars[i].GetId(), HealthComponent(10));
+	//	DamageData.AddComponent(Boars[i].GetId(), DamageComponent(1));
+	//	MeshData.AddComponent(Boars[i].GetId(), MeshComponent(Sphere, vec3(1.f), PositionData.GetComponent(Boars[i].GetId()).GetPosition()));
+	//	CollisionData.AddComponent(Boars[i].GetId(), CollisionComponent(true,vec3(1,1,1)));
+	//}
 //	Render.InsertData(vec3(0.5f));
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
@@ -182,7 +196,7 @@ int main()
 		lastFrame = currentFrame;
 
 		// Specify the color of the background
-		glClearColor(0.01f, 0.01f, 0.1f, 1.0f);
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		// Clean the back buffer and depth buffer
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		// Tell OpenGL which Shader Program we want to use
@@ -213,7 +227,6 @@ int main()
 							float currenthealt = HealthData.GetComponent(Player.GetId()).GetHealth();
 							float damage = DamageData.GetComponent(AllEntities[j].GetId()).GetDamage();
 							HealthData.GetComponent(Player.GetId()).SetHealth(currenthealt - damage);
-							//cout << "Player took " << DamageData.GetComponent(AllEntities[j].GetId()).GetDamage() << " Damage" << endl;
 						}
 					}
 				}
