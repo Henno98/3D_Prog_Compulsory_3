@@ -63,6 +63,9 @@
     <ClCompile Include="Vertex.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ParticleSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Dependencies\libs\glfw3.dll" />
@@ -508,6 +511,8 @@
     <None Include="Dependencies\Eigen\CholmodSupport" />
     <None Include="Light.vert" />
     <None Include="Light.frag" />
+    <None Include="Particle.vert" />
+    <None Include="Particle.frag" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Dependencies\libs\glfw3.lib" />
@@ -2358,6 +2363,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Vertex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\includes\lua.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\includes\lauxlib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

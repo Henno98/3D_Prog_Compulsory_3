@@ -54,17 +54,18 @@ public:
         try
         {
             return *ComponentArchive[_entityId].front();
+
+         
         }
         catch (const std::exception& e) {
-            // Catch any exception thrown during the execution
-            // of divide function
-            std::cerr << "Exception caught: " << e.what() << std::endl;
-            //return T();
+            std::cerr << "Exception caught in GetComponent: " << e.what() << std::endl;
+            throw; // Optionally rethrow the exception or handle it
         }
     }
 
     bool HasComponent(const int& _entityId)
     {
+       
         return ComponentArchive.find(_entityId) != ComponentArchive.end();
     }
 

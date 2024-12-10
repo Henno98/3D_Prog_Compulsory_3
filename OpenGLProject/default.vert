@@ -20,9 +20,6 @@ uniform mat4 camMatrix;
 // Imports the model matrix from the main function
 uniform mat4 model;
 
-
-
-
 void main()
 {
 	// calculates current position

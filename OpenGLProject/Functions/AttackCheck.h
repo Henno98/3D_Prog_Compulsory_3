@@ -7,11 +7,11 @@ public:
 
 	bool CheckifOverlap(ComponentManager<CollisionComponent>& collisiondata, ComponentManager<PositionComponent>& pos, int Entityone,int Entitytwo)
 	{
-		
+		if (collisiondata.HasComponent(Entitytwo)) {
+			if (collisiondata.HasComponent(Entityone)) {
 			if (collisiondata.GetComponent(Entityone).CheckifHasCollision())
 			{
-				if (collisiondata.HasComponent(Entitytwo)) {
-					if (collisiondata.HasComponent(Entityone)) {
+				
 
 					glm::vec3 a = pos.GetComponent(Entityone).GetPosition();
 					glm::vec3 b = pos.GetComponent(Entitytwo).GetPosition();

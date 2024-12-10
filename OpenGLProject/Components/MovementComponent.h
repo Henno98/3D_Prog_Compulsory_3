@@ -4,7 +4,7 @@ enum MovementType
 {
 	Tracking,
 	Falling,
-	Custom
+	Stationary
 
 };
 

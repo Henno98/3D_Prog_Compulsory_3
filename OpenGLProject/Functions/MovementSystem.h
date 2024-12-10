@@ -11,42 +11,37 @@ public:
    
     float timeelapsed =0;
    
-    void Update(float deltaTime, glm::vec3 direction, ComponentManager<PositionComponent>& pos, ComponentManager<MovementComponent>& speed, std::vector<Entity>& entities)
+    void Update(float deltaTime, glm::vec3 direction, PositionComponent& pos, MovementComponent& speed)
     {
         timeelapsed += deltaTime;
 
-        for (int i = 0; i < entities.size(); i++) {
-            if (speed.HasComponent(entities[i].GetId())) {
-                switch (speed.GetComponent(entities[i].GetId()).GetType())
+       
+            
+                switch (speed.GetType())
                 {
                 case Tracking:
                     if (timeelapsed > 3)
                     {
 
-                        glm::vec3 Direction = direction - pos.GetComponent(entities[i].GetId()).GetPosition();
+                        glm::vec3 Direction = direction - pos.GetPosition();
                         Direction = glm::normalize(Direction);
-                        speed.GetComponent(entities[i].GetId()).SetVelocity(Direction * speed.GetComponent(entities[i].GetId()).GetSpeed());
+                        speed.SetVelocity(Direction * speed.GetSpeed());
 
                     }
-
-                    pos.GetComponent(entities[i].GetId()).SetPosition(
-                        pos.GetComponent(entities[i].GetId()).GetPosition() +=
-                        speed.GetComponent(entities[i].GetId()).GetVelocity() * deltaTime);
-
-
+                    pos.SetPosition(
+                        pos.GetPosition() +=
+                        speed.GetVelocity() * deltaTime);
+                  
                     break;
                 case Falling:
                     break;
-                case Custom:
-                    break;
-
 
                 }
-                if (timeelapsed > 3)
-                    timeelapsed = 0;
-
-            }
-        }
+                
+					if (timeelapsed > 3)
+                        timeelapsed = 0;
+            
+        
     }
 
     glm::mat4 MatrixCalc(glm::vec3 pos)

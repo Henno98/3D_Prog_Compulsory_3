@@ -16,6 +16,7 @@
 #include <Eigen/Dense>
 #include "Shaders/ShaderClass.h"
 #include "Camera.h"
+#include "ParticleSystem.h"
 #include "Shaders/Light.h"
 #include "Components/ComponentManager.h"
 #include "Components/EntityManager.h"
@@ -88,13 +89,15 @@ int main()
 
 	// Generates Shader object using shaders defualt.vert and default.frag
 	Shader shaderProgram("default.vert", "default.frag");
-	
+	Shader ParticleShader("Particle.vert", "particle.frag");
 	Light light;
 	// Shader for light cube
 	Shader lightShader("Light.vert", "Light.frag");
 	srand(time(NULL));
 	
-	
+
+
+
 	//Init the Components
 	EntityManager EManager;
 	ComponentManager<PositionComponent> PositionData;
@@ -112,6 +115,8 @@ int main()
 	AttackCheck CollisionDetection;
 	ActorRenderingSystem Render;
 
+	ParticleSystem particleSystem(100, glm::vec3(10.0f, 10.0f, 10.0f));
+
 	//Vector Containing All Actors
 	std::vector<Entity> AllEntities;
 
@@ -120,31 +125,39 @@ int main()
 	AllEntities.emplace_back(Player);
 	PositionData.AddComponent(Player.GetId(), PositionComponent(glm::vec3(1.f)));
 	MeshData.AddComponent(Player.GetId(), MeshComponent(Cube, vec3(1.f), PositionData.GetComponent(Player.GetId()).GetPosition()));
-	MovementData.AddComponent(Player.GetId(), MovementComponent(Custom, glm::vec3(1.F),2.f,10.f));
+	MovementData.AddComponent(Player.GetId(), MovementComponent(Stationary, glm::vec3(1.f),2.f,10.f));
 	HealthData.AddComponent(Player.GetId(), HealthComponent(20));
 	//DamageData.AddComponent(Player.GetId(), DamageComponent(5));
 	CollisionData.AddComponent(Player.GetId(), CollisionComponent(true, vec3(0.1f)));
 	InputData.AddComponent(Player.GetId(), InputComponent(true));
 	//init camera
 	Camera camera(width, height, glm::vec3(1.f));
-	//create Pit
-	Entity Pit = EManager.CreateEntity();
-		AllEntities.emplace_back(Pit);
-		PositionData.AddComponent(Pit.GetId(), PositionComponent(glm::vec3(-1.f)));
-		CollisionData.AddComponent(Pit.GetId(), CollisionComponent(true, glm::vec3(0.1f)));
-		DamageData.AddComponent(Pit.GetId(), DamageComponent(5.f));
-
-	//Create Pickup
-	Entity HealthPickup = EManager.CreateEntity();
-	AllEntities.emplace_back(HealthPickup);
-	PositionData.AddComponent(HealthPickup.GetId(), PositionComponent(vec3(3.f, 0.f, 2.f)));
-	CollisionData.AddComponent(HealthPickup.GetId(), CollisionComponent(true, vec3(1.f)));
-	PickUpData.AddComponent(HealthPickup.GetId(), PickUpComponent(PickUpComponent::Type::Health, 10));
 
 	
 	//Making Enemies
 	std::vector<Entity> Boars;
+	std::vector<Entity> Particles;
+
 	for(int i = 0; i < 100 ; i++)
+	{
+
+		Entity Particle = EManager.CreateEntity();
+		Particles.emplace_back(Particle);
+		AllEntities.emplace_back(Particle);
+
+	}
+	for(int i = 0; i < Particles.size(); i++)
+	{
+		float randx = rand() % 10 - 5;
+		float randy = rand() % 10;
+		float randz = rand() % 10 - 5;
+		float speed = rand() % 5 + 2;
+		PositionData.AddComponent(Particles[i].GetId(), PositionComponent(glm::vec3(randx * 5, 20, randz * 5)));
+		MeshData.AddComponent(Particles[i].GetId(), MeshComponent(Cube, glm::vec3(0.1f), PositionData.GetComponent(Particles[i].GetId()).GetPosition()));
+		MovementData.AddComponent(Particles[i].GetId(), MovementComponent(Falling, glm::vec3(randx, randy, randz),0.1f,1.f));
+
+	}
+	for(int i = 0; i < 10 ; i++)
 	{
 		Entity Actor = EManager.CreateEntity();
 		
@@ -157,7 +170,7 @@ int main()
 		float randy = rand() %10 ;
 		float randz = rand() %10 -5;
 		float speed = rand() % 5+2;
-		PositionData.AddComponent(Boars[i].GetId(), PositionComponent(glm::vec3(randx*5, randy*5, randy*5)));
+		PositionData.AddComponent(Boars[i].GetId(), PositionComponent(glm::vec3(randx*5, randy*5, randz*5)));
 		MovementData.AddComponent(Boars[i].GetId(), MovementComponent(Tracking,glm::vec3(randx, randy, randz),speed,speed));
 		HealthData.AddComponent(Boars[i].GetId(), HealthComponent(10));
 		DamageData.AddComponent(Boars[i].GetId(), DamageComponent(1));
@@ -191,10 +204,11 @@ int main()
 		PositionData.GetComponent(Player.GetId()).SetPosition(glm::vec3(camera.Position.x, camera.Position.y-2, camera.Position.z));
 		//Render.DrawActor(shaderProgram, "model", PositionData, AllEntities);
 		//Handles movement for input actors
-		Movement.Update(Deltatime,camera.Position, PositionData, MovementData, Boars);
+		
 		//Box.DrawCube(vec3(100.f,-0.2f,100.f), vec3(1.f), shaderProgram, "model");
 		//Movement.RecieveInput(MovementData, InputData, AllEntities, Deltatime, window);
-		
+		particleSystem.UpdateParticles(Deltatime);
+		particleSystem.RenderParticles(shaderProgram);
 		//Checks collision for all entities
 		for(int i = 0; i < AllEntities.size();i++)
 		{
@@ -215,7 +229,12 @@ int main()
 					}
 				}
 			}
-			if(MeshData.HasComponent(AllEntities[i].GetId()))
+			if(MovementData.HasComponent(AllEntities[i].GetId()))
+			{
+				Movement.Update(Deltatime, PositionData.GetComponent(Player.GetId()).GetPosition(), PositionData.GetComponent(AllEntities[i].GetId()), MovementData.GetComponent(AllEntities[i].GetId()));
+
+			}
+			if(MeshData.HasComponent(AllEntities[i].GetId()) && PositionData.HasComponent(AllEntities[i].GetId()))
 			{
 				Render.UpdateMesh(MeshData.GetComponent(AllEntities[i].GetId()), PositionData.GetComponent(AllEntities[i].GetId()));
 				MeshData.GetComponent(AllEntities[i].GetId()).Draw("model", shaderProgram);
@@ -223,10 +242,11 @@ int main()
 			}
 
 		}
+	
 		glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightColor"), light.lightColor.x, light.lightColor.y, light.lightColor.z);
 		glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), light.lightPos.x, light.lightPos.y, light.lightPos.z);
 		// Exports the camera Position to the Fragment Shader for specular lighting
-		glUniform3f(glGetUniformLocation(shaderProgram.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
+		glUniform3f(glGetUniformLocation(shaderProgram.ID, "camMatrix"), camera.Position.x, camera.Position.y, camera.Position.z);
 		camera.Matrix(45.f, 0.1f, 1000.f, shaderProgram, "camMatrix");
 		camera.Inputs(window);
 
@@ -236,6 +256,9 @@ int main()
 		camera.Matrix(45.f, 0.1f, 1000.f, lightShader, "camMatrix");
 		light.CreateLight(vec3(3.f), vec3(1, 1, 1));
 
+		//ParticleShader.Activate();
+		//glUniform3f(glGetUniformLocation(shaderProgram.ID, "camMatrix"), camera.Position.x, camera.Position.y, camera.Position.z);
+	
 
 		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) //left
 		{
